@@ -15,7 +15,7 @@ __PACKAGE__->config(
     debug_file  => $::logDebug ? "$::logPath/main.log" : undef,
     
     dispatcher  => {
-        default                         => 'C::User::default',
+        default                         => 'C::Misc::default',
         
         $::disp{AusweisList}            => 'C::Ausweis::list',
     },

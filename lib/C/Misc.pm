@@ -8,7 +8,7 @@ use warnings;
 sub default {
     my ($self) = @_;
     return if $self->d->{denied};
-    $self->view_select->subtemplate("default.tt");
+    #$self->view_select->subtemplate("default.tt");
 }
 
 1;
