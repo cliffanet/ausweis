@@ -1,0 +1,30 @@
+<div id="form">
+                    <form action="%authenticate.href_login%">
+                        <input type="hidden" name="redirect" value="%authenticate.href_cabinet%" /><table border="0" cellspacing="0" celpadding="0">
+                        <tr><td>
+                            <div class="login_mask" id="logmsk" onClick="javascript:maskClick('log')" style="position:absolute">E-mail</div>
+                            <input type="text" value="" name="email" id="loginp" onfocus="javascript:inpFocus('log')" onblur="javascript:inpBlur('log')" />
+                        </td></tr>
+                        <tr><td>
+                            <div class="login_mask" id="pasmsk" onClick="javascript:maskClick('pas')" style="position:absolute">Пароль</div>
+                            <input type="password" value="" name="password" id="pasinp" onfocus="javascript:inpFocus('pas')" onblur="javascript:inpBlur('pas')"
+                                /><input type="submit" value="" name="" id="submit" title="Вход" />
+                                <div id="form_opt"><input type="checkbox" name="permanent" id="check" value="1" /><a href="">Запомнить меня</a><p><a href="%authenticate.href_password_restore_form%">Забыли пароль?</a><br /><a href="%authenticate.href_register_form%">Регистрация</a></p>
+                            </div>
+                        </td></tr>
+                        </table>
+                    </form>
+                </div>
+<script language="javascript" type="text/javascript">
+    function maskClick(id) {
+        document.getElementById(id+'msk').style.display='none';
+        document.getElementById(id+'inp').focus();
+    }
+    function inpFocus(id) {
+        document.getElementById(id+'msk').style.display='none';
+    }
+    function inpBlur(id) {
+        if (document.getElementById(id+'inp').value == '')
+            document.getElementById(id+'msk').style.display='block';
+    }
+</script>

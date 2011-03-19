@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use FindBin::Real qw(Bin);
+use lib Bin."/../lib";
+$::pathRoot = Bin.'/..';
+
+use base 'Clib::HTTP::CGI';
+
+__PACKAGE__->config(href_prefix => $ENV{SCRIPT_NAME});
+require "$::pathRoot/lib/InitMain.pm"; 
+
+
+#====================================================================================
+    exit 0;
+#====================================================================================
+
+1;

@@ -1,0 +1,187 @@
+<form action="%authenticate.href_register%" method="post">
+    <input type="hidden" name="redirect" value="%redirect%">
+
+<table class="form">
+<tr>
+    <td width="200">
+        Статус:<font color="red"><b>*</b></font><br />
+        %error_is_jurical%
+    </td>
+    <td>
+        <select name="is_jurical"
+            onChange="document.getElementById('jur').style.display = this.value == 1 ? 'inline' : 'none';">
+            <option value="0">Физическое лицо</option>
+            <option value="1">Юридическое лицо</option>
+        </select>
+    </td>
+</tr>
+<tr>
+    <td>
+        Имя:<font color="red"><b>*</b></font><br />
+        %error_name%
+    </td>
+    <td><input type="text" name="name" value="%name%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Фамилия:<font color="red"><b>*</b></font><br />
+        %error_family%
+    </td>
+    <td><input type="text" name="family" value="%family%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Пароль:<font color="red"><b>*</b></font><br />
+        %error_password%
+    </td>
+    <td><input type="password" name="password" value="" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Повторите пароль:<font color="red"><b>*</b></font><br />
+    </td>
+    <td><input type="password" name="pass2" value="" size="70"></td>
+</tr>
+<tr>
+    <td>
+        E-mail (он же - логин):<font color="red"><b>*</b></font><br />
+        %error_email%
+    </td>
+    <td><input type="text" name="email" value="%email%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Телефон 1:<font color="red"><b>*</b></font><br />
+        %error_phone%
+    </td>
+    <td><input type="text" name="phone" value="%phone%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Телефон 2:<br />
+        %error_phone2%
+    </td>
+    <td><input type="text" name="phone2" value="%phone2%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Город:<font color="red"><b>*</b></font><br />
+        %error_city%
+    </td>
+    <td><input type="text" name="city" value="%city%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Адрес:<br />
+        %error_address%
+    </td>
+    <td><input type="text" name="address" value="%address%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Вид деятельности:<br />
+        %error_deyat%
+    </td>
+    <td><input type="text" name="deyat" value="%deyat%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Коментарии:<br />
+        %error_comment%
+    </td>
+    <td><input type="text" name="comment" value="%comment%" size="70"></td>
+</tr>
+</table>
+
+
+<table class="form" id="jur" style="display: none;">
+<tr>
+    <td width="200">
+        Название организации:<br />
+        %error_jur_name%
+    </td>
+    <td><input type="text" name="jur_name" value="%jur_name%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Юридический адрес организации:<br />
+        %error_jur_address%
+    </td>
+    <td><input type="text" name="jur_address" value="%jur_address%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        ИНН:<br />
+        %error_jur_inn%
+    </td>
+    <td><input type="text" name="jur_inn" value="%jur_inn%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Расчетный счет:<br />
+        %error_jur_rs%
+    </td>
+    <td><input type="text" name="jur_rs" value="%jur_rs%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Корреспонденский счет:<br />
+        %error_jur_ks%
+    </td>
+    <td><input type="text" name="jur_ks" value="%jur_ks%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        КПП:<br />
+        %error_jur_kpp%
+    </td>
+    <td><input type="text" name="jur_kpp" value="%jur_kpp%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Наименование банка:<br />
+        %error_jur_bank%
+    </td>
+    <td><input type="text" name="jur_bank" value="%jur_bank%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        Адрес банка:<br />
+        %error_jur_bankaddr%
+    </td>
+    <td><input type="text" name="jur_bankaddr" value="%jur_bankaddr%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        БИК:<br />
+        %error_jur_bik%
+    </td>
+    <td><input type="text" name="jur_bik" value="%jur_bik%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        ФИО генерального директора:<br />
+        %error_jur_gendir%
+    </td>
+    <td><input type="text" name="jur_gendir" value="%jur_gendir%" size="70"></td>
+</tr>
+<tr>
+    <td>
+        ФИО главного бухгалтера:<br />
+        %error_jur_glavbuh%
+    </td>
+    <td><input type="text" name="jur_glavbuh" value="%jur_glavbuh%" size="70"></td>
+</tr>
+</table>
+
+<table class="form">
+<tr>
+    <td colspan="2" class="submit">
+        <small><font color="red"><b>*</b></font> - обязательные поля.</small>
+        <br />
+        <input type="submit" value=" Зарегистрироваться ">
+    </td>
+</tr>
+</table>
+
+</form>
