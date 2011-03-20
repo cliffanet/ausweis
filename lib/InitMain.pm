@@ -75,8 +75,19 @@ sub http_accept {
         IS_DEVEL=> $::isDevel ? 1 : 0,
         ip      => $ENV{REMOTE_ADDR},
         
+        blk     => {
+            list        => sub {
+                $self->d->{blk}->{_list} ||= [
+                    map { $self->ToHtml($_) }
+                    $self->model('Blok')->search({}, { order_by => 'name' })
+                ];
+            },
+        },
         cmd     => {
             href_list   => $self->href($::disp{CommandList}),
+            list        => sub {
+                $self->d->{cmd}->{_list} ||= C::Command::search($self, {}, 'name');
+            },
         },
         aus     => {
             href_list   => $self->href($::disp{AusweisList}),

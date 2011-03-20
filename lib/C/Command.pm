@@ -22,6 +22,23 @@ sub _item {
     return $item;
 }
 
+sub search {
+    my ($self, $srch, $order) = @_;
+    
+    return [
+        map { 
+                my $item = _item($self, $_);
+                $item;
+        }
+        $self->model('Command')->search(
+            $srch,
+            { 
+                order_by => $order,
+            }
+        )
+    ];
+}
+
 
 sub list {
     my ($self) = @_;
@@ -36,18 +53,23 @@ sub list {
     $self->d->{sort}->{href_template} = $self->href($::disp{CommandList})."?sort=%s";
     my $sort = $self->req->param_str('sort');
     
-    $cmd->{list} = [
-        map { 
-                my $item = _item($self, $_);
-                $item;
-        }
-        $self->model('Command')->search(
-            { },
-            { 
-                order_by => $self->sort($sort || 'name'),
-            }
-        )
-    ];
+    my $q = $self->req;
+    my $f = {
+        cmdid   => $q->pram_dig('cmdid'),
+        blkid   => $q->pram_dig('blkid'),
+        name    => $q->param_str('name'),
+    };
+    my $srch = {};
+    $srch->{id} = $f->{cmdid} if $f->{cmdid};
+    $srch->{blkid} = $f->{blkid} if $f->{blkid};
+    if ($f->{name}) {
+        $f->{name} =~ s/%/%%/g;
+        $srch->{name} = { LIKE => $f->{name} };
+    }
+    
+    $self->d->{srch} = $self->ToHtml($f);
+    
+    $cmd->{list} = search($self, $srch, $self->sort($sort || 'name'));
 }
 
 
