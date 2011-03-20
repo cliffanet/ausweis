@@ -96,7 +96,7 @@ sub list {
                 prefetch => 'blok',
                 order_by => $self->sort($sort || 'name'),
             },
-            $self->pager($page, 3),
+            $self->pager($page, 100),
         )
     ] if $srch_url;
     $self->d->{list} ||= 0;
