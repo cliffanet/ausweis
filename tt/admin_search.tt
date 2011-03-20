@@ -1,14 +1,5 @@
 <!-- Поиск -->
-<table class="frame" cellspacing="0" cellpadding="0">
-<tr>
-    <td class="c1">&nbsp;</td>
-    <td class="title">// Поиск</td>
-    <td class="c2">&nbsp;</td>
-</tr>
-<tr>
-    <td class="c3">&nbsp;</td>
-    <td class="content">
-
+<h3>Поиск</h3>
 <form action="[% admin.href_search %]" method="GET">
 <table class="tbl">
     <tr>
@@ -27,7 +18,9 @@
             </select>
         </td>
     </tr>
-    <tr><td colspan="2" class="submit"> <input type="image" src="/images/btn_srch.gif" class="img"> </td></tr>
+    <tr><td colspan="2" class="submit">
+        <input type="submit" value="Искать">
+    </td></tr>
 </table>
 </form>
 
@@ -61,27 +54,10 @@
     </td></tr>
 </table>
 [% END %]
-
-    </td>
-    <td class="c4">&nbsp</td>
-</tr>
-<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
-</table>
-
 <br />
 
 <!-- Добавление -->
-<form action="[% admin.href_new %]" method="post">
-<table class="frame" cellspacing="0" cellpadding="0">
-<tr>
-    <td class="c1">&nbsp;</td>
-    <td class="title">// Добавить администратора</td>
-    <td class="c2">&nbsp;</td>
-</tr>
-<tr>
-    <td class="c3">&nbsp;</td>
-    <td class="content">
-
+<h3>Добавить администратора</h3>
 <table class="tbl">
 <tr>
     <td class="ltitle">Логин:</td>
@@ -107,13 +83,6 @@
             </select>
     </td>
 </tr>
-<tr><td colspan="2" class="submit"> <input type="image" src="/images/btn_add.gif" class="img"[% admin.edit_disabled %]> </td></tr>
+<tr><td colspan="2" class="submit"> <input type="submit" value="Изменить"[% admin.edit_disabled %]> </td></tr>
 </table>
-
-    </td>
-    <td class="c4">&nbsp</td>
-</tr>
-<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
-</table>
-
 </form>
