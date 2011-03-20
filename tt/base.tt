@@ -55,7 +55,7 @@
 <tr>
     <td width="200">
 
-[% IF !denied %]
+[%# IF !denied %]
 <!-- Авторизация -->
     <div class="auth">
 [% IF authenticate.uid %]
@@ -67,7 +67,7 @@
 [% END %]
     </div>
 <!-- // Авторизация -->
-[% END # IF !denied %]
+[%# END # IF !denied %]
 
     </td>
     <td>
