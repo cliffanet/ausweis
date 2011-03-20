@@ -1,0 +1,2 @@
+<a href="[% sort.href(field) %]">[% name %]</a>
+[% IF sort.field == field %]<img src="/images/sort_[% IF sort.reverse %]down[% ELSE %]up[% END %].gif" border="0">[% END %]
