@@ -32,6 +32,7 @@ __PACKAGE__->config(
         type    => 1,
         field_passnew   => 'pn',
         field_password2 => 'p2',
+        link_group => 'group',
         
         #handler_login_ok        => \&C::Misc::login_ok,
         handler_login_er        => \&C::Misc::login_er,
