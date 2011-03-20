@@ -66,7 +66,7 @@ sub list {
     
     my $srch_url = 
         join('&',
-            (map { $_.'='.$self->ToUrl($f->{$_}) }
+            (map { $_.'='.Clib::Mould->ToUrl($f->{$_}) }
             grep { $f->{$_} } keys %$f));
     $srch_url ||= '';
     
