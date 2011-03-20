@@ -74,9 +74,11 @@ sub list {
     
     
     
-    $self->d->{sort}->{href_template} = $self->href($::disp{CommandList})."?".
-        join('&', $srch_url, 'sort=%s');
-    $self->debug("sort url: %s", $self->d->{sort}->{href_template});
+    $self->d->{sort}->{href_template} = sub {
+        my $sort = shift;
+        return $self->href($::disp{CommandList})."?".
+                join('&', $srch_url, "sort=$sort");
+    };
     my $sort = $self->req->param_str('sort');
 
     $self->d->{pager}->{href} ||= sub {
