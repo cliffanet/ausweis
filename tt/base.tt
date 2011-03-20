@@ -53,11 +53,11 @@
 </tr>
 
 [% IF authenticate.uid %]
-                    <!-- Заголовок -->
-    <h1>[% IF IS_DEVEL %][DEVELOPER] [% END %]Аусвайсы - [% TITLE %]</h1>
 
 <tr>
     <td width="200" valign="top">
+                    <!-- Заголовок -->
+    <h1>[% IF IS_DEVEL %][DEVELOPER] [% END %]Аусвайсы - [% TITLE %]</h1>
 
 [% IF !denied %]
 <!-- Авторизация -->
