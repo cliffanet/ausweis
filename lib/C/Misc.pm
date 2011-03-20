@@ -12,6 +12,12 @@ sub default {
     #$self->view_select->subtemplate("default.tt");
 }
 
+sub login_er {
+    my ($self, $login, $sub_state) = @_;
+    $self->Clib::Plugin::Authenticate::Controller::login_form();
+    $self->d->{auth_failed} = $sub_state || -1;
+}
+
 
 sub password_change_ok {
     my ($self, $login) = @_;

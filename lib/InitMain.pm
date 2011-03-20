@@ -34,11 +34,11 @@ __PACKAGE__->config(
         field_password2 => 'p2',
         
         #handler_login_ok        => \&C::Misc::login_ok,
-        #handler_login_er        => \&C::Misc::login_er,
+        handler_login_er        => \&C::Misc::login_er,
         handler_password_change_ok => \&C::Misc::password_change_ok,
     },
     admin_edit  => {
-        view_select             => 'Admin',
+        view_select             => 'Main',
         href_adminedit_redirect => 'admin/list',
         href_groupedit_redirect => 'admin/group_list',
     },
