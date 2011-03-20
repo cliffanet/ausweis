@@ -29,13 +29,12 @@ __PACKAGE__->config(
     session     => { model => 'UserSession', auto_create => 0 },
 
     authenticate=> {
-        model   => 'UserList',
-        type    => 1,
-        field_passnew   => 'pn',
-        field_password2 => 'p2',
-        link_group      => 'group',
         model           => 'UserList',
         model_group     => 'UserGroup',
+        link_group      => 'group',
+        type            => 1,
+        field_passnew   => 'pn',
+        field_password2 => 'p2',
         
         #handler_login_ok        => \&C::Misc::login_ok,
         handler_login_er        => \&C::Misc::login_er,

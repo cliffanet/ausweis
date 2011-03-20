@@ -2,10 +2,17 @@
 
 use strict;
 use warnings;
-use FindBin::Real qw(Bin);
-use lib Bin."/../lib";
-$::pathRoot = Bin.'/..';
 
+BEGIN {
+    $::pathRoot = $0;
+    $::pathRoot =~ s/\/+/\//g;
+    $::pathRoot =~ s/[^\/]+$//;
+    if ($::pathRoot !~ s/\/[^\/]+\/$//) {
+        $::pathRoot .= '..';
+    }
+};
+
+use lib "$::pathRoot/lib";
 use base 'Clib::HTTP::CGI';
 
 __PACKAGE__->config(href_prefix => $ENV{SCRIPT_NAME});
