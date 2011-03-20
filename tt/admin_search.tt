@@ -83,6 +83,6 @@
             </select>
     </td>
 </tr>
-<tr><td colspan="2" class="submit"> <input type="submit" value="Изменить"[% admin.edit_disabled %]> </td></tr>
+<tr><td colspan="2" class="submit"> <input type="submit" value="Добавить"[% admin.edit_disabled %]> </td></tr>
 </table>
 </form>

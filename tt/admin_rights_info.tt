@@ -1,13 +1,4 @@
-<table class="frame" cellspacing="0" cellpadding="0">
-<tr>
-    <td class="c1">&nbsp;</td>
-    <td class="title">// Права</td>
-    <td class="c2">&nbsp;</td>
-</tr>
-<tr>
-    <td class="c3">&nbsp;</td>
-    <td class="content">
-
+<h3>Права</h3>
 <table class="tbl">
 [% FOREACH ritem = rights_list %]
     [% IF ritem %]
@@ -19,12 +10,6 @@
     <tr><td colspan="2">&nbsp;</td></tr>
     [% END %]
 [% END %]
-</table>
-
-    </td>
-    <td class="c4">&nbsp</td>
-</tr>
-<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
 </table>
 
 <br />

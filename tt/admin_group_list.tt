@@ -30,6 +30,6 @@
     <td class="ltitle">Название группы:</td>
     <td><input type="text" name="name" class="stdin" value=""[% admin_group.edit_readonly %]></td>
 </tr>
-<tr><td colspan="2" class="submit"> <input type="submit" value="Добавить" class="img"[% admin_group.edit_disabled %]> </td></tr>
+<tr><td colspan="2" class="submit"> <input type="submit" value="Добавить"[% admin_group.edit_disabled %]> </td></tr>
 </table>
 </form>

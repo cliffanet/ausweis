@@ -1,14 +1,5 @@
 <form action="[% user.href_set %]" method="post">
-<table class="frame" cellspacing="0" cellpadding="0">
-<tr>
-    <td class="c1">&nbsp;</td>
-    <td class="title">// Инфо</td>
-    <td class="c2">&nbsp;</td>
-</tr>
-<tr>
-    <td class="c3">&nbsp;</td>
-    <td class="content">
-
+<h3>Инфо</h3>
 <table class="tbl">
 <tr>
     <td class="ltitle">Логин:</td>
@@ -52,18 +43,11 @@
 </tr>
 <tr>
     <td class="submit" colspan="2">
-        <input type="image" class="img" src="/images/btn_save.gif"[% user.edit_disabled %]>
-        <a href="javascript:history.go(-1);"><img src="/images/btn_cancel.gif" border="0"></a>
+        <input type="submit" value="Сохранить"[% user.edit_disabled %]>
+        <input type="button" value="Отмена" onClick="history.go(-1)">
     </td>
 </tr>
 </table>
-
-    </td>
-    <td class="c4">&nbsp</td>
-</tr>
-<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
-</table>
-
 
 <br />
 
@@ -74,5 +58,5 @@
 <br />
 <a href="[% user.href_delete %]"[% user.edit_disabled %]
     onClick="return confirm('Удаление Администратора: [% user.login %]\nПродолжать?');"
-    ><img src="/images/btn_del.gif" class="del"></a>
+    >удалить</a>
 
