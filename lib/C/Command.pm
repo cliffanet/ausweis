@@ -23,23 +23,6 @@ sub _item {
     return $item;
 }
 
-sub search {
-    my ($self, $srch, $order) = @_;
-    
-    return [
-        map { 
-                my $item = _item($self, $_);
-                $item;
-        }
-        $self->model('Command')->search(
-            $srch,
-            { 
-                order_by => $order,
-            }
-        )
-    ];
-}
-
 
 sub list {
     my ($self) = @_;

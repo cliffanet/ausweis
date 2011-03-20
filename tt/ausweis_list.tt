@@ -1,0 +1,67 @@
+<!-- Поиск -->
+<h3>Поиск</h3>
+<form action="[% aus.href_list %]" method="GET">
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Ник:</td>
+        <td><input type="text" name="nick" class="stdin" value="[% srch.nick %]"></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Команда:</td>
+        <td>
+            <select name="cmdid" class="stdin">
+                <option value="0"> &lt;- любой -&gt; </option>
+[% FOREACH cmd.list %]
+                <option value="[% id %]"[% IF srch.cmdid == id %] selected[% END %]>[% name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блок:</td>
+        <td>
+            <select name="blkid" class="stdin">
+                <option value="0"> &lt;- любой -&gt; </option>
+[% FOREACH blk.list %]
+                <option value="[% id %]"[% IF srch.blkid == id %] selected[% END %]>[% name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr><td colspan="2" class="submit">
+        <input type="submit" value="Искать">
+    </td></tr>
+</table>
+</form>
+
+[% IF list %]
+<h3>Результаты</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="200">[% INCLUDE 'sort.tt' field='nick', name='Ник' %]</td>
+        <td width="200">[% INCLUDE 'sort.tt' field='command.name', name='Команда' %]</td>
+        <td width="200">[% INCLUDE 'sort.tt' field='blok.name', name='Блок' %]</td>
+        <td></td>
+    </tr>
+[% IF list.size > 0 %]
+    <tr><td colspan="4">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+[% FOREACH list %]
+    <tr>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td><a title="Фильтр по команде" alt="Фильтр по команде" href="[% aus.href_list %]?cmdid=[% cmdid %]">[% command.name %]</a></td>
+        <td>[% IF blok.id %]<a title="Фильтр по блоку" alt="Фильтр по блоку" href="[% aus.href_list %]?blkid=[% blkid %]">[% blok.name %]</a>[% END %]</td>
+        <td></td>
+    </tr>
+[% END %]
+    <tr><td colspan="3">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+[% ELSE %]
+    <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+        ничего не найдено
+    </td></tr>
+[% END %]
+</table>
+[% END %]

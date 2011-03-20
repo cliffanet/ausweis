@@ -86,7 +86,10 @@ sub http_accept {
         cmd     => {
             href_list   => $self->href($::disp{CommandList}),
             list        => sub {
-                $self->d->{cmd}->{_list} ||= C::Command::search($self, {}, 'name');
+                $self->d->{cmd}->{_list} ||= [
+                    map { C::Command::_item($self, $_); }
+                    $self->model('Command')->search({},{order_by=>'name'})
+                ];
             },
         },
         aus     => {
