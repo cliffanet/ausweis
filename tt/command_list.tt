@@ -1,0 +1,55 @@
+<!-- Поиск -->
+<h3>Поиск</h3>
+<form action="[% admin.href_search %]" method="GET">
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:</td>
+        <td><input type="text" name="name" class="stdin" value="[% srch.name %]"></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блок: &nbsp;</td>
+        <td>
+            <select name="blk.id" class="stdin">
+                <option value="0"> &lt;- выбрать -&gt; </option>
+[% FOREACH blk.list(srch.blk.id) %]
+                <option value="[% id %]"[% selected %]>[% name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr><td colspan="2" class="submit">
+        <input type="submit" value="Искать">
+    </td></tr>
+</table>
+</form>
+
+[% IF list %]
+<table class="tbl">
+    <tr class="title">
+        <td width="50">[% INCLUDE 'sort.tt' field='id', name='ID' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='login', name='Логин' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='gid', name='Группа' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='family', name='Фамилия' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='name', name='Имя' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='otch', name='Отчество' %]</td>
+        <td>[% INCLUDE 'sort.tt' field='phone', name='Телефон' %]</td>
+    </tr>
+    <tr><td colspan="7">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+[% FOREACH user = data.user_list %]
+    <tr>
+        <td align="right">[% user.id %].</td>
+        <td><a title="Просмотр информации о пользователе" alt="Просмотр информации о пользователе" href="[% user.href_info %]">[% user.login %]</a></td>
+        <td><a title="Просмотр информации о группе " alt="Просмотр информации о группе" href="[% d.group.${user.gid}.href_info %]">[% d.group.${user.gid}.name %]</a></td>
+        <td>[% user.family %]</td>
+        <td>[% user.name %]</td>
+        <td>[% user.otch %]</td>
+        <td>[% user.phone %]</td>
+    </tr>
+[% END %]
+    <tr><td colspan="7">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+</table>
+[% END %]
