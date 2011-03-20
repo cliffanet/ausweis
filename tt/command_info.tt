@@ -21,7 +21,7 @@
 [% IF ausweis.size > 0 %]
 [% FOREACH ausweis %]
     <tr>
-        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% name %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
         <td></td>
     </tr>
 [% END %]
