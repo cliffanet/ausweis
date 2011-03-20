@@ -45,7 +45,7 @@
 [% INCLUDE 'pager.tt' %]
     </td></tr>
 [% ELSE %]
-    <tr><td colspan="3" height="50" align="center" valign="middle">
+    <tr><td colspan="3" style="height:50px;align:center;vertial-align:middle;">
         ничего не найдено
     </td></tr>
 [% END %]
