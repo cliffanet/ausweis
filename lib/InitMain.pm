@@ -89,6 +89,39 @@ sub http_accept {
              { config => $self->config, config_static => $self->{_config_static}, config_mysql => $self->{_config_mysql}  }, )) 
         },
     );
+    
+    # Меню администратора
+    my $i = 0;
+    $self->d->{menu} = [
+        map {
+            my ($title, @m) = @$_;
+            my ($last_is_item, @menu);
+            foreach my $item (@m) {
+                my $is_item = $item && $item->[0];
+                if ($is_item && defined($item->[2])) {
+                    my $r = ref($item->[2]) eq 'CODE' ? $item->[2]->($self) : $item->[2];
+                    $r || next;
+                }
+                if ($is_item) {
+                    push @menu, {
+                        is_item => 1,
+                        text    => $item->[0],
+                        href    => ref($item->[1]) eq 'CODE' ? $item->[1]->($self) : $item->[1]
+                    };
+                    $last_is_item = 1;
+                }
+                elsif ($last_is_item) {
+                    push @menu, { is_item => 0 };
+                    $last_is_item = 0;
+                }
+            }
+            pop @menu if @menu && !$menu[@menu-1]->{is_item};
+            { i => ++$i, title => $title, list => \@menu };
+        }
+        @rights::AdminMenu
+    ];
+    
+    
 }
 
 
