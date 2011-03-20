@@ -10,7 +10,7 @@
     <title>Airsoftclub.ru страйкбол :: [% IF IS_DEVEL %] [DEVELOPER][% END %]: АУСВАЙСЫ :: [% TITLE %]</title>
 <body>
 
-<table class="main" cellspacing="1" cellpadding="0">
+<table class="main" cellspacing="0" cellpadding="0">
 <tr>
     <td colspan="2" class="head">
 
