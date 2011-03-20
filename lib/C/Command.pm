@@ -86,17 +86,17 @@ sub list {
     my $page = $self->req->param_dig('page') || 1;
     
     $self->d->{list} = [
-        map { 
+        map {
                 my $item = _item($self, $_);
                 $item;
         }
         $self->model('Command')->search(
             $srch,
-            { 
+            {
                 prefetch => 'blok',
                 order_by => $self->sort($sort || 'name'),
-                $self->pager($page, 3),
-            }
+            },
+            $self->pager($page, 3),
         )
     ] if $srch_url;
     $self->d->{list} ||= 0;
