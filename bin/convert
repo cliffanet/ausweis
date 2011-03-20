@@ -45,7 +45,7 @@ $self->model('Blok')->recreate();
 my $sth = $self->model('Blok')->create([qw/name/]);
 foreach (<FH>) {
     my ($name) = map { field($_) } (split /;/);
-    if ($name eq 'Нет') {
+    if (($name eq 'Нет') || !$name) {
         $blok{$name} = 0;
         next;
     }
@@ -70,7 +70,7 @@ $self->model('Command')->recreate();
 my $sth = $self->model('Command')->create([qw/name/]);
 foreach (<FH>) {
     my ($name) = map { field($_) } (split /;/);
-    if ($name eq 'Нет') {
+    if (($name eq 'Нет') || !$name) {
         $command{$name} = 0;
         next;
     }
