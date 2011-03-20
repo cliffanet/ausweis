@@ -102,7 +102,7 @@
     </td>
     <td valign="top">
                     <!-- Заголовок -->
-    <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %]Аусвайсы - [% TITLE %]</div>
+    <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %][% TITLE %]</div>
                     <!-- Контент -->
 [% IF subtemplate %][% INCLUDE $subtemplate %][% END %]
                     <!-- Конец контента -->
