@@ -10,7 +10,7 @@
     <title>Airsoftclub.ru страйкбол :: [% IF IS_DEVEL %] [DEVELOPER][% END %]: АУСВАЙСЫ :: [% TITLE %]</title>
 <body>
 
-<div id="outer">
+<!-- div id="outer" -->
 
     <div id="header">
     <div id="logo"><a href="http://airsoftclub.ru/"><img src="http://airsoftclub.ru/i2/logo.jpg" width="178" height="143" alt="#" border="0"></a></div>
@@ -51,7 +51,7 @@
                     <!-- Заголовок -->
     <h1>[% IF IS_DEVEL %][DEVELOPER] [% END %]Аусвайсы - [% TITLE %]</h1>
 
-<table border="0"  width="1000" height="400" cellpadding="0" cellspacing="0">
+<table border="1"  width="1000" height="400" cellpadding="0" cellspacing="0">
 <tr>
     <td width="200" valign="top">
 
