@@ -87,7 +87,7 @@
                         <td>
                             <div class="menu_blok_content">
         [% FOREACH list %]
-            [% IF is_item %]<li><a href="[% href %]">[% text %]</a></li>[% END %]<br />
+            [% IF is_item %]<a href="[% href %]">[% text %]</a>[% END %]<br />
         [%- END %]
                             </div>
                         </td>
