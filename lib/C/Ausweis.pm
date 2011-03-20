@@ -15,6 +15,7 @@ sub _item {
     
     if ($id) {
         # —сылки
+        $item->{href_info}       = $self->href($::disp{AusweisShow}, $item->{id}, 'info');
         #$item->{href_del}       = $self->href($::disp{AusweisDel}, $item->{id});
         #$item->{href_delete}    = $self->href($::disp{AusweisDel}, $item->{id});
     }
@@ -48,6 +49,24 @@ sub list {
             }
         )
     ];
+}
+
+
+sub show {
+    my ($self, $id, $type) = @_;
+
+    return unless $self->rights_exists_event($::rAusweisInfo);
+    
+    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
+    
+    my ($rec) = (($self->d->{rec}) = 
+        map { _item($self, $_) }
+        $self->model('Ausweis')->search({ id => $id }, { prefetch => [qw/command blok/] }));
+    $rec || return $self->state(-000105);
+    
+    $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{name}));
+    $self->view_select->subtemplate("ausweis_$type.tt");
+    
 }
 
 
