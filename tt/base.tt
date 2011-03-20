@@ -84,9 +84,9 @@
                     onClick="document.getElementById('dpre').style.display = document.getElementById('dpre').style.display == 'none' ? 'inline' : 'none'"
                     >debug</a>
                 [% END %]
-                <font color="white">developing by Cliff / Time: [% SCRIPT_TIME %] ([% RUNCOUNT %])</font>
+                <span class="hidecopy">developing by Cliff / Time: [% SCRIPT_TIME %] ([% RUNCOUNT %])</span>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                ver. [% version %] &copy;2009 Cliff.&nbsp;&nbsp;
+                ver. [% version %] &copy;2011 Cliff.&nbsp;&nbsp;
             </td>
           </tr>
 
