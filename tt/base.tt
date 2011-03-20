@@ -91,6 +91,15 @@
           </tr>
 
 </table>
+
+[% IF IS_DEVEL %]
+<div id="dpre" style="display: none">
+<pre>
+[% PRE %]
+</pre>
+</div>
+[% END %]
+
 [% ELSE # authenticate.uid %]
                     <!-- Заголовок -->
                     <h1>[% IF IS_DEVEL %][DEVELOPER] [% END %]Требуется авторизация</h1>
