@@ -10,6 +10,9 @@
     <title>Airsoftclub.ru страйкбол :: [% IF IS_DEVEL %] [DEVELOPER][% END %]: АУСВАЙСЫ :: [% TITLE %]</title>
 <body>
 
+<table class="main">
+<tr>
+    <td colspan="2">
 <!-- div id="outer" -->
 
     <div id="header">
@@ -46,13 +49,13 @@
 <!-- // Статус выполненной операции -->
 [% END %]
 
+    </td>
+</tr>
 
 [% IF authenticate.uid %]
                     <!-- Заголовок -->
     <h1>[% IF IS_DEVEL %][DEVELOPER] [% END %]Аусвайсы - [% TITLE %]</h1>
 
-<table border="1"  width="1000" height="400" cellpadding="0" cellspacing="0" 
-    style="padding:0; margin:0">
 <tr>
     <td width="200" valign="top">
 
@@ -112,31 +115,9 @@
                     <!-- Конец контента -->
     </td>
 </tr>
-          <!-- Белая нижняя строчка copiryghts -->
-          <tr>
-            <td height="20" class="footer_copy" colspan="2">
-                [% IF IS_DEVEL %]
-                <a href="javascript:void();"
-                    onClick="document.getElementById('dpre').style.display = document.getElementById('dpre').style.display == 'none' ? 'inline' : 'none'"
-                    >debug</a>
-                [% END %]
-                <span class="hidecopy">developing by Cliff / Time: [% SCRIPT_TIME %] ([% RUNCOUNT %])</span>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                ver. [% version %] &copy;2011 Cliff.&nbsp;&nbsp;
-            </td>
-          </tr>
-
-</table>
-
-[% IF IS_DEVEL %]
-<div id="dpre" style="display: none">
-<pre>
-[% PRE %]
-</pre>
-</div>
-[% END %]
-
 [% ELSE # authenticate.uid %]
+<tr>
+    <td colspan="2">
                     <!-- Заголовок -->
                     <h1>[% IF IS_DEVEL %][DEVELOPER] [% END %]Требуется авторизация</h1>
                     <br />
@@ -161,7 +142,34 @@
                     </td></tr>
                     </table>
                     <!-- Конец контента -->
+    </td>
+</tr>
 [% END # authenticate.uid %]
+
+          <!-- Белая нижняя строчка copiryghts -->
+          <tr>
+            <td height="20" class="footer_copy" colspan="2">
+                [% IF IS_DEVEL %]
+                <a href="javascript:void();"
+                    onClick="document.getElementById('dpre').style.display = document.getElementById('dpre').style.display == 'none' ? 'inline' : 'none'"
+                    >debug</a>
+                [% END %]
+                <span class="hidecopy">developing by Cliff / Time: [% SCRIPT_TIME %] ([% RUNCOUNT %])</span>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                ver. [% version %] &copy;2011 Cliff.&nbsp;&nbsp;
+            </td>
+          </tr>
+
+</table>
+
+[% IF IS_DEVEL %]
+<div id="dpre" style="display: none">
+<pre>
+[% PRE %]
+</pre>
+</div>
+[% END %]
+
 
 
 <!-- Time: [% SCRIPT_TIME %] ([% RUNCOUNT %]) -->
