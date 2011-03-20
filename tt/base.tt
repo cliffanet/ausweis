@@ -30,7 +30,7 @@
     [% END %]
 
 
-[%# IF session_state.code %]
+[% IF session_state.code %]
 <!--  Статус выполненного -->
 <script type="text/javascript">
 <!--
@@ -50,7 +50,7 @@
 [% END %]
 [% session_state.set_null %]
 <!-- // Статус выполненной операции -->
-[%# END %]
+[% END %]
 
     </td>
 </tr>
