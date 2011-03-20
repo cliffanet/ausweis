@@ -14,13 +14,13 @@
 <tr>
     <td colspan="2">
 
-<div id="outer">
+<!--div id="outer"-->
     <div id="header">
     <div id="logo"><a href="http://airsoftclub.ru/"><img src="http://airsoftclub.ru/i2/logo.jpg" width="178" height="143" alt="#" border="0"></a></div>
     </div>
 
     <div class="clear"><!-- --></div>
-</div>
+<!--/div-->
 
     [% IF IS_DEVEL %]
         <center>TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST
