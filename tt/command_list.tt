@@ -7,12 +7,12 @@
         <td><input type="text" name="name" class="stdin" value="[% srch.name %]"></td>
     </tr>
     <tr>
-        <td class="ltitle">Блок: [% srch.blkid %]</td>
+        <td class="ltitle">Блок:</td>
         <td>
             <select name="blkid" class="stdin">
                 <option value="0"> &lt;- выбрать -&gt; </option>
 [% FOREACH blk.list %]
-                <option value="[% id %]"[% IF srch.blkid == id %][% selected %][% END %]>[% name %]</option>
+                <option value="[% id %]"[% IF srch.blkid = id %][% selected %][% END %]>[% name %]</option>
 [% END %]
             </select>
         </td>
