@@ -2,7 +2,7 @@
 <table class="tbl">
 <tr>
     <td class="ltitle">Логин:</td>
-    <td width="200">[% user.login %]</td>
+    <td>[% user.login %]</td>
 </tr>
 <tr>
     <td class="ltitle">Группа:</td>
@@ -10,19 +10,19 @@
 </td>
 <tr>
     <td class="ltitle">Фамилия:</td>
-    <td width="200">[% user.family %]</td>
+    <td>[% user.family %]</td>
 </tr>
 <tr>
     <td class="ltitle">Имя:</td>
-    <td width="200">[% user.name %]</td>
+    <td>[% user.name %]</td>
 </tr>
 <tr>
     <td class="ltitle">Отчество:</td>
-    <td width="200">[% user.otch %]</td>
+    <td>[% user.otch %]</td>
 </tr>
 <tr>
     <td class="ltitle">Телефон:</td>
-    <td width="200">[% user.phone %]</td>
+    <td>[% user.phone %]</td>
 </tr>
 <tr>
     <td class="submit" colspan="2">

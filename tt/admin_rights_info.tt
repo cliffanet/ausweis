@@ -4,7 +4,7 @@
     [% IF ritem %]
     <tr>
         <td class="ltitle" style="width: 250px; text-align: left">[% ritem.1 %]</td>
-        <td width="200">[% rights_types.${admin_rights_list.${ritem.0}} %]</td>
+        <td>[% rights_types.${admin_rights_list.${ritem.0}} %]</td>
     </tr>
     [% ELSE %]
     <tr><td colspan="2">&nbsp;</td></tr>
