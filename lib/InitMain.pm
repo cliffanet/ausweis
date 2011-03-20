@@ -6,6 +6,7 @@ use FindBin::Real qw(Bin);
 $::pathRoot = Bin.'/..';
 
 require "$::pathRoot/conf/defines.conf";
+require "$::pathRoot/conf/rights.conf";
 require "$::pathRoot/conf/text.conf";
 
 __PACKAGE__->config(
