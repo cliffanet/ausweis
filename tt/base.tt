@@ -51,7 +51,7 @@
                     <!-- Заголовок -->
     <h1>[% IF IS_DEVEL %][DEVELOPER] [% END %]Аусвайсы - [% TITLE %]</h1>
                     <br />
-<table border="0" width="100%" height="100%">
+<table border="0" width="1000" height="800">
 <tr>
     <td width="200">
 
