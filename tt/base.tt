@@ -106,6 +106,7 @@
                     <!-- Контент -->
 [% IF subtemplate %][% INCLUDE $subtemplate %][% END %]
                     <!-- Конец контента -->
+    <br />
     </td>
 </tr>
 [% ELSE # authenticate.uid %]
