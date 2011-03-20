@@ -61,7 +61,7 @@ sub list {
     $srch->{blkid} = $f->{blkid} if $f->{blkid};
     if ($f->{name}) {
         $f->{name} =~ s/%/%%/g;
-        $srch->{name} = { LIKE => $f->{name} };
+        $srch->{name} = { LIKE => "%$f->{name}%" };
     }
     
     my $srch_url = 
