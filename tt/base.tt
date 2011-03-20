@@ -58,7 +58,7 @@
 [% IF authenticate.uid %]
 
 <tr>
-    <td width="200" valign="top">
+    <td width="200" valign="top" class="menu">
 
 [% IF !denied %]
 <!-- Авторизация -->
@@ -100,7 +100,7 @@
 [% END # IF authenticate.uid && !denied %]
 
     </td>
-    <td valign="top">
+    <td valign="top" class="content">
                     <!-- Заголовок -->
     <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %][% TITLE %]</div>
                     <!-- Контент -->
@@ -111,7 +111,7 @@
 </tr>
 [% ELSE # authenticate.uid %]
 <tr>
-    <td colspan="2" valign="top">
+    <td colspan="2" valign="top" class="content">
                     <!-- Заголовок -->
                     <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %]Требуется авторизация</div>
                     <!-- Контент -->
