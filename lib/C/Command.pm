@@ -94,7 +94,7 @@ sub list {
             $srch,
             {
                 prefetch => 'blok',
-                order_by => $self->sort($sort || 'name'),
+                $self->sort($sort || 'name'),
             },
             $self->pager($page, 100),
         )
