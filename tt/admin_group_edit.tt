@@ -9,6 +9,10 @@
     <td class="submit" colspan="2">
         <input type="submit" value="Изменить"[% group.edit_disabled %]>
         <input type="button" value="Отмена" onClick="history.go(-1)">
+<br />
+<a href="[% group.href_delete %]"[% group.edit_disabled %]
+    onClick="return confirm('Удаление Группы: [% group.name %]\nПродолжать?');"
+    >удалить</a>
     </td>
 </tr>
 </table>
@@ -18,9 +22,4 @@
 [% admin_rights_list = group.rights_list %]
 [% INCLUDE 'admin_rights_edit.tt' %]
 </form>
-
-<br />
-<a href="[% group.href_delete %]"[% group.edit_disabled %]
-    onClick="return confirm('Удаление Группы: [% group.name %]\nПродолжать?');"
-    >удалить</a>
 

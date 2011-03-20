@@ -45,6 +45,10 @@
     <td class="submit" colspan="2">
         <input type="submit" value="Сохранить"[% user.edit_disabled %]>
         <input type="button" value="Отмена" onClick="history.go(-1)">
+<br />
+<a href="[% user.href_delete %]"[% user.edit_disabled %]
+    onClick="return confirm('Удаление Администратора: [% user.login %]\nПродолжать?');"
+    >удалить</a>
     </td>
 </tr>
 </table>
@@ -54,9 +58,4 @@
 [% INCLUDE 'admin_rights_edit.tt' admin_rights_list = user.rights_list %]
 
 </form>
-
-<br />
-<a href="[% user.href_delete %]"[% user.edit_disabled %]
-    onClick="return confirm('Удаление Администратора: [% user.login %]\nПродолжать?');"
-    >удалить</a>
 
