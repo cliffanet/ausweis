@@ -72,13 +72,34 @@ sub list {
     
     $self->d->{srch} = $self->ToHtml($f);
     
+    
+    
     $self->d->{sort}->{href_template} = $self->href($::disp{CommandList})."?".
         join('&', $srch_url, 'sort=%s');
     my $sort = $self->req->param_str('sort');
+
+    $self->d->{pager}->{href} ||= sub {
+        my $page = shift;
+        return $self->href($::disp{CommandList})."?".
+            join('&', $srch_url, $sort?"sort=$sort":(), $page>1?"page=$page":());
+    };
+    my $page = $self->req->param_dig('page') || 1;
     
-    $self->d->{list} = $srch_url ?
-        search($self, $srch, $self->sort($sort || 'name')) :
-        0;
+    $self->d->{list} = [
+        map { 
+                my $item = _item($self, $_);
+                $item;
+        }
+        $self->model('Command')->search(
+            $srch,
+            { 
+                prefetch => 'blok',
+                order_by => $self->sort($sort || 'name'),
+                $self->pager($page, 100),
+            }
+        )
+    ] if $srch_url;
+    $self->d->{list} ||= 0;
 }
 
 
