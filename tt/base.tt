@@ -66,6 +66,7 @@
     :: <a href="[% authenticate.href_logout %]">Выйти</a>
 [% END %]
     </div>
+    <br />
 <!-- // Авторизация -->
 [% END # IF !denied %]
 
