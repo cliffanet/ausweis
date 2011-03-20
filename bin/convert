@@ -127,6 +127,10 @@ $self->log("AUSWEIS: OK %d items", $c);
 sub field {
     my $field = shift;
     $field =~ s/^\"(.*)\"$/$1/;
+    $field =~ s/\"\"/\"/g;
+    $field =~ s/^\"(.*)\"$/$1/;
+    $field =~ s/^\'(.*)\'$/$1/;
+    $field =~ s/\'\'/\'/g;
     $field =~ s/^\'(.*)\'$/$1/;
     $field =~ s/^\s+//;
     $field =~ s/\s+$//;
