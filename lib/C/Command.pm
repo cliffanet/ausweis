@@ -112,7 +112,7 @@ sub show {
     
     $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
     
-    my $rec = (($self->d->{rec}) = 
+    my ($rec) = (($self->d->{rec}) = 
         map { _item($self, $_) }
         $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
     $rec || return $self->state(-000105);
