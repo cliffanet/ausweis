@@ -108,7 +108,7 @@ sub list {
 sub show {
     my ($self, $cmdid, $type) = @_;
 
-    return unless $self->rights_exists_event($::rCommandShow);
+    return unless $self->rights_exists_event($::rCommandInfo);
     
     $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
     
