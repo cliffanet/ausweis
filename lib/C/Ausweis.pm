@@ -64,7 +64,7 @@ sub show {
         $self->model('Ausweis')->search({ id => $id }, { prefetch => [qw/command blok/] }));
     $rec || return $self->state(-000105);
     
-    $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{name}));
+    $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{nick}));
     $self->view_select->subtemplate("ausweis_$type.tt");
     
 }

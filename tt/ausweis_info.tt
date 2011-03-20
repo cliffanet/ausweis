@@ -6,7 +6,7 @@
     </tr>
     <tr>
         <td class="ltitle">Команда:</td>
-        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% rec.command.href_info %]">[% rec.command.name %]</a>[% END %]</td>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% rec.command.href_info %]">[% rec.command.name %]</a></td>
     </tr>
     <tr>
         <td class="ltitle">Блок:</td>
