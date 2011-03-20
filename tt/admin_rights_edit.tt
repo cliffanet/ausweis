@@ -1,0 +1,46 @@
+<table class="frame" cellspacing="0" cellpadding="0">
+<tr>
+    <td class="c1">&nbsp;</td>
+    <td class="title">// Права</td>
+    <td class="c2">&nbsp;</td>
+</tr>
+<tr>
+    <td class="c3">&nbsp;</td>
+    <td class="content">
+
+<table class="tbl">
+[% FOREACH ritem = rights_list %]
+    [% IF ritem %]
+    <tr>
+        <td class="ltitle" style="width: 250px; text-align: left">[% ritem.1 %]</td>
+        <td>
+            <select name="rights.[% ritem.0 %]" class="stdin">
+                [% rno = '-' %]<option value="-">[% rights_types.$rno %]</option>
+            [% IF user.gid %]
+                [% rgr = 'g' %]<option value="g"[% IF admin_rights_list.${ritem.0} == rgr %] selected[% END %]>[% rights_types.$rgr %]</option>
+            [% END %]
+            [% FOREACH rtype = ritem.2 %]
+                <option value="[% rtype %]"[% IF admin_rights_list.${ritem.0} == rtype %] selected[% END %]>[% rights_types.$rtype %]</option>
+            [% END %]
+            </select>
+        </td>
+    </tr>
+    [% ELSE %]
+    <tr><td colspan="2">&nbsp;</td></tr>
+    [% END %]
+[% END %]
+<tr>
+    <td class="submit" colspan="2">
+        <input type="image" class="img" src="/images/btn_save.gif">
+        <a href="javascript:history.go(-1);"><img src="/images/btn_cancel.gif" border="0"></a>
+    </td>
+</tr>
+</table>
+
+    </td>
+    <td class="c4">&nbsp</td>
+</tr>
+<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
+</table>
+
+<br />

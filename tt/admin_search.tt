@@ -1,0 +1,119 @@
+<!-- Поиск -->
+<table class="frame" cellspacing="0" cellpadding="0">
+<tr>
+    <td class="c1">&nbsp;</td>
+    <td class="title">// Поиск</td>
+    <td class="c2">&nbsp;</td>
+</tr>
+<tr>
+    <td class="c3">&nbsp;</td>
+    <td class="content">
+
+<form action="[% admin.href_search %]" method="GET">
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Логин:</td>
+        <td><input type="text" name="login" class="stdin" value="[% admin_search.login %]"></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Группа: &nbsp;</td>
+        <td>
+            <select name="gid" class="stdin">
+                <option value="0"> &lt;- выбрать -&gt; </option>
+[% FOREACH group = data.group_list %]
+                <option value="[% group.id %]"[% group.selected %]>
+                    [% group.name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr><td colspan="2" class="submit"> <input type="image" src="/images/btn_srch.gif" class="img"> </td></tr>
+</table>
+</form>
+
+[% IF data.user_list %]
+<table class="tbl">
+    <tr class="title">
+        <td width="50">[% INCLUDE 'sort.tt' field='id', name='ID' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='login', name='Логин' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='gid', name='Группа' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='family', name='Фамилия' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='name', name='Имя' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='otch', name='Отчество' %]</td>
+        <td>[% INCLUDE 'sort.tt' field='phone', name='Телефон' %]</td>
+    </tr>
+    <tr><td colspan="7">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+[% FOREACH user = data.user_list %]
+    <tr>
+        <td align="right">[% user.id %].</td>
+        <td><a title="Просмотр информации о пользователе" alt="Просмотр информации о пользователе" href="[% user.href_info %]">[% user.login %]</a></td>
+        <td><a title="Просмотр информации о группе " alt="Просмотр информации о группе" href="[% d.group.${user.gid}.href_info %]">[% d.group.${user.gid}.name %]</a></td>
+        <td>[% user.family %]</td>
+        <td>[% user.name %]</td>
+        <td>[% user.otch %]</td>
+        <td>[% user.phone %]</td>
+    </tr>
+[% END %]
+    <tr><td colspan="7">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+</table>
+[% END %]
+
+    </td>
+    <td class="c4">&nbsp</td>
+</tr>
+<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
+</table>
+
+<br />
+
+<!-- Добавление -->
+<form action="[% admin.href_new %]" method="post">
+<table class="frame" cellspacing="0" cellpadding="0">
+<tr>
+    <td class="c1">&nbsp;</td>
+    <td class="title">// Добавить администратора</td>
+    <td class="c2">&nbsp;</td>
+</tr>
+<tr>
+    <td class="c3">&nbsp;</td>
+    <td class="content">
+
+<table class="tbl">
+<tr>
+    <td class="ltitle">Логин:</td>
+    <td><input type="text" class="stdin" name="login" value=""[% admin.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="ltitle">Пароль:</td>
+    <td><input type="password" class="stdin" name="password" value=""[% admin.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="ltitle">Подтв.:</td>
+    <td><input type="password" class="stdin" name="password2" value=""[% admin.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="ltitle">Группа:</td>
+    <td>
+            <select name="gid"[% admin.edit_disabled %] class="stdin">
+                <option value="0"> &lt;- выбрать -&gt; </option>
+[% FOREACH group = group_list %]
+                <option value="[% group.id %]"[% group.selected %]>
+                    [% group.name %]</option>
+[% END %]
+            </select>
+    </td>
+</tr>
+<tr><td colspan="2" class="submit"> <input type="image" src="/images/btn_add.gif" class="img"[% admin.edit_disabled %]> </td></tr>
+</table>
+
+    </td>
+    <td class="c4">&nbsp</td>
+</tr>
+<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
+</table>
+
+</form>

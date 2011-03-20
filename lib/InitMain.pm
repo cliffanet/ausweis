@@ -82,6 +82,12 @@ sub http_accept {
         TIME    => scalar(localtime time),
         VERSION => sprintf("%0.2f", $::VERSION),
         version => $::version,
+        
+        PRE     => sub { 
+            use Data::Dumper; 
+            join ("\n\n", Dumper($self->patt, $self->d, \%ENV, 
+             { config => $self->config, config_static => $self->{_config_static}, config_mysql => $self->{_config_mysql}  }, )) 
+        },
     );
 }
 

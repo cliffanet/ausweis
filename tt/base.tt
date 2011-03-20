@@ -50,7 +50,7 @@
 [% IF authenticate.uid %]
                     <!-- Заголовок -->
     <h1>[% IF IS_DEVEL %][DEVELOPER] [% END %]Аусвайсы - [% TITLE %]</h1>
-                    <br />
+
 <table border="0" width="1000" height="400">
 <tr>
     <td width="200" valign="top">
@@ -68,6 +68,40 @@
     </div>
 <!-- // Авторизация -->
 [% END # IF !denied %]
+
+[% IF authenticate.uid && !denied %]
+                    <!-- Меню -->
+[% FOREACH menu %]
+    [% IF list.size > 0 %]
+                    <!--  Блок-меню -->
+                    <table width="198" border="0" align="center" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td class="menu_blok_title" colspan="3">
+                            [% title %]
+                        </td>
+                      </tr>
+                      <tr> 
+                        <td width="3" bgcolor="FFA800"><img src="/images/spacer.gif" width="3" height="4"></td>
+                        <td
+                            <div class="menu_blok_content">
+        [% FOREACH list %]
+            [% IF is_item %]<a href="[% href %]">[% text %]</a>[% END %]<br />
+        [%- END %]
+                            </div>
+                        </td>
+                        <td width="5" bgcolor="FFA800"><img src="/images/spacer.gif" width="5" height="5"></td>
+                      </tr>
+                      <tr> 
+                        <td class="menu_blok_footer" colspan="3"><img src="/images/spacer.gif" width="198" height="14"></td>
+                      </tr>
+                      <tr>
+                        <td height="15">&nbsp;</td>
+                      </tr>
+                    </table>
+                    <!-- // Блок-меню -->
+    [% END %]
+[% END %]
+[% END # IF authenticate.uid && !denied %]
 
     </td>
     <td valign="top">

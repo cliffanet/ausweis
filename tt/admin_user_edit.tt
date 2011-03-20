@@ -1,0 +1,78 @@
+<form action="[% user.href_set %]" method="post">
+<table class="frame" cellspacing="0" cellpadding="0">
+<tr>
+    <td class="c1">&nbsp;</td>
+    <td class="title">// Инфо</td>
+    <td class="c2">&nbsp;</td>
+</tr>
+<tr>
+    <td class="c3">&nbsp;</td>
+    <td class="content">
+
+<table class="tbl">
+<tr>
+    <td class="ltitle">Логин:</td>
+    <td><input type="text"  class="stdin" name="login" value="[% user.login %]"[% user.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="ltitle">Пароль:</td>
+    <td><input type="password" class="stdin" name="password" value=""[% user.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="ltitle">Подтверждение:</td>
+    <td><input type="password" class="stdin" name="password2" value=""[% user.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="ltitle">Группа:</td>
+    <td>
+            <select name="gid" class="stdin"[% user.edit_disabled %]>
+                <option value="0"> &lt;- выбрать -&gt; </option>
+[% FOREACH group = group_list %]
+                <option value="[% group.id %]"[% group.selected %]>
+                    [% group.name %]</option>
+[% END %]
+            </select>
+    </td>
+</tr>
+<tr>
+    <td class="ltitle">Фамилия:</td>
+    <td><input type="text"  class="stdin" name="family" value="[% user.family %]"[% user.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="ltitle">Имя:</td>
+    <td><input type="text"  class="stdin" name="name" value="[% user.name %]"[% user.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="ltitle">Отчество:</td>
+    <td><input type="text"  class="stdin" name="otch" value="[% user.otch %]"[% user.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="ltitle">Телефон:</td>
+    <td><input type="text"  class="stdin" name="phone" value="[% user.phone %]"[% user.edit_readonly %]></td>
+</tr>
+<tr>
+    <td class="submit" colspan="2">
+        <input type="image" class="img" src="/images/btn_save.gif"[% user.edit_disabled %]>
+        <a href="javascript:history.go(-1);"><img src="/images/btn_cancel.gif" border="0"></a>
+    </td>
+</tr>
+</table>
+
+    </td>
+    <td class="c4">&nbsp</td>
+</tr>
+<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
+</table>
+
+
+<br />
+
+[% INCLUDE 'admin_rights_edit.tt' admin_rights_list = user.rights_list %]
+
+</form>
+
+<br />
+<a href="[% user.href_delete %]"[% user.edit_disabled %]
+    onClick="return confirm('Удаление Администратора: [% user.login %]\nПродолжать?');"
+    ><img src="/images/btn_del.gif" class="del"></a>
+

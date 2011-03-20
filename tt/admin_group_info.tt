@@ -1,0 +1,31 @@
+<table class="frame" cellspacing="0" cellpadding="0">
+<tr>
+    <td class="c1">&nbsp;</td>
+    <td class="title">// Информация/td>
+    <td class="c2">&nbsp;</td>
+</tr>
+<tr>
+    <td class="c3">&nbsp;</td>
+    <td class="content">
+
+<table class="tbl">
+<tr>
+    <td class="ltitle">Название группы:</td>
+    <td width="200"><b>[% group.name %]</b></td>
+</tr>
+<tr>
+    <td class="submit" colspan="2">
+        <a href="[% group.href_edit %]"><img src="/images/btn_edit.gif" border="0"></a>
+    </td>
+</tr>
+</table>
+
+    </td>
+    <td class="c4">&nbsp</td>
+</tr>
+<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
+</table>
+
+
+[% INCLUDE 'admin_rights_info.tt' admin_rights_list = group.rights_list %]
+    

@@ -1,0 +1,51 @@
+<table class="frame" cellspacing="0" cellpadding="0">
+<tr>
+    <td class="c1">&nbsp;</td>
+    <td class="title">// Инфо</td>
+    <td class="c2">&nbsp;</td>
+</tr>
+<tr>
+    <td class="c3">&nbsp;</td>
+    <td class="content">
+
+<table class="tbl">
+<tr>
+    <td class="ltitle">Логин:</td>
+    <td width="200">[% user.login %]</td>
+</tr>
+<tr>
+    <td class="ltitle">Группа:</td>
+    <td>[% group.${user.gid}.name %]</td>
+</td>
+<tr>
+    <td class="ltitle">Фамилия:</td>
+    <td width="200">[% user.family %]</td>
+</tr>
+<tr>
+    <td class="ltitle">Имя:</td>
+    <td width="200">[% user.name %]</td>
+</tr>
+<tr>
+    <td class="ltitle">Отчество:</td>
+    <td width="200">[% user.otch %]</td>
+</tr>
+<tr>
+    <td class="ltitle">Телефон:</td>
+    <td width="200">[% user.phone %]</td>
+</tr>
+<tr>
+    <td class="submit" colspan="2">
+        <a href="[% user.href_edit %]"><img src="/images/btn_edit.gif" border="0"></a>
+    </td>
+</tr>
+</table>
+
+    </td>
+    <td class="c4">&nbsp</td>
+</tr>
+<tr><td class="c5">&nbsp;</td><td class="c6">&nbsp;</td><td class="c7">&nbsp;</td></tr>
+</table>
+
+<br />
+
+[% INCLUDE 'admin_rights_info.tt' admin_rights_list = user.rights_list %]

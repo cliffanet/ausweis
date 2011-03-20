@@ -1,0 +1,35 @@
+
+<table class="tbl">
+    <tr class="title">
+        <td width="50">id</td>
+        <td width="300">Название</td>
+        <td width="200"></td>
+    </tr>
+[% FOREACH group = group_list %]
+    <tr>
+        <td align="right">[% group.id %].</td>
+        <td><a title="Просмотр информации о группе " alt="Просмотр информации о группе" href="[% group.href_info %]">[% group.name %]</a></td>
+        <td>
+            <a href="[% group.href_info %]">Инфо</a> |
+            <a href="[% group.href_edit %]">Изменить</a> |
+            <a href="[% group.href_delete %]" 
+                onClick="return confirm('Удаление Группы: [% group.name %]\nПродолжать?');">Удалить</a>
+        </td>
+    </tr>
+[% END %]
+</table>
+
+<br />
+
+<form action="[% admin_group.href_new %]" method="post">
+<table class="tbl">
+    <tr>
+    <td colspan="2" class="title">Добавить группу</td>
+    </td>
+<tr>
+    <td class="ltitle">Название группы:</td>
+    <td><input type="text" name="name" class="stdin" value=""[% admin_group.edit_readonly %]></td>
+</tr>
+<tr><td colspan="2" class="submit"> <input type="submit" value="Добавить" class="img"[% admin_group.edit_disabled %]> </td></tr>
+</table>
+</form>
