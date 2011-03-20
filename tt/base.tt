@@ -53,9 +53,9 @@
                     <br />
 <table border="0" width="1000" height="400">
 <tr>
-    <td width="200">
+    <td width="200" valign="top">
 
-[%# IF !denied %]
+[% IF !denied %]
 <!-- Авторизация -->
     <div class="auth">
 [% IF authenticate.uid %]
@@ -70,7 +70,7 @@
 [%# END # IF !denied %]
 
     </td>
-    <td>
+    <td valign="top">
                     <!-- Контент -->
 [% IF subtemplate %][% INCLUDE $subtemplate %][% END %]
                     <!-- Конец контента -->
