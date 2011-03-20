@@ -48,7 +48,7 @@ sub http_accept {
     );
     
     $self->patt(
-        TITLE   => '',
+        TITLE   => sprintf("%s (ver. %s)", $text::titles{default}, $::version),
         CONTENT => '',
         
         ip      => $ENV{REMOTE_ADDR},
