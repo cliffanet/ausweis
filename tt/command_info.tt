@@ -22,7 +22,7 @@
 [% FOREACH ausweis %]
     <tr>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
-        <td></td>
+        <td>&nbsp;</td>
     </tr>
 [% END %]
 [% ELSE %]

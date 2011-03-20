@@ -39,7 +39,7 @@
     <tr>
         <td><a title="Просмотр информации о команде" alt="Просмотр информации о команде" href="[% href_info %]">[% name %]</a></td>
         <td>[% IF blok.id %]<a title="Фильтр по блоку" alt="Фильтр по блоку" href="[% cmd.href_list %]?blkid=[% blkid %]">[% blok.name %]</a>[% END %]</td>
-        <td></td>
+        <td>&nbsp;</td>
     </tr>
 [% END %]
     <tr><td colspan="3">
