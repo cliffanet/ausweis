@@ -120,7 +120,7 @@
 </tr>
 [% ELSE # authenticate.uid %]
 <tr>
-    <td colspan="2">
+    <td colspan="2" valign="top">
                     <!-- Заголовок -->
                     <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %]Требуется авторизация</div>
                     <br />
