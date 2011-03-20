@@ -25,6 +25,7 @@
 </form>
 
 [% IF data.user_list %]
+<h3>Результаты</h3>
 <table class="tbl">
     <tr class="title">
         <td width="50">[% INCLUDE 'sort.tt' field='id', name='ID' %]</td>
@@ -57,7 +58,7 @@
 <br />
 
 <!-- Добавление -->
-<h3>Добавить администратора</h3>
+<h3>Добавить аккаунт</h3>
 <table class="tbl">
 <tr>
     <td class="ltitle">Логин:</td>

@@ -21,11 +21,9 @@
 
 <br />
 
+<h3>Добавить группу</h3>
 <form action="[% admin_group.href_new %]" method="post">
 <table class="tbl">
-    <tr>
-    <td colspan="2" class="title">Добавить группу</td>
-    </td>
 <tr>
     <td class="ltitle">Название группы:</td>
     <td><input type="text" name="name" class="stdin" value=""[% admin_group.edit_readonly %]></td>
