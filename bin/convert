@@ -1,0 +1,137 @@
+#!/usr/bin/perl
+
+use strict;
+#use warnings;
+
+BEGIN {
+    $::pathRoot = $0;
+    $::pathRoot =~ s/\/+/\//g;
+    $::pathRoot =~ s/[^\/]+$//;
+    if ($::pathRoot !~ s/\/[^\/]+\/$//) {
+        $::pathRoot .= '..';
+    }
+};
+
+use lib "$::pathRoot/lib";
+use base 'Clib::LineScript';
+
+require "$::pathRoot/conf/defines.conf";
+
+# Чтобы warnings не ругался
+$::logDebug ||= 0;
+$::logPath ||= '/var/log';
+$::pidPath ||= '/var/run';
+my $self = __PACKAGE__->new(
+    schema              => 'DB',
+    log_file            => "$::logPath/convert.log",
+    pid_file            => "$::pidPath/convert.pid",
+    pid_file_noerror    => 1,
+    debug_file          => $::logDebug ? "$::logPath/convert.log" : undef,
+);
+
+
+use Data::Dumper;
+$self->log(1);
+
+#####################################
+###### Блоки
+
+my %blok;
+if (!open(FH, $::convertFileBlok)) {
+    $self->error("CRITICAL!!! Can't open BLOK-file($::convertFileBlok): $!");
+    exit -1;
+}
+$self->model('Blok')->recreate();
+my $sth = $self->model('Blok')->create([qw/name/]);
+foreach (<FH>) {
+    my ($name) = map { field($_) } (split /;/);
+    if ($name eq 'Нет') {
+        $blok{$name} = 0;
+        next;
+    }
+    $sth->execute($name)
+        || next;
+    $blok{$name} = $self->model('Blok')->insertid;
+}
+$sth->finish;
+close FH;
+$self->log("BLOK: OK %d items", scalar(keys %blok));
+
+
+#####################################
+###### Команды
+
+my %command;
+if (!open(FH, $::convertFileCommand)) {
+    $self->error("CRITICAL!!! Can't open Command-file($::convertFileCommand): $!");
+    exit -1;
+}
+$self->model('Command')->recreate();
+my $sth = $self->model('Command')->create([qw/name/]);
+foreach (<FH>) {
+    my ($name) = map { field($_) } (split /;/);
+    if ($name eq 'Нет') {
+        $command{$name} = 0;
+        next;
+    }
+    $sth->execute($name)
+        || next;
+    $command{$name} = $self->model('Command')->insertid;
+}
+$sth->finish;
+close FH;
+$self->log("COMMAND: OK %d items", scalar(keys %command));
+
+
+#####################################
+###### Аусвайсы
+
+my %cmd2blk;
+if (!open(FH, $::convertFileAusweis)) {
+    $self->error("CRITICAL!!! Can't open Ausweis-file($::convertFileAusweis): $!");
+    exit -1;
+}
+$self->model('Ausweis')->recreate();
+my $sth = $self->model('Ausweis')->create([qw/cmdid blkid nick/]);
+my $c = 0;
+foreach (<FH>) {
+    my ($id, $numid, $part, $blocked, $fio, $nick, $command, 
+        $krov, $allerg, $neperenos, $polis, $medik, 
+        $blok, $comment) = map { field($_) } (split /;/);
+    my $blkid = $blok{$blok} || 0;
+    my $cmdid = $command{$command} || 0;
+    if ($cmdid) {
+        if (!defined($cmd2blk{$cmdid})) {
+            $self->model('Command')->update({ blkid => $blkid }, { id => $cmdid }, nolog => 1)
+                || next;
+            $cmd2blk{$cmdid} = $blkid;
+        }
+        elsif ($cmd2blk{$cmdid} != $blkid) {
+            $self->error("Ausweis for nick \"%s\" - Wrong blok id. First id=%d, current=%d",
+                $nick, $cmd2blk{$cmdid}, $blkid);
+        }
+    }
+    else {
+        $self->error("Ausweis for nick \"%s\" - unknown command", $nick);
+    }
+    $sth->execute($cmdid, $blkid, $nick)
+        || next;
+    
+    $c++;
+}
+$sth->finish;
+close FH;
+$self->log("AUSWEIS: OK %d items", $c);
+
+
+sub field {
+    my $field = shift;
+    $field =~ s/^\"(.*)\"$/$1/;
+    $field =~ s/^\'(.*)\'$/$1/;
+    $field =~ s/^\s+//;
+    $field =~ s/\s+$//;
+    return $field;
+}
+#==========================================================
+#================================================== End ===
+#==========================================================
