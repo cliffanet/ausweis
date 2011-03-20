@@ -10,8 +10,12 @@ use warnings;
 
 sub _item {
     my $self = shift;
+    my $command = delete $_[0]->{command};
     my $item = $self->ToHtml(shift, 1);
     my $id = $item->{id};
+    
+    $item->{command} = C::Command::_item($self, $command)
+        if $command;
     
     if ($id) {
         # —сылки
