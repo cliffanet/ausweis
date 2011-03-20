@@ -26,7 +26,7 @@ sub _item {
 sub list {
     my ($self) = @_;
 
-    return unless $self->rights_exists_event($::rAusweisView);
+    return unless $self->rights_exists_event($::rAusweisList);
     
     $self->patt(TITLE => $text::titles{ausweis_list});
     $self->view_select->subtemplate("ausweis_list.tt");
@@ -44,7 +44,7 @@ sub list {
         $self->model('Ausweis')->search(
             { },
             { 
-                order_by => $self->sort($sort) || [qw/nick/],
+                order_by => $self->sort($sort||'nick'),
             }
         )
     ];

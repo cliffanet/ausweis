@@ -18,7 +18,11 @@ __PACKAGE__->config(
     dispatcher  => {
         default                         => 'C::Misc::default',
         
+        $::disp{CommandList}            => 'C::Command::list',
+        $::disp{CommandShow}            => 'C::Command::show',
+
         $::disp{AusweisList}            => 'C::Ausweis::list',
+        $::disp{AusweisShow}            => 'C::Ausweis::show',
     },
     
     plugins => [qw/ScriptTime
@@ -70,6 +74,13 @@ sub http_accept {
     $self->data(
         IS_DEVEL=> $::isDevel ? 1 : 0,
         ip      => $ENV{REMOTE_ADDR},
+        
+        cmd     => {
+            href_list   => $self->href($::disp{CommandList}),
+        },
+        aus     => {
+            href_list   => $self->href($::disp{AusweisList}),
+        },
     );
     
     $self->patt(
