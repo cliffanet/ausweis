@@ -11,7 +11,7 @@
         <td>
             <select name="blkid" class="stdin">
                 <option value="0"> &lt;- выбрать -&gt; </option>
-[% FOREACH blk.list(srch.blk.id) %]
+[% FOREACH blk.list %]
                 <option value="[% id %]"[% IF srch.blkid==blkid %][% selected %][% END %]>[% name %]</option>
 [% END %]
             </select>
