@@ -29,6 +29,23 @@
                     <br />
 <table border="0" width="100%" height="100%">
 <tr>
+    <td width="200">
+    
+[% IF !denied %]
+<!-- Авторизация -->
+    <div class="auth">
+[% IF authenticate.uid %]
+    Вы вошли как: <b>[% authenticate.login %]</b><br />
+    Группа: [% IF authenticate.group.id %][% authenticate.group.name %][% ELSE %]<i>(Без групппы)</i>[% END %]<br />
+    <small>Ваш IP: [% authenticate.ip %] / Страница загружена в: [% TIME %] </small><br />
+    <a href="[% authenticate.href_password_change_form %]">Изменить пароль</a>
+    :: <a href="[% authenticate.href_logout %]">Выйти</a>
+[% END %]
+    </div>
+<!-- // Авторизация -->
+[% END # IF !denied %]
+
+    </td>
     <td>
                     <!-- Контент -->
 [% IF subtemplate %][% INCLUDE $subtemplate %][% END %]
