@@ -12,4 +12,14 @@ sub default {
     #$self->view_select->subtemplate("default.tt");
 }
 
+
+sub password_change_ok {
+    my ($self, $login) = @_;
+    if (my $uid = $self->session->{uid}) {
+        $self->model('UserSession')->update({ state => 10300, uid => 0 }, { uid => $uid });
+    }
+    $self->redirect($self->href());
+}
+
+
 1;

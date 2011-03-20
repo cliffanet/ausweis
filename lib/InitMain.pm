@@ -25,10 +25,22 @@ __PACKAGE__->config(
                     Admin::Edit 
                     Pager ListSort/],
     
-    session     => { model => 'UserSession', auto_create => 1 },
+    session     => { model => 'UserSession', auto_create => 0 },
+
     authenticate=> {
         model   => 'UserList',
-        type    => 2,
+        type    => 1,
+        field_passnew   => 'pn',
+        field_password2 => 'p2',
+        
+        #handler_login_ok        => \&C::Misc::login_ok,
+        #handler_login_er        => \&C::Misc::login_er,
+        handler_password_change_ok => \&C::Misc::password_change_ok,
+    },
+    admin_edit  => {
+        view_select             => 'Admin',
+        href_adminedit_redirect => 'admin/list',
+        href_groupedit_redirect => 'admin/group_list',
     },
 );
 
@@ -36,6 +48,18 @@ __PACKAGE__->run();
 
 sub http_accept {
     my $self = shift;
+
+    # Глобальный доступ
+    if (!$self->rights_exists($::rMain)) {
+        if ($ENV{PATH_INFO} && ($ENV{PATH_INFO} !~ /login$/)) {
+            $self->patt->{redirect} = "http://$ENV{HTTP_HOST}$ENV{REQUEST_URI}";
+            $ENV{PATH_INFO} = '';
+        } elsif ($ENV{PATH_INFO} =~ /login$/) {
+            $self->patt->{redirect} = $self->req->param_str('redirect');
+        }
+        $self->d->{denied} = 1;
+        $self->patt->{redirect} = $self->ToHtml($self->d->{redirect});
+    }
     
     $self->{_run_count} ||= 0;
     $self->{_run_count} ++;
@@ -43,8 +67,6 @@ sub http_accept {
     $self->data(
         IS_DEVEL=> $::isDevel ? 1 : 0,
         ip      => $ENV{REMOTE_ADDR},
-        #ip      => '10.191.0.41',
-        #ip      => '94.228.170.207',
     );
     
     $self->patt(
@@ -59,7 +81,43 @@ sub http_accept {
         VERSION => sprintf("%0.2f", $::VERSION),
         version => $::version,
     );
-    
 }
+
+
+sub rights_denied {
+    my ($self, $RNum) = @_;
+    $self->state(-000102, '');
+}
+
+sub ParamParse {
+    my ($self, %args) = @_;
+    
+    my $ret = $self->SUPER::ParamParse(%args) && return 1;
+    
+    foreach my $err (@{ $self->d->{form_error} }) {
+        my ($errno, $param, $index) = @$err;
+        $err = {
+            num         => $errno,
+            param       => $text::params_name{$param} || $param,
+            str         => $text::form_errors{$errno} || sprintf($text::form_errors{unknown}, $errno),
+            index       => $index+1,
+        };
+    }
+    
+    foreach my $param (keys %{ $self->d->{form_check} }) {
+        my $index = 0;
+        foreach my $errno (@{ $self->d->{form_check}->{$param} }) {
+            $errno = {
+                num     => $errno,
+                param   => $text::params_name{$param} || $param,
+                str     => $text::form_errors{$errno} || sprintf($text::form_errors{unknown}, $errno),
+                index   => ++$index,
+            } if $errno;
+        }
+    }
+    
+    return $ret;
+}
+
 
 1;
