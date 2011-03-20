@@ -69,7 +69,9 @@ sub list {
     
     $self->d->{srch} = $self->ToHtml($f);
     
-    $cmd->{list} = search($self, $srch, $self->sort($sort || 'name'));
+    $cmd->{list} = grep { $f->{$_} } keys $f ?
+        search($self, $srch, $self->sort($sort || 'name')) :
+        0;
 }
 
 

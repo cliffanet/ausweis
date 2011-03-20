@@ -1,6 +1,6 @@
 <!-- Поиск -->
 <h3>Поиск</h3>
-<form action="[% admin.href_search %]" method="GET">
+<form action="[% cmd.href_list %]" method="GET">
 <table class="tbl">
     <tr>
         <td class="ltitle">Название:</td>
@@ -30,6 +30,7 @@
         <td width="200">[% INCLUDE 'sort.tt' field='blok.name', name='Блок' %]</td>
         <td></td>
     </tr>
+[% IF list.size > 0 %]
     <tr><td colspan="7">
 [% INCLUDE 'pager.tt' %]
     </td></tr>
@@ -43,5 +44,10 @@
     <tr><td colspan="7">
 [% INCLUDE 'pager.tt' %]
     </td></tr>
+[% ELSE %]
+    <tr><td height="50" align="center" valign="middle">
+        ничего не найдено
+    </td></tr>
+[% END %]
 </table>
 [% END %]
