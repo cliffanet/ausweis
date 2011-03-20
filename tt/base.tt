@@ -67,7 +67,7 @@
 [% END %]
     </div>
 <!-- // Авторизация -->
-[%# END # IF !denied %]
+[% END # IF !denied %]
 
     </td>
     <td valign="top">
