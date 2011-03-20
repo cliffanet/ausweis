@@ -15,6 +15,7 @@ sub _item {
     
     if ($id) {
         # —сылки
+        $item->{href_info}       = $self->href($::disp{CommandShow}, $item->{id}, 'info');
         #$item->{href_del}       = $self->href($::disp{CommandDel}, $item->{id});
         #$item->{href_delete}    = $self->href($::disp{CommandDel}, $item->{id});
     }
@@ -73,7 +74,6 @@ sub list {
     $self->d->{srch} = $self->ToHtml($f);
     
     
-    
     $self->d->{sort}->{href_template} = sub {
         my $sort = shift;
         return $self->href($::disp{CommandList})."?".
@@ -103,6 +103,43 @@ sub list {
         )
     ] if $srch_url;
     $self->d->{list} ||= 0;
+}
+
+sub show {
+    my ($self, $cmdid, $type) = @_;
+
+    return unless $self->rights_exists_event($::rCommandShow);
+    
+    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
+    
+    my $rec = (($self->d->{rec}) = 
+        map { _item($self, $_) }
+        $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
+    $rec || return $self->state(-000105);
+    
+    $self->patt(TITLE => sprintf($text::titles{"command_$type"}, $rec->{name}));
+    $self->view_select->subtemplate("command_$type.tt");
+    
+    $self->d->{sort}->{href_template} = sub {
+        my $sort = shift;
+        return $self->href($::disp{CommandShow}, $rec->{id}, $type)."?sort=$sort";
+    };
+    my $sort = $self->req->param_str('sort');
+    
+    $self->d->{ausweis} =  sub {
+        $self->d->{_ausweis} ||= [
+        map {
+                my $item = C::Ausweis::_item($self, $_);
+                $item;
+        }
+        $self->model('Ausweis')->search(
+            { cmdid => $rec->{id} },
+            {
+                $self->sort($sort || 'nick'),
+            },
+        )
+        ];
+    };
 }
 
 
