@@ -120,12 +120,12 @@
 </tr>
 [% ELSE # authenticate.uid %]
 <tr>
-    <td colspan="2" valign="middle">
+    <td colspan="2" valign="top">
                     <!-- Заголовок -->
                     <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %]Требуется авторизация</div>
                     <br />
                     <!-- Контент -->
-                    <table width="100%" border="1" align="center" cellpadding="0" cellspacing="0">
+                    <table width="100%" height="300" border="1" align="center" cellpadding="0" cellspacing="0">
                     <tr><td align="center" valign="middle">
     Для продолжения требуется авторизация на сервере!
     <form action="[% authenticate.href_login %]" method="post">
