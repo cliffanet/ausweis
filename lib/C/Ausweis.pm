@@ -43,7 +43,7 @@ sub list {
         nick    => $q->param_str('nick'),
     };
     my $srch = {};
-    $srch->{id} = $f->{cmdid} if $f->{cmdid};
+    $srch->{cmdid} = $f->{cmdid} if $f->{cmdid};
     $srch->{blkid} = $f->{blkid} if $f->{blkid};
     if ($f->{nick}) {
         $f->{nick} =~ s/%/%%/g;
