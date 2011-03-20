@@ -50,9 +50,6 @@ sub list {
     
     my $cmd = $self->d->{cmd};
     
-    $self->d->{sort}->{href_template} = $self->href($::disp{CommandList})."?sort=%s";
-    my $sort = $self->req->param_str('sort');
-    
     my $q = $self->req;
     my $f = {
         cmdid   => $q->param_dig('cmdid'),
@@ -67,9 +64,19 @@ sub list {
         $srch->{name} = { LIKE => $f->{name} };
     }
     
+    my $srch_url = 
+        join('&',
+            (map { $_.'='.$self->ToUrl($f->{$_}) }
+            grep { $f->{$_} } keys %$f));
+    $srch_url ||= '';
+    
     $self->d->{srch} = $self->ToHtml($f);
     
-    $self->d->{list} = (grep { $f->{$_} } keys %$f) ?
+    $self->d->{sort}->{href_template} = $self->href($::disp{CommandList})."?".
+        join('&', $srch_url, 'sort=%s');
+    my $sort = $self->req->param_str('sort');
+    
+    $self->d->{list} = $srch_url ?
         search($self, $srch, $self->sort($sort || 'name')) :
         0;
 }
