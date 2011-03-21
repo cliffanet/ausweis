@@ -58,6 +58,7 @@
 <br />
 
 <!-- Добавление -->
+<form action="[% admin.href_new %]" method="post">
 <h3>Добавить аккаунт</h3>
 <table class="tbl">
 <tr>
