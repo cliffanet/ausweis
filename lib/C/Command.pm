@@ -48,7 +48,9 @@ sub list {
         $name =~ s/([%_])/\\$1/g;
         $name =~ s/\*/%/g;
         $name =~ s/\?/_/g;
-        $srch->{name} = { LIKE => "%$name%" };
+        $name = "%$name" if $name !~ /^%/;
+        $name .= "%" if $name !~ /[^%]%$/;
+        $srch->{name} = { LIKE => $name };
     }
     
     my $srch_url = 

@@ -50,7 +50,9 @@ sub list {
         $nick =~ s/([%_])/\\$1/g;
         $nick =~ s/\*/%/g;
         $nick =~ s/\?/_/g;
-        $srch->{nick} = { LIKE => "%$nick%" };
+        $nick = "%$nick" if $nick !~ /^%/;
+        $nick .= "%" if $nick !~ /[^%]%$/;
+        $srch->{nick} = { LIKE => $nick };
     }
     
     my $srch_url = 
