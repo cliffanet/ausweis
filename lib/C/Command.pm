@@ -44,9 +44,10 @@ sub list {
     $srch->{id} = $f->{cmdid} if $f->{cmdid};
     $srch->{blkid} = $f->{blkid} if $f->{blkid};
     if ($f->{name}) {
-        my ($name = $f->{name}) =~ s/([%_])/\\$1/g;
-        $name =~ s/*/%/g;
-        $name =~ s/?/_/g;
+        my $name = $f->{name};
+        $name =~ s/([%_])/\\$1/g;
+        $name =~ s/\*/%/g;
+        $name =~ s/\?/_/g;
         $srch->{name} = { LIKE => "%$name%" };
     }
     
