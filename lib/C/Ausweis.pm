@@ -51,7 +51,7 @@ sub list {
         $nick =~ s/\*/%/g;
         $nick =~ s/\?/_/g;
         $nick = "%$nick" if $nick !~ /^%/;
-        $nick .= "%" if $nick !~ /[^%]%$/;
+        $nick .= "%" if $nick !~ /[^\\]%$/;
         $srch->{nick} = { LIKE => $nick };
     }
     
