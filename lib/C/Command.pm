@@ -48,8 +48,8 @@ sub list {
         $name =~ s/([%_])/\\$1/g;
         $name =~ s/\*/%/g;
         $name =~ s/\?/_/g;
-        $name = "%$name" if $name !~ /^%/;
-        $name .= "%" if $name !~ /^(.*[^\\])?%$/;
+        #$name = "%$name" if $name !~ /^%/;
+        #$name .= "%" if $name !~ /^(.*[^\\])?%$/;
         $srch->{name} = { LIKE => $name };
     }
     
