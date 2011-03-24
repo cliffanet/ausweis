@@ -46,8 +46,10 @@ sub list {
     $srch->{cmdid} = $f->{cmdid} if $f->{cmdid};
     $srch->{blkid} = $f->{blkid} if $f->{blkid};
     if ($f->{nick}) {
-        $f->{nick} =~ s/%/\\%/g;
-        $srch->{nick} = { LIKE => "%$f->{nick}%" };
+        my ($nick = $f->{nick}) =~ s/([%_])/\\$1/g;
+        $nick =~ s/*/%/g;
+        $nick =~ s/?/_/g;
+        $srch->{nick} = { LIKE => "%$nick%" };
     }
     
     my $srch_url = 
