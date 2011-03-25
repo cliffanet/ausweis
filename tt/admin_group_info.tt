@@ -12,5 +12,5 @@
 </table>
 
 
-[% INCLUDE 'admin_rights_info.tt' admin_rights_list = group.rights_list %]
+[% INCLUDE 'admin_rights_info.tt' admin_rights_list = group.rights_list, href_edit = group.href_edit %]
     

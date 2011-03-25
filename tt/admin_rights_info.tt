@@ -10,6 +10,11 @@
     <tr><td colspan="2">&nbsp;</td></tr>
     [% END %]
 [% END %]
+<tr>
+    <td class="submit" colspan="2">
+        <a href="[% href_edit %]">изменить</a>
+    </td>
+</tr>
 </table>
 
 <br />

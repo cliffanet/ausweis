@@ -27,4 +27,4 @@
 
 <br />
 
-[% INCLUDE 'admin_rights_info.tt' admin_rights_list = user.rights_list %]
+[% INCLUDE 'admin_rights_info.tt' admin_rights_list = user.rights_list, href_edit = user.href_edit %]
