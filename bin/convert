@@ -92,7 +92,8 @@ if (!open(FH, $::convertFileAusweis)) {
     exit -1;
 }
 $self->model('Ausweis')->recreate();
-my $sth = $self->model('Ausweis')->create([qw/cmdid blkid nick/]);
+my $sth = $self->model('Ausweis')->create([qw/cmdid blkid blocked nick 
+                                                fio krov allerg neperenos polis medik comment/]);
 my $c = 0;
 foreach (<FH>) {
     my ($id, $numid, $part, $blocked, $fio, $nick, $command, 
@@ -114,7 +115,12 @@ foreach (<FH>) {
     else {
         $self->error("Ausweis for nick \"%s\" - unknown command", $nick);
     }
-    $sth->execute($cmdid, $blkid, $nick)
+    
+    $blocked = $blocked && ($blocked =~ /[Ää][Àà]/) ? 1 : 0;
+    s/^\s*[Íí][Åå][Òò]\s*$// foreach ($allerg, $neperenos);
+    
+    $sth->execute($cmdid, $blkid, $blocked, $nick, 
+                    $fio, $krov, $allerg, $neperenos, $polis, $medik, $comment)
         || next;
     
     $c++;

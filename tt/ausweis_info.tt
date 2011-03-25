@@ -12,5 +12,37 @@
         <td class="ltitle">Блок:</td>
         <td>[% IF rec.blok.id %]<a title="Фильтр команд по блоку" alt="Фильтр команд по блоку" href="[% cmd.href_list %]?blkid=[% rec.blkid %]">[% rec.blok.name %]</a>[% END %]</td>
     </tr>
+    <tr>
+        <td class="ltitle">Блокировка:</td>
+        <td>[% IF rec.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">ФИО:</td>
+        <td>[% rec.fio %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Группа крови:</td>
+        <td>[% rec.krov %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Аллергия:</td>
+        <td>[% rec.allerg %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Непереносимость:</td>
+        <td>[% rec.neperenos %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Полис:</td>
+        <td>[% rec.polis %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Медик:</td>
+        <td>[% rec.medik %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Примечания:</td>
+        <td>[% rec.comment %]</td>
+    </tr>
 </table>
 
