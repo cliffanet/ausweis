@@ -67,7 +67,7 @@
 [% IF authenticate.uid %]
     Вы вошли как: <b>[% authenticate.login %]</b><br />
     Группа: [% IF authenticate.group.id %][% authenticate.group.name %][% ELSE %]<i>(Без групппы)</i>[% END %]<br />
-    [% IF authenticate.user.cmdid && hash.${authenticate.user.cmdid} %]
+    [% IF user.user.cmdid && hash.${user.user.cmdid} %]
         Команда: <a title="Фильтр по команде" alt="Фильтр по команде" 
             href="[% cmd.hash.${authenticate.cmdid}.href_srch %]"
             >[% cmd.hash.${authenticate.cmdid}.name %]</a>
