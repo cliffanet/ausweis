@@ -85,12 +85,8 @@ sub http_accept {
         },
         cmd     => {
             href_list   => $self->href($::disp{CommandList}),
-            list        => sub {
-                $self->d->{cmd}->{_list} ||= [
-                    map { C::Command::_item($self, $_); }
-                    $self->model('Command')->search({},{order_by=>'name'})
-                ];
-            },
+            list        => sub { C::Command::_list($self); },
+            hash        => sub { C::Command::_hash($self); },
         },
         aus     => {
             href_list   => $self->href($::disp{AusweisList}),

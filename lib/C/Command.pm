@@ -15,7 +15,8 @@ sub _item {
     
     if ($id) {
         # Ññûëêè
-        $item->{href_info}       = $self->href($::disp{CommandShow}, $item->{id}, 'info');
+        $item->{href_info}      = $self->href($::disp{CommandShow}, $item->{id}, 'info');
+        $item->{href_srch}      = $self->href($::disp{AusweisList}."?cmdid=%d", $item->{id});
         #$item->{href_del}       = $self->href($::disp{CommandDel}, $item->{id});
         #$item->{href_delete}    = $self->href($::disp{CommandDel}, $item->{id});
     }
@@ -23,6 +24,21 @@ sub _item {
     return $item;
 }
 
+sub _list {
+    my $self = shift;
+    return $self->d->{cmd}->{_list} ||= [
+        map { _item($self, $_); }
+        $self->model('Command')->search({},{order_by=>'name'})
+    ];
+}
+
+sub _hash {
+    my $self = shift;
+    return $self->d->{cmd}->{_hash} ||= {
+        map { ($_->{id} => $_) }
+        @{ _list($self) }
+    };
+}
 
 sub list {
     my ($self) = @_;
