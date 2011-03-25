@@ -11,6 +11,7 @@
 </tr>
 </table>
 
+<br />
 
 [% INCLUDE 'admin_rights_info.tt' admin_rights_list = group.rights_list, href_edit = group.href_edit %]
     
