@@ -26,20 +26,13 @@
     </td>
 </tr>
 <tr>
-    <td class="ltitle">Фамилия:</td>
-    <td><input type="text"  class="stdin" name="family" value="[% user.family %]"[% user.edit_readonly %]></td>
-</tr>
-<tr>
-    <td class="ltitle">Имя:</td>
-    <td><input type="text"  class="stdin" name="name" value="[% user.name %]"[% user.edit_readonly %]></td>
-</tr>
-<tr>
-    <td class="ltitle">Отчество:</td>
-    <td><input type="text"  class="stdin" name="otch" value="[% user.otch %]"[% user.edit_readonly %]></td>
-</tr>
-<tr>
-    <td class="ltitle">Телефон:</td>
-    <td><input type="text"  class="stdin" name="phone" value="[% user.phone %]"[% user.edit_readonly %]></td>
+    <td class="ltitle">Команда:</td>
+    <td>
+        <select name="cmdid" class="stdin"[% user.edit_disabled %]>
+            <option value="0"> &lt;- нет привязки -&gt; </option>
+            [% FOREACH cmd.list %]<option value="[% id %]"[% IF id == user.cmdid %]>[% name %]</option>[% END %]
+        </select>
+    </td>
 </tr>
 <tr>
     <td class="submit" colspan="2">

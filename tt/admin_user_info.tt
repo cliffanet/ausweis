@@ -9,20 +9,14 @@
     <td>[% group.${user.gid}.name %]</td>
 </td>
 <tr>
-    <td class="ltitle">Фамилия:</td>
-    <td>[% user.family %]</td>
-</tr>
-<tr>
-    <td class="ltitle">Имя:</td>
-    <td>[% user.name %]</td>
-</tr>
-<tr>
-    <td class="ltitle">Отчество:</td>
-    <td>[% user.otch %]</td>
-</tr>
-<tr>
-    <td class="ltitle">Телефон:</td>
-    <td>[% user.phone %]</td>
+    <td class="ltitle">Команда:</td>
+    <td>
+        [% IF user.cmdid && cmd.hash.${user.cmdid} %]
+        <a title="Фильтр по команде" alt="Фильтр по команде" href="[% cmd.hash.${user.cmdid}.href_srch %]">[% cmd.hash.${user.cmdid}.name %]</a>
+        [% ELSE %]
+        -
+        [% END %]
+    </td>
 </tr>
 <tr>
     <td class="submit" colspan="2">
