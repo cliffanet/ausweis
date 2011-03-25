@@ -67,6 +67,11 @@
 [% IF authenticate.uid %]
     Вы вошли как: <b>[% authenticate.login %]</b><br />
     Группа: [% IF authenticate.group.id %][% authenticate.group.name %][% ELSE %]<i>(Без групппы)</i>[% END %]<br />
+    [% IF authenticate.cmdid && hash.${authenticate.cmdid} %]
+        Команда: <a title="Фильтр по команде" alt="Фильтр по команде" 
+            href="[% cmd.hash.${authenticate.cmdid}.href_srch %]"
+            >[% cmd.hash.${authenticate.cmdid}.name %]</a>
+    [% END %]
     <small>Ваш IP: [% authenticate.ip %]<br />
     [% TIME %] </small><br />
     <a href="[% authenticate.href_password_change_form %]">Изменить пароль</a>
