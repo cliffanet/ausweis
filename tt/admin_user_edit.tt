@@ -30,7 +30,7 @@
     <td>
         <select name="cmdid" class="stdin"[% user.edit_disabled %]>
             <option value="0"> &lt;- нет привязки -&gt; </option>
-            [% FOREACH cmd.list %]<option value="[% id %]"[% IF id == user.cmdid %]>[% name %]</option>[% END %]
+            [% FOREACH cmd.list %]<option value="[% id %]"[% IF id == user.cmdid %] selected[% END %]>[% name %]</option>[% END %]
         </select>
     </td>
 </tr>
