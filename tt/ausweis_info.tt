@@ -1,6 +1,10 @@
 <h3>Аусвайс</h3>
 <table class="tbl">
     <tr>
+        <td class="ltitle">ШтрихКод:</td>
+        <td><b>[% rec.numid %]</b></td>
+    </tr>
+    <tr>
         <td class="ltitle">Ник:</td>
         <td>[% rec.nick %]</td>
     </tr>

@@ -92,7 +92,7 @@ if (!open(FH, $::convertFileAusweis)) {
     exit -1;
 }
 $self->model('Ausweis')->recreate();
-my $sth = $self->model('Ausweis')->create([qw/cmdid blkid blocked nick 
+my $sth = $self->model('Ausweis')->create([qw/cmdid blkid blocked numid nick 
                                                 fio krov allerg neperenos polis medik comment/]);
 my $c = 0;
 foreach (<FH>) {
@@ -119,7 +119,7 @@ foreach (<FH>) {
     $blocked = $blocked && ($blocked =~ /[Ää][Àà]/) ? 1 : 0;
     s/^\s*[Íí][Åå][Òò]\s*$// foreach ($allerg, $neperenos);
     
-    $sth->execute($cmdid, $blkid, $blocked, $nick, 
+    $sth->execute($cmdid, $blkid, $blocked, $numid, $nick, 
                     $fio, $krov, $allerg, $neperenos, $polis, $medik, $comment)
         || next;
     
