@@ -178,7 +178,7 @@ sub img {
                 $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
                 
                 if (($o->{align} =~ /right/i)) {
-                    $o->{x} += $txtwidth-$w if $otxtwidth>$w;
+                    $o->{x} += $txtwidth-$w if $txtwidth>$w;
                 } elsif (($o->{align} =~ /center/i)) {
                     $o->{x} += int ($txtwidth-$w)/2 if $txtwidth>$w;
                 }
