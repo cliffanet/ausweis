@@ -52,7 +52,7 @@ sub render {
 #        }
 #        else {
             #print IMG 'test123';
-            $our = $d->{img}->ImageToBlob();
+            $out = $d->{img}->ImageToBlob();
             $self->r->debug("IMG: ".length($out));
             $self->r->res->body( \$out );
 #        }
