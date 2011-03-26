@@ -153,7 +153,7 @@ sub img {
 
     my @opt = @{ $::print{$type} || [] };
     $size =~ s/x/,/;
-    unshift @opt, (area => { points => "1,1 $size", color => 'black' });
+    unshift @opt, (area => { points => "1,1 $size", stroke => 'black' });
     use Data::Dumper;
     while (my $p = shift @opt) {
         my $o = shift @opt || next;
