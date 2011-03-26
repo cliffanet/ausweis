@@ -40,7 +40,7 @@ sub render {
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             
-        $self->r->res->body( \$d->{img}->ImageToBlob( magick=>'png' ) );
+        $self->r->res->body( \$d->{img}->ImageToBlob( magick=>'GIF' ) );
     }
 }
 
