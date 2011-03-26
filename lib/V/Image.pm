@@ -39,8 +39,16 @@ sub render {
         $self->r->res->headers('Content-type' => 'image/png');
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
-        $self->r->res->body( sub { $self->d->{img}->Write('png:-'); } )
-            if $self->d->{img};
+        
+        if ($d->{img}) {
+            my $d;
+            if (my $error = $d->{img}->Write('png:-')) {
+                $self->r->error("Write PNG ERROR: $error");
+            }
+            else {
+                $self->r->res->body( \$d );
+            }
+        }
     }
 }
 
