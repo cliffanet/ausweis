@@ -23,7 +23,7 @@ sub _item {
         #$item->{href_del}       = $self->href($::disp{AusweisDel}, $item->{id});
         #$item->{href_delete}    = $self->href($::disp{AusweisDel}, $item->{id});
         
-        $item->{href_photo}     = $item->{photo} ? "$::urlPhoto/$item->{photo}" : '';
+        $item->{href_photo}     = $item->{photo} ? "$::urlPhoto/ausweis/$item->{photo}" : '';
     }
     
     return $item;

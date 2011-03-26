@@ -6,7 +6,7 @@ use warnings;
 use base 'Clib::DBIC';
 
 __PACKAGE__->table("blok");
-__PACKAGE__->columns_array(qw/id dtadd name/);
+__PACKAGE__->columns_array(qw/id dtadd name photo/);
 
 sub create {
     my ($self, $new) = @_;

@@ -44,7 +44,8 @@ if (!open(FH, $::convertFileBlok)) {
 $self->model('Blok')->recreate();
 my $sth = $self->model('Blok')->create([qw/name/]);
 foreach (<FH>) {
-    my ($name) = map { field($_) } (split /;/);
+    s/\s+$//;
+    my ($name, $photo) = map { field($_) } (split /;/);
     if (($name eq 'Нет') || !$name) {
         $blok{$name} = 0;
         next;
@@ -52,6 +53,10 @@ foreach (<FH>) {
     $sth->execute($name)
         || next;
     $blok{$name} = $self->model('Blok')->insertid;
+    
+    
+    # копируем фото
+    save_photo('Blok', $photo, $blok{$name}, $name) || next;
 }
 $sth->finish;
 close FH;
@@ -69,7 +74,8 @@ if (!open(FH, $::convertFileCommand)) {
 $self->model('Command')->recreate();
 my $sth = $self->model('Command')->create([qw/name/]);
 foreach (<FH>) {
-    my ($name) = map { field($_) } (split /;/);
+    s/\s+$//;
+    my ($name, $photo) = map { field($_) } (split /;/);
     if (($name eq 'Нет') || !$name) {
         $command{$name} = 0;
         next;
@@ -77,6 +83,9 @@ foreach (<FH>) {
     $sth->execute($name)
         || next;
     $command{$name} = $self->model('Command')->insertid;
+    
+    # копируем фото
+    save_photo('Command', $photo, $command{$name}, $name) || next;
 }
 $sth->finish;
 close FH;
@@ -96,6 +105,7 @@ my $sth = $self->model('Ausweis')->create([qw/cmdid blkid blocked numid nick
                                                 fio krov allerg neperenos polis medik comment/]);
 my $c = 0;
 foreach (<FH>) {
+    s/\s+$//;
     my ($id, $numid, $part, $blocked, $fio, $nick, $command, 
         $krov, $allerg, $neperenos, $polis, $medik, 
         $blok, $comment, $photo) = map { field($_) } (split /;/);
@@ -125,35 +135,7 @@ foreach (<FH>) {
     my $id = $self->model('Ausweis')->insertid;
     
     # копируем фото
-    if ($photo) {
-        if (-f "$::convertDirPhoto/$photo") {
-            if (open(FHI, "$::convertDirPhoto/$photo")) {
-                my $ext = lc $1 if $photo =~ /\.([a-zA-Z0-9]{1,5})$/;
-                $ext ||= 'jpg';
-                my $file = "$id.$ext";
-                if (open(FHO, ">$::dirPhoto/$file")) {
-                    print FHO <FHI>;
-                    close FHO;
-                    $self->model('Ausweis')->update({ photo => $file }, { id => $id }, nolog => 1)
-                        || next;
-                }
-                else {
-                    $self->error("Ausweis [$nick]: Can't copy photo ($::dirPhoto/$file): $!");
-                    close FHI;
-                    next;
-                }
-                close FHI;
-            }
-            else {
-                $self->error("Ausweis [$nick]: Can't read photo file($::convertDirPhoto/$photo): $!");
-                next;
-            }
-        }
-        else {
-            $self->error("Ausweis [$nick]: file not found ($::convertDirPhoto/$photo)");
-            next;
-        }
-    }
+    save_photo('Ausweis', $photo, $id, $nick) || next;
     
     $c++;
 }
@@ -161,6 +143,43 @@ $sth->finish;
 close FH;
 $self->log("AUSWEIS: OK %d items", $c);
 
+
+sub save_photo {
+    my ($model, $photo, $id, $name) = @_;
+    
+    $photo || return '0E0';
+    
+    my $dir = lc $model;
+    
+    if (!(-f "$::convertDirPhoto/$dir/$photo")) {
+        $self->error("$model [$name]: file not found ($::convertDirPhoto/$dir/$photo)");
+        return;
+    }
+    
+    if (!open(FHI, "$::convertDirPhoto/$dir/$photo")) {
+        $self->error("$model [$name]: Can't read photo file($::convertDirPhoto/$dir/$photo): $!");
+        return;
+    }
+    
+    my $ext = lc $1 if $photo =~ /\.([a-zA-Z0-9]{1,5})$/;
+    $ext ||= 'jpg';
+    my $file = "$id.$ext";
+    
+    if (!open(FHO, ">$::dirPhoto/$dir/$file")) {
+        $self->error("$model [$name]: Can't copy photo ($::dirPhoto/$dir/$file): $!");
+        close FHI;
+        return;
+    }
+    
+    print FHO <FHI>;
+    close FHO;
+    close FHI;
+    
+    $self->model($model)->update({ photo => $file }, { id => $id }, nolog => 1)
+        || return;
+    
+    1;
+}
 
 sub field {
     my $field = shift;
