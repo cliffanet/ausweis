@@ -40,7 +40,7 @@ sub render {
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             
-        $d->{img}->Set(magick=>'png');
+#        $d->{img}->Set(magick=>'png');
 #        if (!open(IMG, '>', \$out)) {
 #            $self->r->error("Can't open img-handler");
 #        } 
@@ -54,7 +54,7 @@ sub render {
 #            $self->r->res->body( \$out );
 #        }
 #        close IMG;
-        $self->r->res->body( \$d->{img}->ImageToBlob() );
+        $self->r->res->body( \$d->{img}->ImageToBlob( magick=>'png' ) );
     }
 }
 
