@@ -82,6 +82,8 @@
 [% END %]
             </select>
     </td>
+</tr>
+<tr>
     <td class="ltitle">Команда:</td>
     <td>
         <select name="cmdid" class="stdin"[% admin.edit_disabled %]>
