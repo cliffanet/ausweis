@@ -168,14 +168,13 @@ sub img {
         }
         elsif ((lc($p) eq 'text') && $o->{text} && $o->{x} && $o->{y}) {
             my $m = Clib::Mould->new();
-            $o->{text} = $m->Parse(data => $o->{text}, pattlist => $rec);
+            $o->{text} = $m->Parse(data => $o->{text}, pattlist => $rec, dot2hash => 1);
             $self->debug("TEXT: $o->{text}");
             
             my $txtwidth = delete $o->{width};
             if ($txtwidth && $o->{align}) {
                 my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
                     = $img->QueryFontMetrics(%$o);
-                #$w *= length($o->{text});
                 $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
                 
                 if (($o->{align} =~ /right/i)) {
