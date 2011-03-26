@@ -154,12 +154,12 @@ sub img {
     my @opt = @{ $::print{$type} || [] };
     unshift @opt, (area => { points => "1,1 $size" });
     use Data::Dumper;
-    $self->debug("opts: ".Dumper(\@opt));
     while (my $p = shift @opt) {
         my $o = shift @opt || next;
         next unless ref($o) eq 'HASH';
         
         my $error;
+        $self->debug("opts[$p]: ".Dumper($o));
         if (lc($o) eq 'area') {
             $error = $img->Draw(primitive=>'rectangle', %$o);
         }
