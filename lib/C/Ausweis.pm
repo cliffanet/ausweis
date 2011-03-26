@@ -55,7 +55,8 @@ sub list {
         #$text = "%$text" if $text !~ /^%/;
         #$text .= "%" if $text !~ /^(.*[^\\])?%$/;
         
-        $srch->{$_} = { LIKE => $text }
+        $srch->{-or} = {};
+        $srch->{-or}->{$_} = { LIKE => $text }
             foreach qw/nick fio comment krov allerg neperenos polis medik/;
     }
     
