@@ -3,7 +3,8 @@ package C::Ausweis;
 use strict;
 use warnings;
 
-#use Image::Magick;
+use Image::Magick;
+use Clib::Mould;
 
 ##################################################
 ###     Основной список
@@ -135,14 +136,13 @@ sub img {
     $type = 'info' if !$type || ($type !~ /^(front|rear)$/);
     
     my ($rec) = (($self->d->{rec}) = 
-        map { _item($self, $_) }
+        #map { _item($self, $_) }
         $self->model('Ausweis')->search({ id => $id }, { prefetch => [qw/command blok/] }));
     $rec || return $self->state(-000105, '');
     
     if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
     }
-    return;
     
     my $width = $::print{width} || 200;
     my $height= $::print{height}|| 400;
@@ -167,6 +167,10 @@ sub img {
             $error = $img->Draw(primitive=>'rectangle', %$o);
         }
         elsif ((lc($p) eq 'text') && $o->{text}) {
+            my $m = Clib::Mould->new();
+            $o->{text} = $m->Parse(data => $o->{text}, pattlist => $rec);
+            $self->debug("TEXT: $o->{text}");
+            
             my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
                 = $img->QueryFontMetrics(%$o);
             $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
