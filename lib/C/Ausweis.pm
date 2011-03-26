@@ -148,7 +148,7 @@ sub img {
     my $width = $::print{width} || 200;
     my $height= $::print{height}|| 400;
     my $img = ($self->d->{img} = Image::Magick->new(size => "${width}x${height}", 
-        'x-resolution'=>150, 'y-resolution'=>150));
+        density=>"150x150"));
     $img || return $self->state(-000100, '');
     my $bg = $::print{bgcolor} || 'transparent';
     $img->ReadImage("xc:$bg");
