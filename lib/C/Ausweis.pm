@@ -152,6 +152,7 @@ sub img {
     $self->view_select('Image');
 
     my @opt = @{ $::print{$type} || [] };
+    $size =~ s/x/,/;
     unshift @opt, (area => { points => "1,1 $size" });
     use Data::Dumper;
     while (my $p = shift @opt) {
