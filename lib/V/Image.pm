@@ -36,11 +36,11 @@ sub render {
         $self->r->res->body( "ERROR: $d->{error}\n" );
     }
     else {
-        $self->r->res->headers('Content-type' => 'image/gif');
+        $self->r->res->headers('Content-type' => 'image/jpeg');
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             
-        $self->r->res->body( \$d->{img}->ImageToBlob( magick=>'GIF' ) );
+        $self->r->res->body( \$d->{img}->ImageToBlob( magick=>'JPG' ) );
     }
 }
 
