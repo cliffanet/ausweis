@@ -147,8 +147,8 @@ sub http_accept {
     # Главная страница
     if (!$self->d->{denied} &&
         (!$ENV{PATH_INFO} || ($ENV{PATH_INFO} =~ /^\/$/))) {
-        if ($self->rights_exists($::rCommandList)) {
-            $self->forward($::disp{CommandList});
+        if ($self->rights_exists($::rAusweisList)) {
+            $self->forward($::disp{AusweisList});
         }
         elsif ($self->rights_check($::rCommandInfo, $::rMy)) {
             $self->forward(sprintf($::disp{CommandShowMy}, 'info'));
