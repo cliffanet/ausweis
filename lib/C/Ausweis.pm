@@ -173,19 +173,19 @@ sub img {
             $self->debug("TEXT: $o->{text}");
             $o->{text} = decode('cp1251', $o->{text});
             
-            my $txtwidth = delete $o->{width};
-            if ($txtwidth && $o->{align}) {
-                my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
-                    = $img->QueryFontMetrics(%$o);
-                $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
-                
-                if (($o->{align} =~ /right/i)) {
-                    $o->{x} += $txtwidth-$w if $txtwidth>$w;
-                } elsif (($o->{align} =~ /center/i)) {
-                    $o->{x} += int ($txtwidth-$w)/2 if $txtwidth>$w;
-                }
-            }
-            delete $o->{width};
+            #my $txtwidth = delete $o->{width};
+            #if ($txtwidth && $o->{align}) {
+            #    my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
+            #        = $img->QueryFontMetrics(%$o);
+            #    $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
+            #    
+            #    if (($o->{align} =~ /right/i)) {
+            #        $o->{x} += $txtwidth-$w if $txtwidth>$w;
+            #    } elsif (($o->{align} =~ /center/i)) {
+            #        $o->{x} += int ($txtwidth-$w)/2 if $txtwidth>$w;
+            #    }
+            #}
+            #delete $o->{width};
             delete $o->{align};
             
             $error = $img->Annotate(antialias=>'true', %$o);
