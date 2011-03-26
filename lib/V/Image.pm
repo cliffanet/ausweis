@@ -30,7 +30,7 @@ sub render {
     my ($self) = @_;
     my $d = $self->r->d;
 
-    if ($d->{error} || !$d->{rrd} || !@{$d->{rrd}}) {
+    if ($d->{error} || !$d->{img}) {
         $self->r->res->headers('Content-type' => 'text/plain');
         $d->{error} ||= 'unknown';
         $self->r->res->body( "ERROR: $d->{error}\n" );
@@ -42,15 +42,12 @@ sub render {
             
         use Data::Dumper;
         $self->debug("IMG: $d->{img}");
-        
-        if ($d->{img}) {
-            my $d;
-            if (my $error = $d->{img}->Write('png:-')) {
-                $self->r->error("Write PNG ERROR: $error");
-            }
-            else {
-                $self->r->res->body( \$d );
-            }
+        my $d;
+        if (my $error = $d->{img}->Write('png:-')) {
+            $self->r->error("Write PNG ERROR: $error");
+        }
+        else {
+            $self->r->res->body( \$d );
         }
     }
 }
