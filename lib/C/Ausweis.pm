@@ -162,6 +162,7 @@ sub img {
         my $error;
         $self->debug("opts[$p]: ".Dumper($o));
         if (lc($o) eq 'area') {
+            $o->{stroke} ||= $o->{color} if $o->{color};
             $error = $img->Draw(primitive=>'rectangle', %$o);
         }
         
