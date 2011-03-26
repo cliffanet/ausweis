@@ -43,19 +43,17 @@ sub render {
         use Data::Dumper;
         $self->r->debug("IMG: $d->{img}");
         my ($out, $fh);
-#        if (!open($fh, '>', \$out)) {
-#            $self->r->error("Can't open img-handler");
-#        } 
-#        elsif (my $error = $d->{img}->ImageToBlob()) {
-#            $self->r->error("Write PNG ERROR: $error");
-#        }
-#        else {
-        $out = $d->{img}->ImageToBlob();
-        $self->r->debug("IMG: ".length($out));
+        if (!open(IMG, '>', \$out)) {
+            $self->r->error("Can't open img-handler");
+        } 
+        elsif (my $error = $d->{img}->Write(file => \*IMG)) {
+            $self->r->error("Write PNG ERROR: $error");
+        }
+        else {
+            $self->r->debug("IMG: ".length($out));
             $self->r->res->body( \$out );
-#        }
-#        close $fh;
-    }
+        }
+        close $fh;
 }
 
 sub runtime { shift->{_runtime}; }
