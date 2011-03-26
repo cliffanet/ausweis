@@ -146,18 +146,24 @@ sub img {
     my $size = $::print{size} || '200x500';
     my $img = ($self->d->{img} = Image::Magick->new(size => $size));
     $img || return $self->state(-000100, '');
-    
-    #$img->Set(size => '300x100');
-    $img->ReadImage('xc:transparent');
-    #$img->Transparent(color=>'white');
-    
-    $img->Draw(stroke=>'red', primitive=>'rectangle', points=>'20,20 100,100');
-    
-    $img->Draw(fill=>'red', primitive=>'rectangle',
-         points=>'20,20 100,100  40,40 200,200  60,60 300,300');
-         
+    my $bg = $::print{bgcolor} || 'transparent';
+    $img->ReadImage("xc:$bg");
     
     $self->view_select('Image');
+
+    my @opt = @{ $::print{$type} || [] };
+    unshift @opt, (area => { points => "1,1 $size" });
+    while (my $p = shift @opt) {
+        my $o = shift @opt || next;
+        next unless ref($o) eq 'HASH';
+        
+        my $error;
+        if (lc($o) eq 'area') {
+            $error = $img->Draw(primitive=>'rectangle', %$o);
+        }
+        
+        $self->error("Image::Magick ERROR(%s): %s", $p, $error);
+    }
 }
 
 
