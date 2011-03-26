@@ -73,6 +73,9 @@ sub list {
         $srch->{name} = { LIKE => $name };
     }
     
+    use Data::Dumper;
+    $self->debug($srch);
+    
     my $srch_url = 
         join('&',
             (map { $_.'='.Clib::Mould->ToUrl($f->{$_}) }
