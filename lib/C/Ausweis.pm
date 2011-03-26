@@ -166,14 +166,25 @@ sub img {
             $o->{fill} ||= $bg;
             $error = $img->Draw(primitive=>'rectangle', %$o);
         }
-        elsif ((lc($p) eq 'text') && $o->{text}) {
+        elsif ((lc($p) eq 'text') && $o->{text} && $o->{x} && $o->{y}) {
             my $m = Clib::Mould->new();
             $o->{text} = $m->Parse(data => $o->{text}, pattlist => $rec);
             $self->debug("TEXT: $o->{text}");
             
-            my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
-                = $img->QueryFontMetrics(%$o);
-            $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
+            if ($o->{width} && $o->{align}) {
+                my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
+                    = $img->QueryFontMetrics(%$o);
+                $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
+                
+                if (($o->{align} =~ /right/i)) {
+                    $o->{x} += $o->{width}-$w if $o->{width}>$w;
+                } elsif (($o->{align} =~ /center/i)) {
+                    $o->{x} += int ($o->{width}-$w)/2 if $o->{width}>$w;
+                }
+            }
+            
+            $error = $img->Annotate(%$o);
+            
         }
         elsif ((((lc($p) eq 'photo') && $rec->{photo}) || 
                 ((lc($p) eq 'logo') && $rec->{command}->{photo})) && 
@@ -196,9 +207,9 @@ sub img {
                     $error && last;
                     $w = int($w*$k);
                 }
-                if ($o->{align} && ($o->{align} =~ /right/i)) {
+                if ($o->{width} && $o->{align} && ($o->{align} =~ /right/i)) {
                     $o->{x} += $o->{width}-$w if $o->{width}>$w;
-                } elsif ($o->{align} && ($o->{align} =~ /center/i)) {
+                } elsif ($o->{width} && $o->{align} && ($o->{align} =~ /center/i)) {
                     $o->{x} += int ($o->{width}-$w)/2 if $o->{width}>$w;
                 }
                 $error = $img->Composite(image => $img1, x=>$o->{x}, y=>$o->{y});
