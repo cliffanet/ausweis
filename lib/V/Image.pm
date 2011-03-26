@@ -43,10 +43,10 @@ sub render {
         use Data::Dumper;
 #        $self->r->debug("IMG: $d->{img}");
         my ($out, $fh);
-    if (!open($fh, '>', \$out)) {
+    if (!open(IMG, '>', \$out)) {
             $self->r->error("Can't open img-handler");
         } 
-        elsif (my $error = $d->{img}->Write(file => $fh, magick=>'png')) {
+        elsif (my $error = $d->{img}->Write(file => \*IMG, magick=>'png')) {
             $self->r->error("Write PNG ERROR: $error");
         }
         else {
@@ -54,7 +54,7 @@ sub render {
             $self->r->debug("IMG: ".length($out));
             $self->r->res->body( \$out );
         }
-        close $fh;
+        close IMG;
     #    $self->r->res->body( sub { $d->{img}->Write('png:-') } );
     }
 }
