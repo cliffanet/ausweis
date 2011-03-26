@@ -54,7 +54,7 @@
 
 <h3>Фото</h3>
 [% IF rec.photo %]
-<img width="500" alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_photo %]" />
+<img width="200" alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_photo %]" />
 <br />
 [% ELSE %]
 <div style="color:red; text-weight:bold;">НЕТ</div>
@@ -64,7 +64,7 @@
 
 <h3>Эмблема</h3>
 [% IF rec.command.photo %]
-<img width="500" alt="[% rec.command.nick %]" title="[% rec.command.nick %]" src="[% rec.command.href_photo %]" />
+<img width="200" alt="[% rec.command.nick %]" title="[% rec.command.nick %]" src="[% rec.command.href_photo %]" />
 <br />
 [% ELSE %]
 <div style="color:red; text-weight:bold;">НЕТ</div>

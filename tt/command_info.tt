@@ -37,7 +37,7 @@
 
 <h3>Эмблема</h3>
 [% IF rec.photo %]
-<img width="500" alt="[% rec.name %]" title="[% rec.name %]" src="[% rec.href_photo %]" />
+<img width="300" alt="[% rec.name %]" title="[% rec.name %]" src="[% rec.href_photo %]" />
 <br />
 [% ELSE %]
 <div style="color:red; text-weight:bold;">НЕТ</div>
