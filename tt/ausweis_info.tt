@@ -62,6 +62,6 @@
 [% IF rec.command.photo %]
 <img width="200" alt="[% rec.command.nick %]" title="[% rec.command.nick %]" src="[% rec.command.href_photo %]" align="right" />
 [% ELSE %]
-<span style="color:red; text-weight:bold; text-align:right">[щлакелш мер]</span>
+<right><span style="color:red; text-weight:bold;">[щлакелш мер]</span></right>
 [% END %]
 
