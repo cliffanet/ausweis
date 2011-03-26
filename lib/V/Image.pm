@@ -44,8 +44,9 @@ sub render {
         $self->r->debug("IMG: $d->{img}");
         my ($out, $fh);
         if (!open($fh, '>', \$out)) {
+            $self->r->error("Can't open img-handler");
         } 
-        elsif (my $error = $d->{img}->Write(file => $fh, filename => '1.png')) {
+        elsif (my $error = $d->{img}->Write(file => $fh)) {
             $self->r->error("Write PNG ERROR: $error");
         }
         else {
