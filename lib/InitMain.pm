@@ -148,10 +148,10 @@ sub http_accept {
     if (!$self->d->{denied} &&
         (!$ENV{PATH_INFO} || ($ENV{PATH_INFO} =~ /^\/$/))) {
         if ($self->rights_exists($::rCommandList)) {
-            $ENV{PATH_INFO} = $::disp{CommandList};
+            $self->forward($::disp{CommandList});
         }
         elsif ($self->rights_check($::rCommandInfo, $::rMy)) {
-            $ENV{PATH_INFO} = sprintf($::disp{CommandShowMy}, 'info');
+            $self->forward(sprintf($::disp{CommandShowMy}, 'info'));
         }
     }
     
