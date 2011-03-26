@@ -110,6 +110,10 @@ sub show {
         $self->model('Ausweis')->search({ id => $id }, { prefetch => [qw/command blok/] }));
     $rec || return $self->state(-000105);
     
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
+        return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
+    }
+    
     $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{nick}));
     $self->view_select->subtemplate("ausweis_$type.tt");
     
