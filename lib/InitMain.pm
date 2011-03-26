@@ -144,6 +144,15 @@ sub http_accept {
         @rights::AdminMenu
     ];
     
+    # Главная страница
+    if (!$ENV{PATH_INFO}) {
+        if ($self->rights_exists($::rCommandList)) {
+            $self->forward($::dispCommandList);
+        }
+        elsif ($self->rights_check($::rCommandInfo, $::rMy)) {
+            $self->forward($::dispCommandInfoMy);
+        }
+    }
     
 }
 
