@@ -147,7 +147,8 @@ sub img {
     
     my $width = $::print{width} || 200;
     my $height= $::print{height}|| 400;
-    my $img = ($self->d->{img} = Image::Magick->new(size => "${width}x${height}"));
+    my $img = ($self->d->{img} = Image::Magick->new(size => "${width}x${height}", 
+        'x-resolution'=>150, 'y-resolution'=>150));
     $img || return $self->state(-000100, '');
     my $bg = $::print{bgcolor} || 'transparent';
     $img->ReadImage("xc:$bg");
@@ -172,21 +173,6 @@ sub img {
             $o->{text} = $m->Parse(data => $o->{text}, pattlist => $rec, dot2hash => 1);
             $self->debug("TEXT: $o->{text}");
             $o->{text} = decode('cp1251', $o->{text});
-            
-            #my $txtwidth = delete $o->{width};
-            #if ($txtwidth && $o->{align}) {
-            #    my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
-            #        = $img->QueryFontMetrics(%$o);
-            #    $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
-            #    
-            #    if (($o->{align} =~ /right/i)) {
-            #        $o->{x} += $txtwidth-$w if $txtwidth>$w;
-            #    } elsif (($o->{align} =~ /center/i)) {
-            #        $o->{x} += int ($txtwidth-$w)/2 if $txtwidth>$w;
-            #    }
-            #}
-            delete $o->{width};
-            #delete $o->{align};
             
             $error = $img->Annotate(antialias=>'true', %$o);
             
