@@ -145,12 +145,13 @@ sub http_accept {
     ];
     
     # Главная страница
-    if (!$ENV{PATH_INFO} || ($ENV{PATH_INFO} =~ /^\/$/)) {
+    if (!$self->d->{denied} &&
+        (!$ENV{PATH_INFO} || ($ENV{PATH_INFO} =~ /^\/$/))) {
         if ($self->rights_exists($::rCommandList)) {
-            $ENV{PATH_INFO} = $::dispCommandList;
+            $ENV{PATH_INFO} = $::disp{CommandList};
         }
         elsif ($self->rights_check($::rCommandInfo, $::rMy)) {
-            $ENV{PATH_INFO} = sprintf($::dispCommandShowMy, 'info');
+            $ENV{PATH_INFO} = sprintf($::disp{CommandShowMy}, 'info');
         }
     }
     
