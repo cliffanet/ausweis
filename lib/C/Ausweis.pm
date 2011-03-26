@@ -148,6 +148,9 @@ sub img {
     
     $img->Draw(stroke=>'red', primitive=>'rectangle', points=>'20,20 100,100');
     
+    $img->Draw(fill=>'red', primitive=>'rectangle',
+         points=>'20,20 100,100  40,40 200,200  60,60 300,300');
+         
     
     $self->view_select('Image');
 }
