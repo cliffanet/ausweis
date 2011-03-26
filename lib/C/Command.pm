@@ -116,12 +116,17 @@ sub show {
 
     return unless $self->rights_exists_event($::rCommandInfo);
     
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
+        return unless $self->rights_check_event($::rCommandInfo, $::rAll);
+    }
+    
     $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
     
     my ($rec) = (($self->d->{rec}) = 
         map { _item($self, $_) }
         $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
     $rec || return $self->state(-000105);
+    
     
     $self->patt(TITLE => sprintf($text::titles{"command_$type"}, $rec->{name}));
     $self->view_select->subtemplate("command_$type.tt");
@@ -146,6 +151,15 @@ sub show {
         )
         ];
     };
+}
+
+sub show_my {
+    my ($self, $type) = @_;
+    
+    my $cmdid = $self->user ? $self->user->{cmdid} : 0;
+    $cmdid || return $self->rights_denied();
+    
+    return show($self, $cmdid, $type);
 }
 
 

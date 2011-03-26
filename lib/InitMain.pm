@@ -20,6 +20,7 @@ __PACKAGE__->config(
         
         $::disp{CommandList}            => 'C::Command::list',
         $::disp{CommandShow}            => 'C::Command::show',
+        $::disp{CommandShowMy}          => 'C::Command::show_my',
 
         $::disp{AusweisList}            => 'C::Ausweis::list',
         $::disp{AusweisShow}            => 'C::Ausweis::show',
