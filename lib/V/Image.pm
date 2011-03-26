@@ -46,10 +46,11 @@ sub render {
     if (!open(IMG, '>', \$out)) {
             $self->r->error("Can't open img-handler");
         } 
-        elsif (my $error = $d->{img}->Write('png', file => \*IMG)) {
-            $self->r->error("Write PNG ERROR: $error");
-        }
+        #elsif (my $error = $d->{img}->Write('png', file => \*IMG)) {
+        #    $self->r->error("Write PNG ERROR: $error");
+        #}
         else {
+            print IMG 'test';
             $self->r->debug("IMG: ".length($out));
             $self->r->res->body( \$out );
         }
