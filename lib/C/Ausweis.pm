@@ -48,7 +48,7 @@ sub list {
     $srch->{cmdid} = $f->{cmdid} if $f->{cmdid};
     $srch->{blkid} = $f->{blkid} if $f->{blkid};
     if ($f->{text}) {
-        my $text = $f->{nick};
+        my $text = $f->{text};
         $text =~ s/([%_])/\\$1/g;
         $text =~ s/\*/%/g;
         $text =~ s/\?/_/g;
