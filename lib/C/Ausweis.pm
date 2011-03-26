@@ -181,11 +181,11 @@ sub img {
                 my $img1 = Image::Magick->new();
                 $error = $img1->Read($file);
                 $error && last;
-                my ($w, $h) = ($img->Get('width'), $img->Get('height'));
+                my ($w, $h) = ($img1->Get('width'), $img->Get('height'));
                 my $k = $o->{width} && ($o->{width} < $w) ? $o->{width}/$w : 1;
                 $k = $o->{height}/$h if $o->{height} && (($o->{height}/$h) < $k);
                 if ($k < 1) {
-                    $error = $img->Resize(width=>$w*$k, height=>$h*$k);
+                    $error = $img1->Resize(width=>$w*$k, height=>$h*$k);
                     $error && last;
                 }
                 $error = $img->Composite(image => $img1, x=>$o->{x}, y=>$o->{y});
