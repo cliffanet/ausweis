@@ -183,7 +183,7 @@ sub img {
                 }
             }
             
-            $error = $img->Annotate(%$o);
+            $error = $img->Annotate(antialias=>'true', %$o);
             
         }
         elsif ((((lc($p) eq 'photo') && $rec->{photo}) || 
