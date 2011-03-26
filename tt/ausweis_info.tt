@@ -57,5 +57,6 @@
 <img alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_photo %]" />
 [% ELSE %]
 <div style="color:red; text-weight:bold;">мер</div>
+[% END %]
 
 <br />
