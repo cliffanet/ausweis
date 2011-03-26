@@ -143,11 +143,12 @@ sub img {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
     }
     
-    my $img = ($self->d->{img} = Image::Magick->new(size=>'384x256'));
+    my $size = $::print{size} || '200x500';
+    my $img = ($self->d->{img} = Image::Magick->new(size => $size));
     $img || return $self->state(-000100, '');
     
     #$img->Set(size => '300x100');
-    $img->ReadImage('xc:white');
+    $img->ReadImage('xc:');
     
     $img->Draw(stroke=>'red', primitive=>'rectangle', points=>'20,20 100,100');
     

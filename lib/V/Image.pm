@@ -40,20 +40,6 @@ sub render {
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             
-#        $d->{img}->Set(magick=>'png');
-#        if (!open(IMG, '>', \$out)) {
-#            $self->r->error("Can't open img-handler");
-#        } 
-#        elsif (my $error = $d->{img}->Write(file => \*IMG, filename=>'-')) {
-#            $self->r->error("Write PNG ERROR: $error");
-#        }
-#        else {
-            #print IMG 'test123';
-#            $out = $d->{img}->ImageToBlob();
-#            $self->r->debug("IMG: ".length($out));
-#            $self->r->res->body( \$out );
-#        }
-#        close IMG;
         $self->r->res->body( \$d->{img}->ImageToBlob( magick=>'png' ) );
     }
 }
