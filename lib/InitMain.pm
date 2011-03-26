@@ -147,10 +147,10 @@ sub http_accept {
     # Главная страница
     if (!$ENV{PATH_INFO} || ($ENV{PATH_INFO} =~ /^\/$/)) {
         if ($self->rights_exists($::rCommandList)) {
-            $self->forward($::dispCommandList);
+            $ENV{PATH_INFO} = $::dispCommandList;
         }
         elsif ($self->rights_check($::rCommandInfo, $::rMy)) {
-            $self->forward(sprintf($::dispCommandShowMy, 'info'));
+            $ENV{PATH_INFO} = sprintf($::dispCommandShowMy, 'info');
         }
     }
     
