@@ -153,6 +153,8 @@ sub img {
 
     my @opt = @{ $::print{$type} || [] };
     unshift @opt, (area => { points => "1,1 $size" });
+    use Data::Dumper;
+    $self->debug("opts: ".Dumper(\@opt));
     while (my $p = shift @opt) {
         my $o = shift @opt || next;
         next unless ref($o) eq 'HASH';
@@ -162,7 +164,8 @@ sub img {
             $error = $img->Draw(primitive=>'rectangle', %$o);
         }
         
-        $self->error("Image::Magick ERROR(%s): %s", $p, $error);
+        $self->error("Image::Magick ERROR(%s): %s", $p, $error)
+            if $error;
     }
 }
 
