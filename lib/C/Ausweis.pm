@@ -153,16 +153,16 @@ sub img {
 
     my @opt = @{ $::print{$type} || [] };
     $size =~ s/x/,/;
-    unshift @opt, (area => { points => "1,1 $size", fill => 'black' });
+    unshift @opt, (area => { points => "1,1 $size", fill => 'red' });
     use Data::Dumper;
     while (my $p = shift @opt) {
         my $o = shift @opt || next;
         next unless ref($o) eq 'HASH';
         
         my $error;
-        $self->debug("opts[$p]: ".Dumper($o));
         if (lc($o) eq 'area') {
             $o->{stroke} ||= $o->{color} if $o->{color};
+        $self->debug("opts[$p]: ".Dumper($o));
             $error = $img->Draw(primitive=>'rectangle', %$o);
         }
         
