@@ -171,15 +171,16 @@ sub img {
             $o->{text} = $m->Parse(data => $o->{text}, pattlist => $rec);
             $self->debug("TEXT: $o->{text}");
             
-            if ($o->{width} && $o->{align}) {
+            my $txtwidth = delete $o->{width};
+            if ($txtwidth && $o->{align}) {
                 my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
                     = $img->QueryFontMetrics(%$o);
                 $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
                 
                 if (($o->{align} =~ /right/i)) {
-                    $o->{x} += $o->{width}-$w if $o->{width}>$w;
+                    $o->{x} += $txtwidth-$w if $otxtwidth>$w;
                 } elsif (($o->{align} =~ /center/i)) {
-                    $o->{x} += int ($o->{width}-$w)/2 if $o->{width}>$w;
+                    $o->{x} += int ($txtwidth-$w)/2 if $txtwidth>$w;
                 }
             }
             
