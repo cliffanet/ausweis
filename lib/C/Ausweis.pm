@@ -175,8 +175,8 @@ sub img {
             if ($txtwidth && $o->{align}) {
                 my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
                     = $img->QueryFontMetrics(%$o);
-                $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
                 $w *= length($o->{text});
+                $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
                 
                 if (($o->{align} =~ /right/i)) {
                     $o->{x} += $txtwidth-$w if $txtwidth>$w;
