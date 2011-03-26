@@ -191,10 +191,10 @@ sub img {
                 my $k = $o->{width} && ($o->{width} < $w) ? $o->{width}/$w : 1;
                 $k = $o->{height}/$h if $o->{height} && (($o->{height}/$h) < $k);
                 if ($k < 1) {
-                    $w = int($w*$k);
                     $self->debug("IMG: orig = %dx%d, k=%0.4f, new = %dx%d", $w, $h, $k, $w*$k, $h*$k);
                     $error = $img1->Resize(width=>int($w*$k), height=>int($h*$k));
                     $error && last;
+                    $w = int($w*$k);
                 }
                 if ($o->{align} && ($o->{align} =~ /right/i)) {
                     $o->{x} += $o->{width}-$w if $o->{width}>$w;
