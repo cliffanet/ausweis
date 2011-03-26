@@ -45,7 +45,7 @@ sub render {
         my ($out, $fh);
         if (!open($fh, '>', \$out)) {
         } 
-        elsif (my $error = $d->{img}->Write($fh, 'png:-')) {
+        elsif (my $error = $d->{img}->Write(file => $fh, filename => '1.png')) {
             $self->r->error("Write PNG ERROR: $error");
         }
         else {
