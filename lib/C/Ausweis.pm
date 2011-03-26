@@ -183,6 +183,8 @@ sub img {
                     $o->{x} += int ($txtwidth-$w)/2 if $txtwidth>$w;
                 }
             }
+            delete $o->{width};
+            delete $o->{align};
             
             $error = $img->Annotate(antialias=>'true', %$o);
             
