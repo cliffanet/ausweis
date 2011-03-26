@@ -55,7 +55,7 @@ sub list {
     my $q = $self->req;
     my $f = {
         cmdid   => $q->param_dig('cmdid'),
-        blkid   => -1,#$q->param_dig('blkid'),
+        blkid   => $q->param_dig('blkid'),
         name    => $q->param_str('name'),
     };
     my $srch = {};
