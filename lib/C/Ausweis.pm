@@ -151,7 +151,7 @@ sub img {
     $img || return $self->state(-000100, '');
     my $bg = $::print{bgcolor} || 'transparent';
     $img->ReadImage("xc:$bg");
-    $img->Set(density=>"150x150");
+    $img->Set(density=>150);
     
     $self->view_select('Image');
 
