@@ -185,7 +185,8 @@ sub img {
                 my $k = $o->{width} && ($o->{width} < $w) ? $o->{width}/$w : 1;
                 $k = $o->{height}/$h if $o->{height} && (($o->{height}/$h) < $k);
                 if ($k < 1) {
-                    $error = $img1->Resize(width=>$w*$k, height=>$h*$k);
+                    $self->debug("IMG: orig = %dx%d, k=%0.4f, new = %dx%d", $w, $h, $k, $w*$k, $h*$k);
+                    $error = $img1->Resize(width=>int($w*$k), height=>int($h*$k));
                     $error && last;
                 }
                 $error = $img->Composite(image => $img1, x=>$o->{x}, y=>$o->{y});
