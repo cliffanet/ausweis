@@ -60,7 +60,9 @@ sub list {
     };
     my $srch = {};
     $srch->{id} = $f->{cmdid} if $f->{cmdid};
-    $srch->{blkid} = $f->{blkid} if $f->{blkid};
+    if ($f->{blkid}) {
+        $srch->{blkid} = $f->{blkid} > 0 ? $f->{blkid} : 0;
+    }
     if ($f->{name}) {
         my $name = $f->{name};
         $name =~ s/([%_])/\\$1/g;
