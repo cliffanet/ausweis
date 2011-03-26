@@ -42,13 +42,16 @@ sub render {
             
         use Data::Dumper;
         $self->r->debug("IMG: $d->{img}");
-        my $out;
-        if (my $error = $d->{img}->Write(\$out, 'png:-')) {
+        my ($out, $fh);
+        if (!open($fh, '>', \$out)) {
+        } 
+        elsif (my $error = $d->{img}->Write($fh, 'png:-')) {
             $self->r->error("Write PNG ERROR: $error");
         }
         else {
             $self->r->res->body( \$out );
         }
+        close $fh;
     }
 }
 
