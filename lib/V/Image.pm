@@ -43,7 +43,7 @@ sub render {
         use Data::Dumper;
         $self->r->debug("IMG: $d->{img}");
         my $out;
-        if (my $error = $d->{img}->Write('png:-')) {
+        if (my $error = $d->{img}->Write(\$data, 'png:-')) {
             $self->r->error("Write PNG ERROR: $error");
         }
         else {
