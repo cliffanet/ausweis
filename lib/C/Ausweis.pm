@@ -175,8 +175,12 @@ sub img {
                 = $img->QueryFontMetrics(%$o);
             $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
         }
-        elsif ((lc($p) eq 'photo') && $o->{x} && $o->{y} && $rec->{photo}) {
-            my $file = "$::dirPhoto/ausweis/$rec->{photo}";
+        elsif ((((lc($p) eq 'photo') && $rec->{photo}) || 
+                ((lc($p) eq 'logo') && $rec->{command}->{photo})) && 
+                    $o->{x} && $o->{y}) {
+            my $file = lc($p) eq 'photo' ? 
+                "$::dirPhoto/ausweis/$rec->{photo}" :
+                "$::dirPhoto/command/$rec->{command}->{photo}";
             {
                 my $img1 = Image::Magick->new();
                 $error = $img1->Read($file);
