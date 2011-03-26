@@ -64,7 +64,7 @@
     </td>
     <td width="50%" align="center">
 [% IF rec.command.photo %]
-<img width="200" alt="[% rec.command.nick %]" title="[% rec.command.nick %]" src="[% rec.command.href_photo %]" />
+<img width="200" alt="[% rec.command.name %]" title="[% rec.command.name %]" src="[% rec.command.href_photo %]" />
 [% ELSE %]
 <span style="color:red; text-weight:bold;">[щлакелш мер]</span>
 [% END %]
