@@ -3,7 +3,7 @@ package C::Ausweis;
 use strict;
 use warnings;
 
-use Image::Magick;
+#use Image::Magick;
 
 ##################################################
 ###     Основной список
@@ -142,6 +142,7 @@ sub img {
     if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
     }
+    return;
     
     my $width = $::print{width} || 200;
     my $height= $::print{height}|| 400;
@@ -169,6 +170,23 @@ sub img {
             my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
                 = $img->QueryFontMetrics(%$o);
             $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
+        }
+        elsif ((lc($p) eq 'photo') && $o->{x} && $o->{y} && $rec->{photo}) {
+            my $file = "$::dirPhoto/ausweis/$rec->{photo}";
+            {
+                my $img1 = Image::Magick->new();
+                $error = $img1->Read($file);
+                $error && last;
+                my ($w, $h) = ($image->Get('width'), $image->Get('height'));
+                my $k = $o->{width} && ($o->{width} < $w) ? $o->{width}/$w : 1;
+                $k = $o->{height}/$h if $o->{height} && (($o->{height}/$h) < $k);
+                if ($k < 1) {
+                    $error = $image->Resize(width=>$w*$k, height=>$h*$k);
+                    $error && last;
+                }
+                $error = $img->Composite(image => $img1, x=>$o->{x}, y=>$o->{y});
+                $error && last;
+            }
         }
         
         $self->error("Image::Magick ERROR(%s): %s", $p, $error)
