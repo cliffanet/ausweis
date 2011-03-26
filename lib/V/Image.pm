@@ -36,7 +36,7 @@ sub render {
         $self->r->res->body( "ERROR: $d->{error}\n" );
     }
     else {
-        $self->r->res->headers('Content-type' => 'image/png');
+        $self->r->res->headers('Content-type' => 'image/gif');
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             

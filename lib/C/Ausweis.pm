@@ -148,8 +148,8 @@ sub img {
     $img || return $self->state(-000100, '');
     
     #$img->Set(size => '300x100');
-    $img->ReadImage('xc:white');
-    $img->Transparent(color=>'white');
+    $img->ReadImage('xc:transparent');
+    #$img->Transparent(color=>'white');
     
     $img->Draw(stroke=>'red', primitive=>'rectangle', points=>'20,20 100,100');
     
