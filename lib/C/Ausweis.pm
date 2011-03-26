@@ -3,6 +3,8 @@ package C::Ausweis;
 use strict;
 use warnings;
 
+use Image::Magick;
+
 ##################################################
 ###     Основной список
 ###     Код модуля: 99
@@ -24,6 +26,9 @@ sub _item {
         #$item->{href_delete}    = $self->href($::disp{AusweisDel}, $item->{id});
         
         $item->{href_photo}     = $item->{photo} ? "$::urlPhoto/ausweis/$item->{photo}" : '';
+        
+        $item->{href_img_front} = $self->href($::disp{AusweisImage}, $item->{id}, 'front');
+        $item->{href_img_rear}  = $self->href($::disp{AusweisImage}, $item->{id}, 'rear');
     }
     
     return $item;
@@ -120,6 +125,28 @@ sub show {
     $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{nick}));
     $self->view_select->subtemplate("ausweis_$type.tt");
     
+}
+
+sub img {
+    my ($self, $id, $type) = @_;
+
+    return unless $self->rights_exists_event($::rAusweisInfo);
+    
+    $type = 'info' if !$type || ($type !~ /^(front|rear)$/);
+    
+    my ($rec) = (($self->d->{rec}) = 
+        map { _item($self, $_) }
+        $self->model('Ausweis')->search({ id => $id }, { prefetch => [qw/command blok/] }));
+    $rec || return $self->state(-000105, '');
+    
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
+        return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
+    }
+    
+    my $img = ($self->d->{img} = Image::Magick->new(size=>'384x256'));
+    $img || return $self->state(-000100, '');
+    
+    $self->view_select('Image');
 }
 
 

@@ -71,3 +71,17 @@
     </td>
 </tr>
 </table>
+
+<br />
+
+<h3>На печать</h3>
+<table class="frame" width="100%">
+<tr>
+    <td width="50%" align="center">
+<img alt="Лицевая сторона" title="Лицевая сторона" src="[% rec.href_img_front %]" />
+    </td>
+    <td width="50%" align="center">
+<img alt="Тыльная сторона" title="Тыльная сторона" src="[% rec.href_img_rear %]" />
+    </td>
+</tr>
+</table>
