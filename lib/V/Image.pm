@@ -40,9 +40,6 @@ sub render {
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             
-        use Data::Dumper;
-#        $self->r->debug("IMG: $d->{img}");
-        my ($out, $fh);
         $d->{img}->Set(magick=>'png');
 #        if (!open(IMG, '>', \$out)) {
 #            $self->r->error("Can't open img-handler");
@@ -52,12 +49,12 @@ sub render {
 #        }
 #        else {
             #print IMG 'test123';
-            $out = $d->{img}->ImageToBlob();
-            $self->r->debug("IMG: ".length($out));
-            $self->r->res->body( \$out );
+#            $out = $d->{img}->ImageToBlob();
+#            $self->r->debug("IMG: ".length($out));
+#            $self->r->res->body( \$out );
 #        }
 #        close IMG;
-        #$self->r->res->body( sub { $d->{img}->Write() } );
+        $self->r->res->body( \$d->{img}->ImageToBlob() );
     }
 }
 
