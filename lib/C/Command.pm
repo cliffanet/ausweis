@@ -74,7 +74,7 @@ sub list {
     }
     
     use Data::Dumper;
-    $self->debug($srch);
+    $self->debug(Dumper($srch));
     
     my $srch_url = 
         join('&',
