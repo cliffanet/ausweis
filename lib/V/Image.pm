@@ -50,7 +50,7 @@ sub render {
         #    $self->r->error("Write PNG ERROR: $error");
         #}
         else {
-            print $fh 'test';
+            print $fh 'test123';
             $self->r->debug("IMG: ".length($out));
             $self->r->res->body( \$out );
         }
