@@ -152,7 +152,6 @@ sub img {
     $self->view_select('Image');
 
     my @opt = @{ $::print{$type} || [] };
-    $size =~ s/x/,/;
     use Data::Dumper;
     while (my $p = shift @opt) {
         my $o = shift @opt || next;
@@ -161,7 +160,8 @@ sub img {
         my $error;
         $self->debug("opts[$p]: ".Dumper($o));
         if (lc($p) eq 'area') {
-            $o->{stroke} ||= $o->{color} if $o->{color};
+            #$o->{stroke} ||= $o->{color} if $o->{color};
+            $o->{fill} ||= $bg;
             $error = $img->Draw(primitive=>'rectangle', %$o);
         }
         
