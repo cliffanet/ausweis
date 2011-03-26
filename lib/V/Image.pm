@@ -46,7 +46,7 @@ sub render {
     if (!open($fh, '>', \$out)) {
             $self->r->error("Can't open img-handler");
         } 
-        elsif (my $error = $d->{img}->Write(file => \$fh, filename=>'png')) {
+        elsif (my $error = $d->{img}->Write(file => \$fh, compression=>'png')) {
             $self->r->error("Write PNG ERROR: $error");
         }
         else {
