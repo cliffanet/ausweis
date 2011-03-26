@@ -19,9 +19,11 @@ sub _item {
     
     if ($id) {
         # —сылки
-        $item->{href_info}       = $self->href($::disp{AusweisShow}, $item->{id}, 'info');
+        $item->{href_info}      = $self->href($::disp{AusweisShow}, $item->{id}, 'info');
         #$item->{href_del}       = $self->href($::disp{AusweisDel}, $item->{id});
         #$item->{href_delete}    = $self->href($::disp{AusweisDel}, $item->{id});
+        
+        $item->{href_photo}     = $item->{photo} ? "$::urlPhoto/$item->{photo}" : '';
     }
     
     return $item;
