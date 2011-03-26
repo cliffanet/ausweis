@@ -60,7 +60,7 @@ sub list {
     };
     my $srch = {};
     $srch->{id} = $f->{cmdid} if $f->{cmdid};
-    if ($f->{blkid}) {
+    if ($f->{blkid} != 0) {
         $srch->{blkid} = $f->{blkid} > 0 ? $f->{blkid} : 0;
     }
     if ($f->{name}) {
