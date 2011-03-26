@@ -44,18 +44,19 @@ sub render {
 #        $self->r->debug("IMG: $d->{img}");
         my ($out, $fh);
         $d->{img}->Set(magick=>'png');
-        if (!open(IMG, '>', \$out)) {
-            $self->r->error("Can't open img-handler");
-        } 
-        elsif (my $error = $d->{img}->Write(file => \*IMG, filename=>'-')) {
-            $self->r->error("Write PNG ERROR: $error");
-        }
-        else {
+#        if (!open(IMG, '>', \$out)) {
+#            $self->r->error("Can't open img-handler");
+#        } 
+#        elsif (my $error = $d->{img}->Write(file => \*IMG, filename=>'-')) {
+#            $self->r->error("Write PNG ERROR: $error");
+#        }
+#        else {
             #print IMG 'test123';
+            $our = $d->{img}->ImageToBlob();
             $self->r->debug("IMG: ".length($out));
             $self->r->res->body( \$out );
-        }
-        close IMG;
+#        }
+#        close IMG;
         #$self->r->res->body( sub { $d->{img}->Write() } );
     }
 }
