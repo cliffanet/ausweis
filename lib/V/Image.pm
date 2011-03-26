@@ -39,6 +39,9 @@ sub render {
         $self->r->res->headers('Content-type' => 'image/png');
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
+            
+        use Data::Dumper;
+        $self->debug("IMG: $d->{img}");
         
         if ($d->{img}) {
             my $d;
