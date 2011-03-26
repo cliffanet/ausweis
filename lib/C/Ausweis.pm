@@ -171,7 +171,7 @@ sub img {
             my $m = Clib::Mould->new();
             $o->{text} = $m->Parse(data => $o->{text}, pattlist => $rec, dot2hash => 1);
             $self->debug("TEXT: $o->{text}");
-            #$o->{text} = decode('cp1251', $o->{text});
+            $o->{text} = decode('cp1251', $o->{text});
             
             my $txtwidth = delete $o->{width};
             if ($txtwidth && $o->{align}) {
@@ -188,7 +188,7 @@ sub img {
             delete $o->{width};
             delete $o->{align};
             
-            $error = $img->Annotate(antialias=>'true', encoding=>'cp1251', %$o);
+            $error = $img->Annotate(antialias=>'true', %$o);
             
         }
         elsif ((((lc($p) eq 'photo') && $rec->{photo}) || 
