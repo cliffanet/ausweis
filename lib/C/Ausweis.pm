@@ -164,6 +164,11 @@ sub img {
             $o->{fill} ||= $bg;
             $error = $img->Draw(primitive=>'rectangle', %$o);
         }
+        elsif ((lc($p) eq 'text') && $o->{text}) {
+            my ($x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance)
+                = $img->QueryFontMetrics($o);
+            $self->debug("TEXT: $x_ppem, $y_ppem, $ascender, $descender, $w, $h, $max_advance");
+        }
         
         $self->error("Image::Magick ERROR(%s): %s", $p, $error)
             if $error;
