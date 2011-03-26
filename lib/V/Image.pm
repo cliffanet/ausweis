@@ -43,6 +43,7 @@ sub render {
         use Data::Dumper;
 #        $self->r->debug("IMG: $d->{img}");
         my ($out, $fh);
+        $d->{img}->Set(magick=>'png');
     #    if (!open(IMG, '>', \$out)) {
     #        $self->r->error("Can't open img-handler");
     #    } 
@@ -55,7 +56,7 @@ sub render {
     #        $self->r->res->body( \$out );
     #    }
     #    close IMG;
-        $self->r->res->body( sub { $d->{img}->Write(magick=>'png') } );
+        $self->r->res->body( sub { $d->{img}->Write() } );
     }
 }
 
