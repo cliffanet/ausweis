@@ -3,8 +3,8 @@
 <form action="[% aus.href_list %]" method="GET">
 <table class="tbl">
     <tr>
-        <td class="ltitle">Ник:</td>
-        <td><input type="text" name="nick" class="stdin" value="[% srch.nick %]"></td>
+        <td class="ltitle">По всем текстовым полям:</td>
+        <td><input type="text" name="text" class="stdin" value="[% srch.text %]"></td>
     </tr>
     <tr>
         <td class="ltitle">Команда:</td>

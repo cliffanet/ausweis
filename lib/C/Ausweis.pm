@@ -42,19 +42,21 @@ sub list {
     my $f = {
         cmdid   => $q->param_dig('cmdid'),
         blkid   => $q->param_dig('blkid'),
-        nick    => $q->param_str('nick'),
+        text    => $q->param_str('text'),
     };
     my $srch = {};
     $srch->{cmdid} = $f->{cmdid} if $f->{cmdid};
     $srch->{blkid} = $f->{blkid} if $f->{blkid};
-    if ($f->{nick}) {
-        my $nick = $f->{nick};
-        $nick =~ s/([%_])/\\$1/g;
-        $nick =~ s/\*/%/g;
-        $nick =~ s/\?/_/g;
-        #$nick = "%$nick" if $nick !~ /^%/;
-        #$nick .= "%" if $nick !~ /^(.*[^\\])?%$/;
-        $srch->{nick} = { LIKE => $nick };
+    if ($f->{text}) {
+        my $text = $f->{nick};
+        $text =~ s/([%_])/\\$1/g;
+        $text =~ s/\*/%/g;
+        $text =~ s/\?/_/g;
+        #$text = "%$text" if $text !~ /^%/;
+        #$text .= "%" if $text !~ /^(.*[^\\])?%$/;
+        
+        $srch->{$_} = { LIKE => $text }
+            foreach qw/nick fio comment krov allerg neperenos polis medik/;
     }
     
     my $srch_url = 
