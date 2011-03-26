@@ -150,7 +150,7 @@ sub http_accept {
             $self->forward($::dispCommandList);
         }
         elsif ($self->rights_check($::rCommandInfo, $::rMy)) {
-            $self->forward($::dispCommandInfoMy);
+            $self->forward(sprintf($::dispCommandShowMy, 'info'));
         }
     }
     
