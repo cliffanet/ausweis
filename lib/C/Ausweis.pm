@@ -146,6 +146,9 @@ sub img {
     my $img = ($self->d->{img} = Image::Magick->new(size=>'384x256'));
     $img || return $self->state(-000100, '');
     
+    $img->Draw(stroke=>'red', primitive=>'rectangle', points=>'20,20 100,100');
+    
+    
     $self->view_select('Image');
 }
 
