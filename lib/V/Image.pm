@@ -51,6 +51,7 @@ sub render {
 #        }
 #        else {
         $out = $d->{img}->ImageToBlob();
+        $self->r->debug("IMG: $out");
             $self->r->res->body( \$out );
 #        }
 #        close $fh;
