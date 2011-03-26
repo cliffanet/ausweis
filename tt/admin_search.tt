@@ -82,6 +82,14 @@
 [% END %]
             </select>
     </td>
+    <td class="ltitle">Команда:</td>
+    <td>
+        <select name="cmdid" class="stdin"[% admin.edit_disabled %]>
+            <option value="0"> &lt;- нет привязки -&gt; </option>
+            [% FOREACH cmd.list %]<option value="[% id %]">[% name %]</option>[% END %]
+        </select>
+    </td>
+</tr>
 </tr>
 <tr><td colspan="2" class="submit"> <input type="submit" value="Добавить"[% admin.edit_disabled %]> </td></tr>
 </table>
