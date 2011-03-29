@@ -2,8 +2,7 @@
 
 use strict;
 #use warnings;
-use FindBin::Real qw(Bin);
-$::pathRoot = Bin.'/..';
+#$::pathRoot ||= '/home/ausweis';
 
 require "$::pathRoot/conf/defines.conf";
 require "$::pathRoot/conf/rights.conf";
