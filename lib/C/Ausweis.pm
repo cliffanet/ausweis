@@ -3,9 +3,9 @@ package C::Ausweis;
 use strict;
 use warnings;
 
-use Image::Magick;
-use Encode 'decode';
-use Clib::Mould;
+#use Image::Magick;
+#use Encode 'decode';
+#use Clib::Mould;
 
 ##################################################
 ###     Основной список
@@ -128,10 +128,10 @@ sub show {
     $self->view_select->subtemplate("ausweis_$type.tt");
     
 }
-
 sub img {
     my ($self, $id, $type) = @_;
 
+=pod
     return unless $self->rights_exists_event($::rAusweisInfo);
     
     $type = 'info' if !$type || ($type !~ /^(front|rear)$/);
@@ -215,6 +215,7 @@ sub img {
         $self->error("Image::Magick ERROR(%s): %s", $p, $error)
             if $error;
     }
+=cut
 }
 
 
