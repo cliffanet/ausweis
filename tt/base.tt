@@ -23,7 +23,7 @@
     <div class="clear"></div>
 <!--/div-->
 
-    <td colspan="2">
+    <td colspan="2" height="10">
     [% IF IS_DEVEL %]
         <center>
         TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST

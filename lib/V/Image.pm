@@ -52,7 +52,7 @@ sub r { shift->{_runtime}; }
 =cut
 sub clear {
     my $self = shift;
-    undef $self->d->{img};
+    undef $self->r->d->{img};
 }
 
 
