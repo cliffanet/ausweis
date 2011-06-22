@@ -139,7 +139,7 @@ foreach (<FH>) {
     my $id = $self->model('Ausweis')->insertid;
     
     # копируем фото
-    save_photo('Ausweis', "$numid/$photo", $id, $nick) || next;
+    save_photo('Ausweis', "$id/$photo", $id, $nick) || next;
     
     $c++;
 }
