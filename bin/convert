@@ -136,10 +136,10 @@ foreach (<FH>) {
     $sth->execute($cmdid, $blkid, $blocked, $numid, $nick, 
                     $fio, $krov, $allerg, $neperenos, $polis, $medik, $comment)
         || next;
-    my $id = $self->model('Ausweis')->insertid;
+    my $aus_id = $self->model('Ausweis')->insertid;
     
     # копируем фото
-    save_photo('Ausweis', "$id/$photo", $id, $nick) || next;
+    save_photo('Ausweis', "$id/$photo", $aus_id, $nick) || next;
     
     $c++;
 }
