@@ -45,7 +45,7 @@ $self->model('Blok')->recreate();
 my $sth = $self->model('Blok')->create([qw/name/]);
 foreach (<FH>) {
     s/\s+$//;
-    my ($name, $photo) = map { field($_) } (split /;/);
+    my ($name, $photo, $id) = map { field($_) } (split /;/);
     if (($name eq 'Нет') || !$name) {
         $blok{$name} = 0;
         next;
@@ -56,7 +56,9 @@ foreach (<FH>) {
     
     
     # копируем фото
-    save_photo('Blok', $photo, $blok{$name}, $name) || next;
+    if ($photo) {
+        save_photo('Blok', "$id/$photo", $blok{$name}, $name) || next;
+    }
 }
 $sth->finish;
 close FH;
@@ -75,7 +77,7 @@ $self->model('Command')->recreate();
 my $sth = $self->model('Command')->create([qw/name/]);
 foreach (<FH>) {
     s/\s+$//;
-    my ($name, $photo) = map { field($_) } (split /;/);
+    my ($name, $photo, $id) = map { field($_) } (split /;/);
     if (($name eq 'Нет') || !$name) {
         $command{$name} = 0;
         next;
@@ -85,7 +87,9 @@ foreach (<FH>) {
     $command{$name} = $self->model('Command')->insertid;
     
     # копируем фото
-    save_photo('Command', $photo, $command{$name}, $name) || next;
+    if ($photo) {
+        save_photo('Command', "$id/$photo", $command{$name}, $name) || next;
+    }
 }
 $sth->finish;
 close FH;
@@ -135,7 +139,7 @@ foreach (<FH>) {
     my $id = $self->model('Ausweis')->insertid;
     
     # копируем фото
-    save_photo('Ausweis', $photo, $id, $nick) || next;
+    save_photo('Ausweis', "$numid/$photo", $id, $nick) || next;
     
     $c++;
 }
