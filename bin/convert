@@ -37,6 +37,7 @@ $self->log(1);
 ###### Блоки
 
 my %blok;
+my %block_name;
 if (!open(FH, $::convertFileBlok)) {
     $self->error("CRITICAL!!! Can't open BLOK-file($::convertFileBlok): $!");
     exit -1;
@@ -52,12 +53,14 @@ foreach (<FH>) {
     }
     $sth->execute($name)
         || next;
-    $blok{$name} = $self->model('Blok')->insertid;
+    my $id = $self->model('Blok')->insertid;
+    $blok{$name} = $id;
+    $block_name{$id} = $name;
     
     
     # копируем фото
     if ($photo) {
-        save_photo('Blok', "$id/$photo", $blok{$name}, $name) || next;
+        save_photo('Blok', "$id/$photo", $id, $name) || next;
     }
 }
 $sth->finish;
@@ -116,12 +119,15 @@ foreach (<FH>) {
     my $blkid = $blok{$blok} || 0;
     my $cmdid = $command{$command} || 0;
     if ($cmdid) {
-        if (!defined($cmd2blk{$cmdid})) {
+        my $blkid0 = $cmd2blk{$cmdid};
+        if (!defined($blkid0) ||
+                (($blkid0 != $blkid) && !$blkid0 && $blkid)
+            ) {
             $self->model('Command')->update({ blkid => $blkid }, { id => $cmdid }, nolog => 1)
                 || next;
             $cmd2blk{$cmdid} = $blkid;
         }
-        elsif ($cmd2blk{$cmdid} != $blkid) {
+        elsif (($blkid0 != $blkid) && $blkid0 && $blkid) {
             $self->error("Ausweis for nick \"%s\" - Wrong blok id. First id=%d, current=%d",
                 $nick, $cmd2blk{$cmdid}, $blkid);
         }
