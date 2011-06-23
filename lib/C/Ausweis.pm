@@ -3,9 +3,9 @@ package C::Ausweis;
 use strict;
 use warnings;
 
-#use Image::Magick;
-#use Encode 'decode';
-#use Clib::Mould;
+use Image::Magick;
+use Encode 'decode';
+use Clib::Mould;
 
 ##################################################
 ###     Основной список
