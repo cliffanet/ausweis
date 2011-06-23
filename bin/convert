@@ -116,7 +116,7 @@ foreach (<FH>) {
     s/\s+$//;
     my ($id, $numid, $part, $blocked, $fio, $nick, $command, 
         $krov, $allerg, $neperenos, $polis, $medik, 
-        $blok, $comment, $photo) = map { field($_) } (split /;/);
+        $blok, $comment, $photo, $barcode) = map { field($_) } (split /;/);
     
     if (!$id || !$nick) {
         $self->error("Wrong string: %s", $_);
@@ -126,7 +126,7 @@ foreach (<FH>) {
     $_ ||= '' 
         foreach $id, $numid, $part, $blocked, $fio, $nick, $command,
                 $krov, $allerg, $neperenos, $polis, $medik,
-                $blok, $comment, $photo;
+                $blok, $comment, $photo, $barcode;
     
     my $blkid = $blok{$blok} || 0;
     my $cmdid = $command{$command} || 0;
@@ -168,6 +168,17 @@ foreach (<FH>) {
     # копируем фото
     if ($photo) {
         save_photo('Ausweis', "$id/$photo", $aus_id, $nick) || next;
+    }
+    
+    # Копируем штрихкод
+    if ($barcode && (-f "$::convertDirPhoto/ausweis/code_$barcode")) {
+        if (open(FHI, "$::convertDirPhoto/barcode/$barcode")) {
+            if (open(FHO, ">$::dirPhoto/barcode/$numid.jpg")) {
+                print FHO <FHI>;
+                close FHO;
+            }
+            close FHI;
+        }
     }
     
     $c++;
@@ -213,6 +224,7 @@ sub save_photo {
     
     1;
 }
+
 
 sub field {
     my $field = shift;

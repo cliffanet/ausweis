@@ -164,7 +164,6 @@ sub img {
         my $o = shift @opt || next;
         next unless ref($o) eq 'HASH';
         
-        my $error;
         #$self->debug("opts[$p]: ".Dumper($o));
         if ($o->{if}) {
             $self->debug("opts[$p]: if=$o->{if}");
@@ -172,6 +171,8 @@ sub img {
             $self->error("opts[$p]: if=$o->{if}; ERROR: $@") if $@;
             $ret || next;
         }
+        
+        my $error;
         if (lc($p) eq 'area') {
             #$o->{stroke} ||= $o->{color} if $o->{color};
             $o->{fill} ||= $bg;
@@ -215,6 +216,21 @@ sub img {
                 $error = $img->Composite(image => $img1, x=>$o->{x}, y=>$o->{y});
                 $error && last;
             }
+        }
+        elsif ((lc($p) eq 'barcode') && $rec->{numid}) {
+            my $file = "$::dirPhoto/barcode/$rec->{numid}.jpg";
+            if (-f $file) { {
+                my $img1 = Image::Magick->new();
+                $error = $img1->Read($file);
+                $error && last;
+                my ($w, $h) = ($img1->Get('width'), $img1->Get('height'));
+                $error = $img1->Resize(width=>int($o->{width}||$w), height=>int($o->{height}||$h));
+                $error && last;
+                #$error = $img1->Crop
+                #$error && last;
+                $error = $img->Composite(image => $img1, x=>$o->{x}, y=>$o->{y});
+                $error && last;
+            } }
         }
         
         $self->error("Image::Magick ERROR(%s): %s", $p, $error)
