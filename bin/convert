@@ -117,6 +117,12 @@ foreach (<FH>) {
     my ($id, $numid, $part, $blocked, $fio, $nick, $command, 
         $krov, $allerg, $neperenos, $polis, $medik, 
         $blok, $comment, $photo) = map { field($_) } (split /;/);
+    
+    if (!$id) {
+        $self->error("Wrong string: %s", $_);
+        next;
+    }
+    
     my $blkid = $blok{$blok} || 0;
     my $cmdid = $command{$command} || 0;
     
@@ -138,7 +144,7 @@ foreach (<FH>) {
             $cmd2blk{$cmdid} = $blkid;
         }
         elsif (($blkid0 != $blkid) && $blkid0 && $blkid) {
-            $self->error("[ausweis=%d] nick \"%s\" - Wrong blok id. First = \"%s\", current = \"%s\"",
+            $self->error("[ausweis=%d] nick \"%s\" - Wrong blok id. Command = \"%s\", first blok = \"%s\", current blok = \"%s\"",
                 $id, $nick, $blok_name{$blkid0}, $blok_name{$blkid});
         }
     }
