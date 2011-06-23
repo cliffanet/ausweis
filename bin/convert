@@ -171,8 +171,8 @@ foreach (<FH>) {
     }
     
     # Копируем штрихкод
-    if ($barcode && (-f "$::convertDirPhoto/ausweis/code_$barcode")) {
-        if (open(FHI, "$::convertDirPhoto/barcode/$barcode")) {
+    if ($barcode && (-f "$::convertDirPhoto/ausweis/$id/code_$barcode")) {
+        if (open(FHI, "$::convertDirPhoto/ausweis/$id/code_$barcode")) {
             if (open(FHO, ">$::dirPhoto/barcode/$numid.jpg")) {
                 print FHO <FHI>;
                 close FHO;
@@ -180,7 +180,7 @@ foreach (<FH>) {
             close FHI;
         }
     }
-    
+                                                                                            
     $c++;
 }
 $sth->finish;
