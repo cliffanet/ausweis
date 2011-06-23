@@ -224,10 +224,10 @@ sub img {
                 $error = $img1->Read($file);
                 $error && last;
                 my ($w, $h) = ($img1->Get('width'), $img1->Get('height'));
+                $error = $img1->Crop(x=>0,y=>0, width=>$w, height=>int($h*0.6));
+                $error && last;
                 $error = $img1->Resize(width=>int($o->{width}||$w), height=>int($o->{height}||$h));
                 $error && last;
-                #$error = $img1->Crop
-                #$error && last;
                 $error = $img->Composite(image => $img1, x=>$o->{x}, y=>$o->{y});
                 $error && last;
             } }
