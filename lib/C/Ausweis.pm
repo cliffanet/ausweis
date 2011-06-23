@@ -165,7 +165,13 @@ sub img {
         next unless ref($o) eq 'HASH';
         
         my $error;
-        $self->debug("opts[$p]: ".Dumper($o));
+        #$self->debug("opts[$p]: ".Dumper($o));
+        if ($o->{if}) {
+            $self->debug("opts[$p]: if=$o->{if}");
+            my $ret = eval $o->{if};
+            $self->error("opts[$p]: if=$o->{if}; ERROR: $@") if $@;
+            $ret || next;
+        }
         if (lc($p) eq 'area') {
             #$o->{stroke} ||= $o->{color} if $o->{color};
             $o->{fill} ||= $bg;
