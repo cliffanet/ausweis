@@ -118,10 +118,15 @@ foreach (<FH>) {
         $krov, $allerg, $neperenos, $polis, $medik, 
         $blok, $comment, $photo) = map { field($_) } (split /;/);
     
-    if (!$id) {
+    if (!$id || !$nick) {
         $self->error("Wrong string: %s", $_);
         next;
     }
+    
+    $_ ||= '' 
+        foreach $id, $numid, $part, $blocked, $fio, $nick, $command,
+                $krov, $allerg, $neperenos, $polis, $medik,
+                $blok, $comment, $photo;
     
     my $blkid = $blok{$blok} || 0;
     my $cmdid = $command{$command} || 0;
