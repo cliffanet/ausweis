@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+use GD::Barcode::UPCE;
+
+binmode(STDOUT);
+print "Content-Type: image/png\n\n";
+print GD::Barcode->new('EAN13', $ENV{QUERY_STRING}||'123456789012')->plot->png;
+
