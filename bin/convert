@@ -37,7 +37,7 @@ $self->log(1);
 ###### Ѕлоки
 
 my %blok;
-my %block_name;
+my %blok_name;
 if (!open(FH, $::convertFileBlok)) {
     $self->error("CRITICAL!!! Can't open BLOK-file($::convertFileBlok): $!");
     exit -1;
@@ -53,14 +53,14 @@ foreach (<FH>) {
     }
     $sth->execute($name)
         || next;
-    my $id = $self->model('Blok')->insertid;
-    $blok{$name} = $id;
-    $block_name{$id} = $name;
+    my $blkid = $self->model('Blok')->insertid;
+    $blok{$name} = $blkid;
+    $blok_name{$blkid} = $name;
     
     
     # копируем фото
     if ($photo) {
-        save_photo('Blok', "$id/$photo", $id, $name) || next;
+        save_photo('Blok', "$id/$photo", $blkid, $name) || next;
     }
 }
 $sth->finish;
@@ -111,6 +111,7 @@ $self->model('Ausweis')->recreate();
 my $sth = $self->model('Ausweis')->create([qw/cmdid blkid blocked numid nick 
                                                 fio krov allerg neperenos polis medik comment/]);
 my $c = 0;
+my %cmd_nick;
 foreach (<FH>) {
     s/\s+$//;
     my ($id, $numid, $part, $blocked, $fio, $nick, $command, 
@@ -118,6 +119,15 @@ foreach (<FH>) {
         $blok, $comment, $photo) = map { field($_) } (split /;/);
     my $blkid = $blok{$blok} || 0;
     my $cmdid = $command{$command} || 0;
+    
+    my $key = "$cmdid-$nick";
+    if (my $id0 = $cmd_nick{$key}) {
+        $self->error("[ausweis=%d] nick \"%s\" - Dublicate. First = \"%d\", current = \"%d\", command = \"%s\".",
+            $id, $nick, $id0, $id, $command);
+        next;
+    }
+    $cmd_nick{$key} = $id;
+    
     if ($cmdid) {
         my $blkid0 = $cmd2blk{$cmdid};
         if (!defined($blkid0) ||
@@ -128,12 +138,12 @@ foreach (<FH>) {
             $cmd2blk{$cmdid} = $blkid;
         }
         elsif (($blkid0 != $blkid) && $blkid0 && $blkid) {
-            $self->error("Ausweis for nick \"%s\" - Wrong blok id. First id=%d, current=%d",
-                $nick, $cmd2blk{$cmdid}, $blkid);
+            $self->error("[ausweis=%d] nick \"%s\" - Wrong blok id. First = \"%s\", current = \"%s\"",
+                $id, $nick, $blok_name{$blkid0}, $blok_name{$blkid});
         }
     }
     else {
-        $self->error("Ausweis for nick \"%s\" - unknown command", $nick);
+        $self->error("[ausweis=%d] nick \"%s\" - unknown command", $id, $nick);
     }
     
     $blocked = $blocked && ($blocked =~ /[ƒд][ја]/) ? 1 : 0;
@@ -145,7 +155,9 @@ foreach (<FH>) {
     my $aus_id = $self->model('Ausweis')->insertid;
     
     # копируем фото
-    save_photo('Ausweis', "$id/$photo", $aus_id, $nick) || next;
+    if ($photo) {
+        save_photo('Ausweis', "$id/$photo", $aus_id, $nick) || next;
+    }
     
     $c++;
 }
