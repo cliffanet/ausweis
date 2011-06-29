@@ -165,10 +165,10 @@ sub img {
         next unless ref($o) eq 'HASH';
         
         #$self->debug("opts[$p]: ".Dumper($o));
-        if ($o->{if}) {
-            $self->debug("opts[$p]: if=$o->{if}");
-            my $ret = eval $o->{if};
-            $self->error("opts[$p]: if=$o->{if}; ERROR: $@") if $@;
+        if (my $if = delete $o->{if}) {
+            $self->debug("opts[$p]: if=$if");
+            my $ret = eval $if;
+            $self->error("opts[$p]: if=$if; ERROR: $@") if $@;
             $ret || next;
         }
         
