@@ -8,6 +8,8 @@ require "$::pathRoot/conf/defines.conf";
 require "$::pathRoot/conf/rights.conf";
 require "$::pathRoot/conf/text.conf";
 
+use Func;
+
 __PACKAGE__->config(
     view_default=> 'Main',
     schema      => 'DB',

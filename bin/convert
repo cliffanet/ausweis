@@ -15,6 +15,9 @@ BEGIN {
 use lib "$::pathRoot/lib";
 use base 'Clib::LineScript';
 
+use Image::Magick;
+use Func;
+
 require "$::pathRoot/conf/defines.conf";
 
 # Чтобы warnings не ругался
@@ -122,6 +125,7 @@ foreach (<FH>) {
         $self->error("Wrong string: %s", $_);
         next;
     }
+    $self->log_prefix(sprintf("[ausweis=%d] nick \"%s\"", $id, $nick));
     
     $_ ||= '' 
         foreach $id, $numid, $part, $blocked, $fio, $nick, $command,
@@ -133,8 +137,8 @@ foreach (<FH>) {
     
     my $key = "$cmdid-$nick";
     if (my $id0 = $cmd_nick{$key}) {
-        $self->error("[ausweis=%d] nick \"%s\" - Dublicate. First = \"%d\", current = \"%d\", command = \"%s\".",
-            $id, $nick, $id0, $id, $command);
+        $self->or("Dublicate. First = \"%d\", current = \"%d\", command = \"%s\".",
+            $id0, $id, $command);
         next;
     }
     $cmd_nick{$key} = $id;
@@ -149,12 +153,12 @@ foreach (<FH>) {
             $cmd2blk{$cmdid} = $blkid;
         }
         elsif (($blkid0 != $blkid) && $blkid0 && $blkid) {
-            $self->error("[ausweis=%d] nick \"%s\" - Wrong blok id. Command = \"%s\", first blok = \"%s\", current blok = \"%s\"",
-                $id, $nick, $blok_name{$blkid0}, $blok_name{$blkid});
+            $self->or("Wrong blok id. Command = \"%s\", first blok = \"%s\", current blok = \"%s\"",
+                $blok_name{$blkid0}, $blok_name{$blkid});
         }
     }
     else {
-        $self->error("[ausweis=%d] nick \"%s\" - unknown command", $id, $nick);
+        $self->or("unknown command");
     }
     
     $blocked = $blocked && ($blocked =~ /[Дд][Аа]/) ? 1 : 0;
@@ -166,10 +170,16 @@ foreach (<FH>) {
     my $aus_id = $self->model('Ausweis')->insertid;
     
     # копируем фото
-    if ($photo) {
-        save_photo('Ausweis', "$id/$photo", $aus_id, $nick) || next;
+    #if ($photo) {
+    #    save_photo('Ausweis', "$id/$photo", $aus_id, $nick) || next;
+    #}
+    if (!Func::MakeUserDir($aus_id)) {
+        $self->or("Can't create user dir: $!");
+        next;
     }
-    
+    Func::SaveImg($self, "$::convertDirPhoto/ausweis/$id/$photo",
+        Func::UserDir($aus_id), 'photo') || next;
+        
     # Копируем штрихкод
     if ($barcode && (-f "$::convertDirPhoto/ausweis/$id/code_$barcode")) {
         if (open(FHI, "$::convertDirPhoto/ausweis/$id/code_$barcode")) {

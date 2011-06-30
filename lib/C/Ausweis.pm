@@ -27,7 +27,8 @@ sub _item {
         #$item->{href_del}       = $self->href($::disp{AusweisDel}, $item->{id});
         #$item->{href_delete}    = $self->href($::disp{AusweisDel}, $item->{id});
         
-        $item->{href_photo}     = $item->{photo} ? "$::urlPhoto/ausweis/$item->{photo}" : '';
+        #$item->{href_photo}     = $item->{photo} ? "$::urlPhoto/ausweis/$item->{photo}" : '';
+        $item->{href_photo}     = $item->{photo} ? $self->href($::disp{AusweisShow}, $item->{id}, 'photo') : '';
         
         $item->{href_img_front} = $self->href($::disp{AusweisImage}, $item->{id}, 'front');
         $item->{href_img_rear}  = $self->href($::disp{AusweisImage}, $item->{id}, 'rear');
@@ -112,8 +113,9 @@ sub show {
     my ($self, $id, $type) = @_;
 
     return unless $self->rights_exists_event($::rAusweisInfo);
+    my $d = $self->d;
     
-    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
+    $type = 'info' if !$type || ($type !~ /^(edit|info|photo)$/);
     
     my ($rec) = (($self->d->{rec}) = 
         map { _item($self, $_) }
@@ -122,6 +124,22 @@ sub show {
     
     if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
+    }
+    
+    if ($type eq 'photo') {
+        $self->view_select('File');
+        my $file = Func::UserDir($rec->{id})."/photo.site.jpg";
+        $d->{type} = 'image/jpeg';
+        $d->{filename} = "photo.$rec->{id}.jpg";
+        if (!open(FHD, $file)) {
+            $self->error("Can't open file ($file): $!");
+            $d->{error} = "Can't open file";
+            return;
+        }
+        local $/ = undef;
+        $d->{file} = <FHD>;
+        close FHD;
+        return;
     }
     
     $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{nick}));
