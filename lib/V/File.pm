@@ -1,4 +1,4 @@
-package V::Image;
+package V::File;
 
 use strict;
 use base qw/
