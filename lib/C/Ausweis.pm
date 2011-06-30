@@ -138,7 +138,7 @@ sub show {
             return;
         }
         local $/ = undef;
-        $d->{file} = <FHD>;
+        $d->{data} = <FHD>;
         close FHD;
         return;
     }

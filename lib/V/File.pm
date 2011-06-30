@@ -30,7 +30,7 @@ sub render {
     my ($self) = @_;
     my $d = $self->r->d;
 
-    if ($d->{error} || !$d->{img}) {
+    if ($d->{error} || !$d->{data}) {
         $self->r->res->headers('Content-type' => 'text/plain');
         $d->{error} ||= 'unknown';
         $self->r->res->body( "ERROR: $d->{error}\n" );
