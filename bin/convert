@@ -178,7 +178,10 @@ foreach (<FH>) {
         next;
     }
     Func::SaveImg($self, "$::convertDirPhoto/ausweis/$id/$photo",
-        Func::UserDir($aus_id), 'photo') || next;
+    Func::UserDir($aus_id), 'photo') || next;
+    
+    $self->model('Ausweis')->update({ photo => $photo }, { id => $aus_id }, nolog => 1)
+        || return;
         
     # Копируем штрихкод
     if ($barcode && (-f "$::convertDirPhoto/ausweis/$id/code_$barcode")) {
