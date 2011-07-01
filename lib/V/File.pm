@@ -44,7 +44,7 @@ sub render {
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             
-        $self->debug("V::File Get file: $d->{file}");
+        $self->r->debug("V::File Get file: $d->{file}");
             
         $self->r->res->body( sub {
             local *FHF;
