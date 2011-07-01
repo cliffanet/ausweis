@@ -44,7 +44,6 @@ sub render {
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             
-        $self->r->res->body( sub {
             local *FHF;
             $self->r->debug("V::File Get file: $d->{file}");
             if (!open(FHF, $d->{file})) {
@@ -54,8 +53,8 @@ sub render {
             local $/ = undef;
             my $data = <FHF>;
             close FHF;
-            return $data;
-        } );
+            
+        $self->r->res->body( \$data );
     }
 }
 
