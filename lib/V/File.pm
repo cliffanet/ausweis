@@ -54,8 +54,9 @@ sub render {
             }
             local $/ = undef;
             my $data = <FHF>;
+            $self->print(\$data);
             close FHF;
-            return \$data;
+            return;
         } );
     }
 }
