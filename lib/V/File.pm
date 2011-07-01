@@ -44,10 +44,9 @@ sub render {
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             
-        $self->r->debug("V::File Get file: $d->{file}");
-            
         $self->r->res->body( sub {
             local *FHF;
+            $self->r->debug("V::File Get file: $d->{file}");
             if (!open(FHF, $d->{file})) {
                 $self->r->error("V::File Can't open file ($d->{file}): $!");
                 return;
