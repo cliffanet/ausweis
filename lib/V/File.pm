@@ -53,6 +53,7 @@ sub render {
             local $/ = undef;
             my $data = <FHF>;
             close FHF;
+            $self->r->debug("V::File size: %d", length $data);
             
         $self->r->res->body( \$data );
     }
