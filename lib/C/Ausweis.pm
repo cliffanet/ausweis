@@ -128,18 +128,9 @@ sub show {
     
     if ($type eq 'photo') {
         $self->view_select('File');
-        my $file = Func::UserDir($rec->{id})."/photo.site.jpg";
-        $self->debug("Get file: $file");
+        $d->{file} = Func::UserDir($rec->{id})."/photo.site.jpg";
         $d->{type} = 'image/jpeg';
         $d->{filename} = "photo.$rec->{id}.jpg";
-        if (!open(FHD, $file)) {
-            $self->error("Can't open file ($file): $!");
-            $d->{error} = "Can't open file";
-            return;
-        }
-        local $/ = undef;
-        $d->{data} = <FHD>;
-        close FHD;
         return;
     }
     

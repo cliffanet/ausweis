@@ -30,17 +30,33 @@ sub render {
     my ($self) = @_;
     my $d = $self->r->d;
 
-    if ($d->{error} || !$d->{data}) {
+    if (!$d->{error} && $d->{file} && !(-f $d->{file})) {
+        $d->{error} = "$d->{file}: file not found";
+    }
+    if ($d->{error} || !$d->{file}) {
         $self->r->res->headers('Content-type' => 'text/plain');
         $d->{error} ||= 'unknown';
         $self->r->res->body( "ERROR: $d->{error}\n" );
+        $self->r->error("V::File ERROR: $d->{error}");
     }
     else {
         $self->r->res->headers('Content-type' => $d->{type} || 'application/data');
         $self->r->res->headers('Content-Disposition' => "attachment; filename=$d->{filename}")
             if $d->{filename};
             
-        $self->r->res->body( \$d->{data} );
+        $self->debug("V::File Get file: $d->{file}");
+            
+        $self->r->res->body( sub {
+            local *FHF;
+            if (!open(FHF, $d->{file})) {
+                $self->r->error("V::File Can't open file ($d->{file}): $!");
+                return;
+            }
+            local $/ = undef;
+            my $data = <FHF>;
+            close FHF;
+            return \$data;
+        } );
     }
 }
 
