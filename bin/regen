@@ -15,8 +15,9 @@ BEGIN {
 use lib "$::pathRoot/lib";
 use base 'Clib::LineScript';
 
-use Img;
 use Func;
+use Img;
+use Pdf;
 
 require "$::pathRoot/conf/defines.conf";
 
@@ -56,7 +57,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
     } }
     
     # Печатная форма jpg
-    if ($::regen{print_img} && $regen[$::regen{print_img}]) { {
+    if ($::regen{print_img} && $regen[$::regen{print_img}]) {{
         my $img = Img::Ausweis($self, $aus, 'front');
         if ($img) {
             if (my $error = $img->Write("$dir/print.front.jpg")) {
@@ -77,6 +78,22 @@ while (my ($aus) = $self->model('Ausweis')->search(
         $regen[$::regen{print_img}] = 0;
     } }
     
+    # Печатная форма PDF
+    if ($::regen{print_pdf} && $regen[$::regen{print_pdf}]) { {
+        my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
+        if ($pdf) {
+            $pdf->mediabox(595,842);
+            my $page = Pdf::Ausweis($self, $pdf, $aus);
+            $pdf->save;
+            $pdf->end( );
+        } else {
+            $self->error("Can't create PDF-file: $@");
+        }
+
+        $self->model('Ausweis')->regen_off($aus->{id}, $::regen{print_pdf});
+        $regen[$::regen{print_pdf}] = 0;
+    } }
+    
     # Убиваем непроверяемые флаги
     my $n=0;
     my @regenl;
@@ -90,6 +107,18 @@ while (my ($aus) = $self->model('Ausweis')->search(
     }
 }
 
+        $self->log(1);
+        my $dir = Func::UserDir(19);
+        my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
+        if ($pdf) {
+            #$pdf->mediabox(595,842);
+            $pdf->mediabox('A4');
+            my $page = Pdf::Ausweis($self, $pdf, 19);
+            $pdf->save;
+            $pdf->end();
+        } else {
+            $self->error("Can't create PDF-file: $@");
+        }
 
 #==========================================================
 #================================================== End ===
