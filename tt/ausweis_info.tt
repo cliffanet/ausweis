@@ -48,6 +48,13 @@
         <td class="ltitle">Примечания:</td>
         <td>[% rec.comment %]</td>
     </tr>
+    <tr>
+        <td class="ltitle">Пересборка:</td>
+        <td>
+            <a href="[% rec.href_regen %]">Пересобрать</a>
+            [% IF rec.regen > 0 %](в процессе: [% rec.regens %])[% END %]
+        </td>
+    </tr>
 </table>
 
 <br />

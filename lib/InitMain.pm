@@ -27,6 +27,7 @@ __PACKAGE__->config(
         $::disp{AusweisList}            => 'C::Ausweis::list',
         $::disp{AusweisShow}            => 'C::Ausweis::show',
         $::disp{AusweisImage}           => 'C::Ausweis::img',
+        $::disp{AusweisRegen}           => 'C::Ausweis::regen',
     },
     
     plugins => [qw/ScriptTime

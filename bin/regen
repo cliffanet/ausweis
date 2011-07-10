@@ -1,0 +1,96 @@
+#!/usr/bin/perl
+
+use strict;
+#use warnings;
+
+BEGIN {
+    $::pathRoot = $0;
+    $::pathRoot =~ s/\/+/\//g;
+    $::pathRoot =~ s/[^\/]+$//;
+    if ($::pathRoot !~ s/\/[^\/]+\/$//) {
+        $::pathRoot .= '..';
+    }
+};
+
+use lib "$::pathRoot/lib";
+use base 'Clib::LineScript';
+
+use Img;
+use Func;
+
+require "$::pathRoot/conf/defines.conf";
+
+# Чтобы warnings не ругался
+$::logDebug ||= 0;
+$::logPath ||= '/var/log';
+$::pidPath ||= '/var/run';
+my $self = __PACKAGE__->new(
+    schema              => 'DB',
+    log_file            => "$::logPath/regen.log",
+    pid_file            => "$::pidPath/regen.pid",
+    pid_file_noerror    => 1,
+    debug_file          => $::logDebug ? "$::logPath/regen.log" : undef,
+);
+
+#########################################################################
+
+while (my ($aus) = $self->model('Ausweis')->search( 
+        { 'regen' => { '>' => 0 } },
+        { prefetch => [qw/command blok/] },
+    )) {
+    $self->log_prefix(sprintf("[ausweis=%d/%d] nick \"%s\"", $aus->{id}, $aus->{numid}, $aus->{nick}));
+    $self->log("Need regenerate: %08b", $aus->{regen});
+    
+    if (!Func::MakeUserDir($aus->{id})) {
+        $self->error("Can't create user dir: $!");
+        next;
+    }
+    my @regen = (0, reverse split(//, sprintf("%08b", $aus->{regen})));
+    my $dir = Func::UserDir($aus->{id});
+    
+    # Фото
+    if ($::regen{photo} && $regen[$::regen{photo}] && $aus->{photo}) { {
+        Img::Save($self, "$dir/$aus->{photo}", $dir, 'photo');
+        $self->model('Ausweis')->regen_off($aus->{id}, $::regen{photo});
+        $regen[$::regen{photo}] = 0;
+    } }
+    
+    # Печатная форма jpg
+    if ($::regen{print_img} && $regen[$::regen{print_img}]) { {
+        my $img = Img::Ausweis($self, $aus, 'front');
+        if ($img) {
+            if (my $error = $img->Write("$dir/print.front.jpg")) {
+                $self->error("ImageMagick::Write: $error");
+            }
+            undef $img;
+        }
+        
+        $img = Img::Ausweis($self, $aus, 'rear');
+        if ($img) {
+            if (my $error = $img->Write("$dir/print.rear.jpg")) {
+                $self->error("ImageMagick::Write: $error");
+            }
+            undef $img;
+        }
+
+        $self->model('Ausweis')->regen_off($aus->{id}, $::regen{print_img});
+        $regen[$::regen{print_img}] = 0;
+    } }
+    
+    # Убиваем непроверяемые флаги
+    my $n=0;
+    my @regenl;
+    foreach my $b (@regen) {
+        push(@regenl, $n) if $b;
+        $n++;
+    }
+    if (@regenl) {
+        $self->model('Ausweis')->regen_off($aus->{id}, @regenl)
+            || last;
+    }
+}
+
+
+#==========================================================
+#================================================== End ===
+#==========================================================

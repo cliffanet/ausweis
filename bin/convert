@@ -111,10 +111,19 @@ if (!open(FH, $::convertFileAusweis)) {
     exit -1;
 }
 $self->model('Ausweis')->recreate();
-my $sth = $self->model('Ausweis')->create([qw/cmdid blkid blocked numid nick 
+my $sth = $self->model('Ausweis')->create([qw/cmdid blkid blocked regen numid nick 
                                                 fio krov allerg neperenos polis medik comment/]);
 my $c = 0;
 my %cmd_nick;
+
+    my $r_all = 0;
+    $r_all |= 1 << ($::regen{$_}-1) 
+        foreach grep { $::regen{$_} } qw/photo print_img print_pdf/;
+    my $r_aus = 0;
+    $r_aus |= 1 << ($::regen{$_}-1)
+        foreach grep { $::regen{$_} } qw/print_img print_pdf/;
+    #$self->debug("regen: $r_all / $r_aus");
+
 foreach (<FH>) {
     s/\s+$//;
     my ($id, $numid, $part, $blocked, $fio, $nick, $command, 
@@ -164,7 +173,9 @@ foreach (<FH>) {
     $blocked = $blocked && ($blocked =~ /[ƒд][ја]/) ? 1 : 0;
     s/^\s*[Ќн][≈е][“т]\s*$// foreach ($allerg, $neperenos);
     
-    $sth->execute($cmdid, $blkid, $blocked, $numid, $nick, 
+    my $regen = $photo ? $r_all : $r_aus;
+    
+    $sth->execute($cmdid, $blkid, $blocked, $regen, $numid, $nick, 
                     $fio, $krov, $allerg, $neperenos, $polis, $medik, $comment)
         || next;
     my $aus_id = $self->model('Ausweis')->insertid;
@@ -174,14 +185,25 @@ foreach (<FH>) {
     #    save_photo('Ausweis', "$id/$photo", $aus_id, $nick) || next;
     #}
     if (!Func::MakeUserDir($aus_id)) {
-        $self->or("Can't create user dir: $!");
+        $self->error("Can't create user dir: $!");
         next;
     }
-    Img::Save($self, "$::convertDirPhoto/ausweis/$id/$photo",
-            Func::UserDir($aus_id), 'photo') || next;
     
-    $self->model('Ausweis')->update({ photo => $photo }, { id => $aus_id }, nolog => 1)
-        || return;
+    if ($photo) {
+        my $photo1 = Img::Copy($self, "$::convertDirPhoto/ausweis/$id/$photo",
+                Func::UserDir($aus_id), 'photo');
+    
+        if ($photo1) {
+            $self->model('Ausweis')->update(
+                { photo => $photo1  },
+                { id => $aus_id }, 
+                nolog => 1
+            ) || return;
+        }
+    }
+    else {
+        $self->error("No Photo!");
+    }
         
     #  опируем штрихкод
     if ($barcode && (-f "$::convertDirPhoto/ausweis/$id/code_$barcode")) {

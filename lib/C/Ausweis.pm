@@ -31,7 +31,23 @@ sub _item {
         
         $item->{href_img_front} = $self->href($::disp{AusweisImage}, $item->{id}, 'front');
         $item->{href_img_rear}  = $self->href($::disp{AusweisImage}, $item->{id}, 'rear');
+        
+        $item->{href_regen}     = $self->href($::disp{AusweisRegen}, $item->{id});
     }
+    
+    $item->{regenb} =
+        sub { $item->{_regenb} ||= [0, split(//, reverse sprintf("%b", $item->{regen}))] };
+    $item->{regenl} = sub {
+        return $item->{_regenl} if $item->{_regenl};
+        my $list = ($item->{_regenl} = []);
+        my $n = 0;
+        foreach my $b (@{ $item->{regenb}->() }) {
+            push(@$list, $n) if $b;
+            $n++;
+        }
+    };
+    $item->{regens} = 
+        sub { $item->{_regens} ||= join(', ', map { $text::regen{$_} } @{ $item->{regenl}->() }); };
     
     return $item;
 }
@@ -157,6 +173,27 @@ sub img {
         || return $self->state(-000100, '');
     
     $self->view_select('Image');
+}
+
+
+sub regen {
+    my ($self, $id) = @_;
+
+    return unless $self->rights_exists_event($::rAusweisInfo);
+    
+    my ($rec) = (($self->d->{rec}) = 
+        #map { _item($self, $_) }
+        $self->model('Ausweis')->search({ id => $id })); #4, { prefetch => [qw/command blok/] }));
+    $rec || return $self->state(-000105, '');
+    
+    my $r = 0;
+    $r |= 1 << ($::regen{$_}-1) foreach qw/photo regen_img print_pdf/;
+    $self->model('Ausweis')->update(
+        { regen => $r },
+        { id => $rec->{id} }
+    ) || return $self->state(-000104, '');
+    
+    return $self->state(990104, '');
 }
 
 

@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Image::Magick;
+use Clib::Mould;
 use Encode 'decode';
 
 ####################################################
@@ -18,24 +19,26 @@ sub Save {
         return;
     }
     
-    if (!open(FHI, $src_file)) {
-        $self->error("Can't read photo file($src_file): $!");
-        return;
-    }
+#    if (!open(FHI, $src_file)) {
+#        $self->error("Can't read photo file($src_file): $!");
+#        return;
+#    }
+#    
+#    my $ext = lc $1 if $src_file =~ /\.([a-zA-Z0-9]{1,5})$/;
+#    $ext ||= 'jpg';
+#    my $file = "$prefix.orig.$ext";
+#    
+#    if (!open(FHO, ">$dst_dir/$file")) {
+#        $self->error("Can't copy photo (\-> $dst_dir/$file): $!");
+#        close FHI;
+#        return;
+#    }
+#    
+#    print FHO <FHI>;
+#    close FHO;
+#    close FHI;
     
-    my $ext = lc $1 if $src_file =~ /\.([a-zA-Z0-9]{1,5})$/;
-    $ext ||= 'jpg';
-    my $file = "$prefix.orig.$ext";
-    
-    if (!open(FHO, ">$dst_dir/$file")) {
-        $self->error("Can't copy photo (-> $dst_dir/$file): $!");
-        close FHI;
-        return;
-    }
-    
-    print FHO <FHI>;
-    close FHO;
-    close FHI;
+#    $self->debug("Copy photo \-> $dst_dir/$file");
     
     foreach my $ikey (keys %::imgSize) {
         my $s = $::imgSize{$ikey};
@@ -75,9 +78,46 @@ sub Save {
             $self->error("Image::Magick->Write: $error");
             next;
         }
+        
+        $self->debug("Resized($width x $height) \-> $dst_dir/$prefix.$ikey.jpg");
     }
     
     1;
+}
+
+sub Copy {
+    my ($self, $src_file, $dst_dir, $name) = @_;
+    
+    $src_file || return '0E0';
+    
+    if (!(-f $src_file)) {
+        $self->error("file not found ($src_file)");
+        return;
+    }
+    
+    if (!open(FHI, $src_file)) {
+        $self->error("Can't read photo file($src_file): $!");
+        return;
+    }
+    
+    my $ext = lc $1 if $src_file =~ /\.([a-zA-Z0-9]{1,5})$/;
+    $ext ||= 'jpg';
+    $name ||= '';
+    my $file = "$name.orig.$ext";
+    
+    if (!open(FHO, ">$dst_dir/$file")) {
+        $self->error("Can't copy photo (\-> $dst_dir/$file): $!");
+        close FHI;
+        return;
+    }
+    
+    print FHO <FHI>;
+    close FHO;
+    close FHI;
+    
+    #$self->debug("Copy image $src_file \-> $dst_dir/$file");
+    
+    $file;
 }
 
 
@@ -112,6 +152,7 @@ sub Ausweis {
     while (my $p = shift @opt) {
         my $o = shift @opt || next;
         next unless ref($o) eq 'HASH';
+        $o = { %$o }; # Копия хеша с параметрами, чтобы его можно было править
         
         #$self->debug("opts[$p]: ".Dumper($o));
         if (my $if = delete $o->{if}) {
