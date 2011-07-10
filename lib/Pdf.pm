@@ -89,37 +89,17 @@ sub Ausweis {
             }
             $txt->textend;
         }
-#        elsif ((((lc($p) eq 'photo') && $rec->{photo}) || 
-#                ((lc($p) eq 'logo') && $rec->{command}->{photo})) && 
-#                    $o->{x} && $o->{y}) {
-#            my $file = lc($p) eq 'photo' ? 
-#                #"$::dirPhoto/ausweis/$rec->{photo}" :
-#                Func::UserDir($rec->{id})."/photo.aus.jpg" :
-#                "$::dirPhoto/command/$rec->{command}->{photo}";
-#            {
-#                my $img1 = Image::Magick->new();
-#                $error = $img1->Read($file);
-#                $error && last;
-#                $error = $img1->AutoOrient();
-#                $error && last;
-#                my ($w, $h) = ($img1->Get('width'), $img1->Get('height'));
-#                my $k = $o->{width} && ($o->{width} < $w) ? $o->{width}/$w : 1;
-#                $k = $o->{height}/$h if $o->{height} && (($o->{height}/$h) < $k);
-#                if ($k < 1) {
-#                    $self->debug("IMG: orig = %dx%d, k=%0.4f, new = %dx%d", $w, $h, $k, $w*$k, $h*$k);
-#                    $error = $img1->Resize(width=>int($w*$k), height=>int($h*$k));
-#                    $error && last;
-#                    $w = int($w*$k);
-#                }
-#                if ($o->{width} && $o->{align} && ($o->{align} =~ /right/i)) {
-#                    $o->{x} += $o->{width}-$w if $o->{width}>$w;
-#                } elsif ($o->{width} && $o->{align} && ($o->{align} =~ /center/i)) {
-#                    $o->{x} += int ($o->{width}-$w)/2 if $o->{width}>$w;
-#                }
-#                $error = $img->Composite(image => $img1, x=>$o->{x}, y=>$o->{y});
-#                $error && last;
-#            }
-#        }
+        elsif ((((lc($p) eq 'photo') && $rec->{photo}) || 
+                ((lc($p) eq 'logo') && $rec->{command}->{photo})) && 
+                    $o->{x} && $o->{y}) {
+            my $file = lc($p) eq 'photo' ? 
+                Func::UserDir($rec->{id})."/photo.aus.jpg" :
+                "$::dirPhoto/command/$rec->{command}->{photo}";
+            
+            my $gfx = $page->gfx;
+            my $img = $pdf->image_jpeg($file);
+            $gfx->image( $img, $o->{x}, $o->{y} );#, $o->{x}, $o->{y} );
+        }
 #        elsif ((lc($p) eq 'barcode') && $rec->{numid}) {
 #            my $file = "$::dirPhoto/barcode/$rec->{numid}.jpg";
 #            if (-f $file) { {
