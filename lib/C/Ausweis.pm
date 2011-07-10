@@ -186,11 +186,12 @@ sub regen {
         #map { _item($self, $_) }
         $self->model('Ausweis')->search({ id => $id })); #4, { prefetch => [qw/command blok/] }));
     $rec || return $self->state(-000105, '');
-    
-    my $r = 0;
-    $r |= 1 << ($::regen{$_}-1) foreach qw/photo regen_img print_pdf/;
+
+    my $r_all = 0;
+    $r_all |= 1 << ($::regen{$_}-1) 
+        foreach grep { $::regen{$_} } qw/photo print_img print_pdf/;    
     $self->model('Ausweis')->update(
-        { regen => $r },
+        { regen => int($rec->{regen})||int($r_all) },
         { id => $rec->{id} }
     ) || return $self->state(-000104, '');
     
