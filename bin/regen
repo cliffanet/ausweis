@@ -107,6 +107,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
     }
 }
 
+=pod
         $self->log(1);
         my $dir = Func::UserDir(19);
         my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
@@ -119,6 +120,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
         } else {
             $self->error("Can't create PDF-file: $@");
         }
+=cut
 
 #==========================================================
 #================================================== End ===
