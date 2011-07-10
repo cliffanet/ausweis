@@ -9,6 +9,7 @@ require "$::pathRoot/conf/rights.conf";
 require "$::pathRoot/conf/text.conf";
 
 use Func;
+use Img;
 
 __PACKAGE__->config(
     view_default=> 'Main',

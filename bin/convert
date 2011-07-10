@@ -15,7 +15,7 @@ BEGIN {
 use lib "$::pathRoot/lib";
 use base 'Clib::LineScript';
 
-use Image::Magick;
+use Img;
 use Func;
 
 require "$::pathRoot/conf/defines.conf";
@@ -177,8 +177,8 @@ foreach (<FH>) {
         $self->or("Can't create user dir: $!");
         next;
     }
-    Func::SaveImg($self, "$::convertDirPhoto/ausweis/$id/$photo",
-    Func::UserDir($aus_id), 'photo') || next;
+    Img::Save($self, "$::convertDirPhoto/ausweis/$id/$photo",
+            Func::UserDir($aus_id), 'photo') || next;
     
     $self->model('Ausweis')->update({ photo => $photo }, { id => $aus_id }, nolog => 1)
         || return;

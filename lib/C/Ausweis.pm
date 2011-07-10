@@ -153,7 +153,7 @@ sub img {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
     }
     
-    $self->d->{img} = Func::ausweis_img($self, $rec, $type)
+    $self->d->{img} = Img::Ausweis($self, $rec, $type)
         || return $self->state(-000100, '');
     
     $self->view_select('Image');
