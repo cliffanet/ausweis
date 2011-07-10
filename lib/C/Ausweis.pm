@@ -191,7 +191,7 @@ sub regen {
     $r_all |= 1 << ($::regen{$_}-1) 
         foreach grep { $::regen{$_} } qw/photo print_img print_pdf/;    
     $self->model('Ausweis')->update(
-        { regen => int($rec->{regen})||int($r_all) },
+        { regen => int($rec->{regen})|int($r_all) },
         { id => $rec->{id} }
     ) || return $self->state(-000104, '');
     
