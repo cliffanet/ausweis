@@ -12,8 +12,6 @@ use base qw/
 #);
 
 
-use Encode 'decode';
-
 sub new {
     my ($class, $r) = @_;
     
