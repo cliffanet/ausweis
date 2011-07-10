@@ -82,13 +82,24 @@
 <br />
 
 <h3>На печать</h3>
-<table class="frame" width="100%">
+<table class="tbl">
+[% IF file_size('print.front.jpg') || file_size('print.rear.jpg')  %]
 <tr>
-    <td width="50%" align="center">
-<img alt="Лицевая сторона" title="Лицевая сторона" src="[% rec.href_file('print.front.jpg') %]" />
-    </td>
-    <td width="50%" align="center">
-<img alt="Тыльная сторона" title="Тыльная сторона" src="[% rec.href_file('print.rear.jpg') %]" />
+    <td>
+        [% IF file_size('print.front.jpg')  %]
+        <a href="[% rec.href_file('print.front.jpg') %]">JPG (лицевая сторона)</a><br />
+        [% END %]
+        [% IF file_size('print.rear.jpg')  %]
+        <a href="[% rec.href_file('print.rear.jpg') %]">JPG (тыльная сторона)</a><br />
+        [% END %]
     </td>
 </tr>
+[% END %]
+[% IF file_size('print.pdf') %]
+<tr>
+    <td>        
+        <a href="[% rec.href_file('print.pdf') %]">PDF</a><br />
+    </td>
+</tr>
+[% END %]
 </table>

@@ -129,7 +129,7 @@ sub show {
     return unless $self->rights_exists_event($::rAusweisInfo);
     my $d = $self->d;
     
-    $type = 'info' if !$type || ($type !~ /^(edit|info|photo)$/);
+    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
     
     my ($rec) = (($self->d->{rec}) = 
         map { _item($self, $_) }
@@ -140,13 +140,12 @@ sub show {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
     }
     
-#    if ($type eq 'photo') {
-#        $self->view_select('File');
-#        $d->{file} = Func::UserDir($rec->{id})."/photo.site.jpg";
-#        $d->{type} = 'image/jpeg';
-#        $d->{filename} = "photo.$rec->{id}.jpg";
-#        return;
-#    }
+    $d->{file_size} = sub {
+        my $file = shift;
+        $file || return;
+        return $d->{"_file_size_$file"} ||=
+            -s Func::UserDir($rec->{id})."/$file";
+    };
     
     $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{nick}));
     $self->view_select->subtemplate("ausweis_$type.tt");
