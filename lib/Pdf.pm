@@ -74,6 +74,7 @@ sub Ausweis {
             $o->{text} = $m->Parse(data => $o->{text}, pattlist => $rec, dot2hash => 1);
             $self->debug("TEXT: $o->{text}");
             
+            $o->{text} || return;
             $o->{font} ||= 'arial.ttf';
             my $fnt = $pdf->ttfont("$::font_dir/$o->{font}", -encode=>'cp1251'); 
             my $txt = $page->text;
