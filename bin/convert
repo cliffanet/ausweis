@@ -20,6 +20,11 @@ use Func;
 
 require "$::pathRoot/conf/defines.conf";
 
+if (!@ARGV || ($ARGV[0] ne '1234567890')) {
+    print "Usage: ./convert 1234567890\n";
+    exit -1;
+}
+
 # Чтобы warnings не ругался
 $::logDebug ||= 0;
 $::logPath ||= '/var/log';

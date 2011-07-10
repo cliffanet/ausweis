@@ -3,7 +3,7 @@ package C::Ausweis;
 use strict;
 use warnings;
 
-use Image::Magick;
+#use Image::Magick;
 use Clib::Mould;
 
 ##################################################
@@ -27,11 +27,9 @@ sub _item {
         #$item->{href_delete}    = $self->href($::disp{AusweisDel}, $item->{id});
         
         #$item->{href_photo}     = $item->{photo} ? "$::urlPhoto/ausweis/$item->{photo}" : '';
-        $item->{href_photo}     = $item->{photo} ? $self->href($::disp{AusweisShow}, $item->{id}, 'photo') : '';
+        #$item->{href_photo}     = $item->{photo} ? $self->href($::disp{AusweisShow}, $item->{id}, 'photo') : '';
         
-        $item->{href_img_front} = $self->href($::disp{AusweisImage}, $item->{id}, 'front');
-        $item->{href_img_rear}  = $self->href($::disp{AusweisImage}, $item->{id}, 'rear');
-        
+        $item->{href_file}      = sub { $self->href($::disp{AusweisFile}, $item->{id}, shift) };
         $item->{href_regen}     = $self->href($::disp{AusweisRegen}, $item->{id});
     }
     
@@ -142,26 +140,25 @@ sub show {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
     }
     
-    if ($type eq 'photo') {
-        $self->view_select('File');
-        $d->{file} = Func::UserDir($rec->{id})."/photo.site.jpg";
-        $d->{type} = 'image/jpeg';
-        $d->{filename} = "photo.$rec->{id}.jpg";
-        return;
-    }
+#    if ($type eq 'photo') {
+#        $self->view_select('File');
+#        $d->{file} = Func::UserDir($rec->{id})."/photo.site.jpg";
+#        $d->{type} = 'image/jpeg';
+#        $d->{filename} = "photo.$rec->{id}.jpg";
+#        return;
+#    }
     
     $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{nick}));
     $self->view_select->subtemplate("ausweis_$type.tt");
     
 }
-sub img {
-    my ($self, $id, $type) = @_;
+sub file {
+    my ($self, $id, $file) = @_;
 
     return unless $self->rights_exists_event($::rAusweisInfo);
+    my $d = $self->d;
     
-    $type = 'front' if !$type || ($type !~ /^(front|rear)$/);
-    
-    my ($rec) = (($self->d->{rec}) = 
+    my ($rec) = (($d->{rec}) = 
         #map { _item($self, $_) }
         $self->model('Ausweis')->search({ id => $id }, { prefetch => [qw/command blok/] }));
     $rec || return $self->state(-000105, '');
@@ -170,10 +167,17 @@ sub img {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
     }
     
-    $self->d->{img} = Img::Ausweis($self, $rec, $type)
-        || return $self->state(-000100, '');
+    $file =~ s/[^a-zA-Z\d\.\-]+//g;
     
-    $self->view_select('Image');
+    $self->view_select('File');
+    
+    $d->{file} = Func::UserDir($rec->{id})."/$file";
+    
+    if (my $t = $::AusweisFile{$file}) {
+        $d->{type} = $t->[0]||'';
+        my $m = Clib::Mould->new();
+        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $rec, dot2hash => 1);
+    }
 }
 
 

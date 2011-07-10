@@ -64,7 +64,7 @@
 <tr>
     <td width="50%" align="center">
 [% IF rec.photo %]
-<img width="200" alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_photo %]" />
+<img width="200" alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_file('photo.site.jpg') %]" />
 [% ELSE %]
 <span style="color:red; text-weight:bold;">[ФОТО НЕТ]</span>
 [% END %]
@@ -85,10 +85,10 @@
 <table class="frame" width="100%">
 <tr>
     <td width="50%" align="center">
-<img alt="Лицевая сторона" title="Лицевая сторона" src="[% rec.href_img_front %]" />
+<img alt="Лицевая сторона" title="Лицевая сторона" src="[% rec.href_file('print.front.jpg') %]" />
     </td>
     <td width="50%" align="center">
-<img alt="Тыльная сторона" title="Тыльная сторона" src="[% rec.href_img_rear %]" />
+<img alt="Тыльная сторона" title="Тыльная сторона" src="[% rec.href_file('print.rear.jpg') %]" />
     </td>
 </tr>
 </table>
