@@ -87,10 +87,10 @@
 <tr>
     <td>
         [% IF file_size('print.front.jpg')  %]
-        <a href="[% rec.href_file('print.front.jpg') %]">JPG (лицевая сторона)</a><br />
+        <a target="_blank" href="[% rec.href_file('print.front.jpg') %]">JPG (лицевая сторона)</a><br />
         [% END %]
         [% IF file_size('print.rear.jpg')  %]
-        <a href="[% rec.href_file('print.rear.jpg') %]">JPG (тыльная сторона)</a><br />
+        <a target="_blank" href="[% rec.href_file('print.rear.jpg') %]">JPG (тыльная сторона)</a><br />
         [% END %]
     </td>
 </tr>
@@ -98,7 +98,7 @@
 [% IF file_size('print.pdf') %]
 <tr>
     <td>        
-        <a href="[% rec.href_file('print.pdf') %]">PDF</a><br />
+        <a target="_blank" href="[% rec.href_file('print.pdf') %]">PDF</a><br />
     </td>
 </tr>
 [% END %]
