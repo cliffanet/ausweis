@@ -137,8 +137,8 @@ sub ausweis_img {
         $rec || return;
     }
     
-    my $width = $::print{width} || 200;
-    my $height= $::print{height}|| 400;
+    my $width = $::print_img{width} || 200;
+    my $height= $::print_img{height}|| 400;
     my $img = Image::Magick->new(size => "${width}x${height}");
     $img || return;
     my $bg = $::print_img{bgcolor} || 'transparent';
