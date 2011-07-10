@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use Image::Magick;
-use Encode 'decode';
 use Clib::Mould;
 
 ##################################################

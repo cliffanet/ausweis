@@ -3,6 +3,8 @@ package Func;
 use strict;
 use warnings;
 
+use Encode 'decode';
+
 ####################################################
 
 sub UserDir {
