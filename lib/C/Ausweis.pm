@@ -45,6 +45,7 @@ sub _item {
             push(@$list, $n) if $b;
             $n++;
         }
+        $item->{_regenl};
     };
     $item->{regens} = 
         sub { $item->{_regens} ||= join(', ', map { $text::regen{$_} } @{ $item->{regenl}->() }); };
