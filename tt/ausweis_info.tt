@@ -72,7 +72,7 @@
 </tr>
 </table>
 
-<!-- br />
+<br />
 
 <h3>На печать</h3>
 <table class="frame" width="100%">
@@ -84,4 +84,4 @@
 <img alt="Тыльная сторона" title="Тыльная сторона" src="[% rec.href_img_rear %]" />
     </td>
 </tr>
-</table -->
+</table>
