@@ -26,7 +26,7 @@ __PACKAGE__->config(
 
         $::disp{AusweisList}            => 'C::Ausweis::list',
         $::disp{AusweisShow}            => 'C::Ausweis::show',
-        $::disp{AusweisImage}           => 'C::Ausweis::img',
+        $::disp{AusweisFile}            => 'C::Ausweis::file',
         $::disp{AusweisRegen}           => 'C::Ausweis::regen',
     },
     
