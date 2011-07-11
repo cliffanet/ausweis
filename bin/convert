@@ -191,8 +191,9 @@ foreach (<FH>) {
     
     my $blkid = $blok{$blok} || 0;
     my $cmdid = $command{$command} || 0;
+    $blocked = $blocked && ($blocked =~ /[ƒ‰][¿‡]/) ? 1 : 0;
     
-    my $key = "$cmdid-$nick";
+    my $key = "$cmdid-$nick-$blocked";
     if (my $id0 = $cmd_nick{$key}) {
         $self->or("Dublicate. First = \"%d\", current = \"%d\", command = \"%s\".",
             $id0, $id, $command);
@@ -218,7 +219,6 @@ foreach (<FH>) {
         $self->or("unknown command");
     }
     
-    $blocked = $blocked && ($blocked =~ /[ƒ‰][¿‡]/) ? 1 : 0;
     s/^\s*[ÕÌ][≈Â][“Ú]\s*$// foreach ($allerg, $neperenos);
     
     my $regen = $photo ? $r_all : $r_aus;
