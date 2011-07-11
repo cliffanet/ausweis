@@ -51,7 +51,8 @@ while (my ($aus) = $self->model('Ausweis')->search(
     
     # Фото
     if ($::regen{photo} && $regen[$::regen{photo}] && $aus->{photo}) { {
-        Img::Save($self, "$dir/$aus->{photo}", $dir, 'photo');
+        Img::Save($self, "$dir/$aus->{photo}", $dir, 'photo')
+            && $self->log("Gen photo OK");
         $self->model('Ausweis')->regen_off($aus->{id}, $::regen{photo});
         $regen[$::regen{photo}] = 0;
     } }
@@ -70,6 +71,8 @@ while (my ($aus) = $self->model('Ausweis')->search(
         if ($img) {
             if (my $error = $img->Write("$dir/print.rear.jpg")) {
                 $self->error("ImageMagick::Write: $error");
+            } else {
+                $self->log("Gen print_img OK");
             }
             undef $img;
         }
@@ -84,8 +87,11 @@ while (my ($aus) = $self->model('Ausweis')->search(
         if ($pdf) {
             $pdf->mediabox(595,842);
             my $page = Pdf::Ausweis($self, $pdf, $aus);
-            $pdf->save;
-            $pdf->end( );
+            if ($page) {
+                $pdf->save;
+                $pdf->end( );
+                $self->log("Gen print_pdf OK");
+            } 
         } else {
             $self->error("Can't create PDF-file: $@");
         }

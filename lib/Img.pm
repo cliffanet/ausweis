@@ -10,7 +10,7 @@ use Encode 'decode';
 ####################################################
 
 sub Save {
-    my ($self, $src_file, $dst_dir, $prefix) = @_;
+    my ($self, $src_file, $dst_dir, $prefix, $ext) = @_;
     
     $src_file || return '0E0';
     
@@ -19,26 +19,7 @@ sub Save {
         return;
     }
     
-#    if (!open(FHI, $src_file)) {
-#        $self->error("Can't read photo file($src_file): $!");
-#        return;
-#    }
-#    
-#    my $ext = lc $1 if $src_file =~ /\.([a-zA-Z0-9]{1,5})$/;
-#    $ext ||= 'jpg';
-#    my $file = "$prefix.orig.$ext";
-#    
-#    if (!open(FHO, ">$dst_dir/$file")) {
-#        $self->error("Can't copy photo (\-> $dst_dir/$file): $!");
-#        close FHI;
-#        return;
-#    }
-#    
-#    print FHO <FHI>;
-#    close FHO;
-#    close FHI;
-    
-#    $self->debug("Copy photo \-> $dst_dir/$file");
+    $ext ||= 'jpg';
     
     foreach my $ikey (keys %::imgSize) {
         my $s = $::imgSize{$ikey};
@@ -72,7 +53,7 @@ sub Save {
         }
         
         if (my $error = $img->Write(
-                filename => "$dst_dir/$prefix.$ikey.jpg", 
+                filename => "$dst_dir/$prefix.$ikey.$ext", 
                 compression => 'JPEG', 
                 quality => 100)) {
             $self->error("Image::Magick->Write: $error");
@@ -181,9 +162,7 @@ sub Ausweis {
                 ((lc($p) eq 'logo') && $rec->{command}->{photo})) && 
                     $o->{x} && $o->{y}) {
             my $file = lc($p) eq 'photo' ? 
-                #"$::dirPhoto/ausweis/$rec->{photo}" :
                 Func::CachDir('ausweis', $rec->{id})."/photo.aus.jpg" :
-                #"$::dirPhoto/command/$rec->{command}->{photo}";
                 Func::CachDir('command', $rec->{cmdid})."/logo.aus.jpg";
             {
                 my $img1 = Image::Magick->new();
@@ -210,7 +189,6 @@ sub Ausweis {
             }
         }
         elsif ((lc($p) eq 'barcode') && $rec->{numid}) {
-            #my $file = "$::dirPhoto/barcode/$rec->{numid}.jpg";
             my $file = Func::CachDir('ausweis', $rec->{id})."/barcode.$rec->{numid}.orig.jpg";
             if (-f $file) { {
                 my $img1 = Image::Magick->new();
