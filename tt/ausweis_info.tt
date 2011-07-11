@@ -71,7 +71,7 @@
     </td>
     <td width="50%" align="center">
 [% IF rec.command.photo %]
-<img width="200" alt="[% rec.command.name %]" title="[% rec.command.name %]" src="[% rec.command.href_photo %]" />
+<img width="200" alt="[% rec.command.name %]" title="[% rec.command.name %]" src="[% rec.command.href_file('logo.site.jpg') %]" />
 [% ELSE %]
 <span style="color:red; text-weight:bold;">[ЭМБЛЕМЫ НЕТ]</span>
 [% END %]
@@ -83,19 +83,19 @@
 
 <h3>На печать</h3>
 <table class="tbl">
-[% IF file_size('print.front.jpg') || file_size('print.rear.jpg')  %]
+[% IF rec.file_size('print.front.jpg') || rec.file_size('print.rear.jpg')  %]
 <tr>
     <td>
-        [% IF file_size('print.front.jpg')  %]
+        [% IF rec.file_size('print.front.jpg')  %]
         <a target="_blank" href="[% rec.href_file('print.front.jpg') %]">JPG (лицевая сторона)</a><br />
         [% END %]
-        [% IF file_size('print.rear.jpg')  %]
+        [% IF rec.file_size('print.rear.jpg')  %]
         <a target="_blank" href="[% rec.href_file('print.rear.jpg') %]">JPG (тыльная сторона)</a><br />
         [% END %]
     </td>
 </tr>
 [% END %]
-[% IF file_size('print.pdf') %]
+[% IF rec.file_size('print.pdf') %]
 <tr>
     <td>        
         <a target="_blank" href="[% rec.href_file('print.pdf') %]">PDF</a><br />

@@ -31,6 +31,13 @@ sub _item {
         
         $item->{href_file}      = sub { $self->href($::disp{AusweisFile}, $item->{id}, shift) };
         $item->{href_regen}     = $self->href($::disp{AusweisRegen}, $item->{id});
+        
+        $item->{file_size} = sub {
+            my $file = shift;
+            $file || return;
+            return $item->{"_file_size_$file"} ||=
+                -s Func::CachDir('ausweis', $item->{id})."/$file";
+        };
     }
     
     $item->{regenb} =
@@ -140,13 +147,6 @@ sub show {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
     }
     
-    $d->{file_size} = sub {
-        my $file = shift;
-        $file || return;
-        return $d->{"_file_size_$file"} ||=
-            -s Func::UserDir($rec->{id})."/$file";
-    };
-    
     $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{nick}));
     $self->view_select->subtemplate("ausweis_$type.tt");
     
@@ -170,7 +170,7 @@ sub file {
     
     $self->view_select('File');
     
-    $d->{file} = Func::UserDir($rec->{id})."/$file";
+    $d->{file} = Func::CachDir('ausweis', $rec->{id})."/$file";
     
     if (my $t = $::AusweisFile{$file}) {
         $d->{type} = $t->[0]||'';

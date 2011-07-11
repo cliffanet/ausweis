@@ -5,41 +5,39 @@ use warnings;
 
 ####################################################
 
-sub UserDir {
-    my $id = shift;
+sub _CachDir {
+    my ($type, $id) = @_;
     $id || return;
     $::dirFiles || return;
+    $type ||= 'unknown';
     
-    $id = sprintf("%06d", $id);
-    my ($d1, $d2, $d3) = ($1, $2, $3)
-        if $id =~ /^(\d+)(\d\d)(\d\d)$/;
+    my @list = ($::dirFiles, $type);
+    if (($type eq 'command') || ($type eq 'blok')) {
+        $id = sprintf("%04d", $id);
+        push @list, $id;
+    } else {
+        $id = sprintf("%06d", $id);
+        push @list, $id =~ /^(\d+)(\d\d)(\d\d)$/ ? ($1, $2, $3) : $id;
+    }
         
-    return "$::dirFiles/ausweis/$d1/$d2/$d3";
+    return @list;
 }
 
-sub MakeUserDir {
-    my $id = shift;
-    $id || return;
-    $::dirFiles || return;
-    
-    $id = sprintf("%06d", $id);
-    my ($d1, $d2, $d3) = ($1, $2, $3)
-        if $id =~ /^(\d+)(\d\d)(\d\d)$/;
-        
-    if (!(-d $::dirFiles)) {
-        mkdir($::dirFiles) || return;
-    }
-    if (!(-d "$::dirFiles/ausweis")) {
-        mkdir("$::dirFiles/ausweis") || return;
-    }
-    if (!(-d "$::dirFiles/ausweis/$d1")) {
-        mkdir("$::dirFiles/ausweis/$d1") || return;
-    }
-    if (!(-d "$::dirFiles/ausweis/$d1/$d2")) {
-        mkdir("$::dirFiles/ausweis/$d1/$d2") || return;
-    }
-    if (!(-d "$::dirFiles/ausweis/$d1/$d2/$d3")) {
-        mkdir("$::dirFiles/ausweis/$d1/$d2/$d3") || return;
+sub CachDir {
+    my ($type, $id) = @_;
+    return join('/', _CachDir($type, $id));
+}
+
+sub MakeCachDir {
+    my ($type, $id) = @_;
+
+    my $dir;
+    foreach my $di (_CachDir($type, $id)) {    
+        $dir .= "/" if $dir;
+        $dir .= $di;
+        if (!(-d $dir)) {
+            mkdir($dir) || return;
+        }
     }
         
     return 1;

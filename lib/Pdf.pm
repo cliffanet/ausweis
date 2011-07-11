@@ -95,8 +95,8 @@ sub Ausweis {
                 ((lc($p) eq 'logo') && $rec->{command}->{photo})) && 
                     $o->{x} && $o->{y}) {
             my $file = lc($p) eq 'photo' ? 
-                Func::UserDir($rec->{id})."/photo.aus.jpg" :
-                "$::dirPhoto/command/$rec->{command}->{photo}";
+                Func::CachDir('ausweis', $rec->{id})."/photo.aus.jpg" :
+                Func::CachDir('command', $rec->{cmdid})."/logo.aus.jpg";
                 
             my ($w, $h);
             {

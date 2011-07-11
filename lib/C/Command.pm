@@ -20,7 +20,13 @@ sub _item {
         #$item->{href_del}       = $self->href($::disp{CommandDel}, $item->{id});
         #$item->{href_delete}    = $self->href($::disp{CommandDel}, $item->{id});
         
-        $item->{href_photo}     = $item->{photo} ? "$::urlPhoto/command/$item->{photo}" : '';
+        $item->{href_file}      = sub { $self->href($::disp{CommandFile}, $item->{id}, shift) };
+        $item->{file_size} = sub {
+            my $file = shift;
+            $file || return;
+            return $item->{"_file_size_$file"} ||=
+                -s Func::CachDir('command', $item->{id})."/$file";
+        };
     }
     
     return $item;
@@ -163,6 +169,38 @@ sub show_my {
     
     return show($self, $cmdid, $type);
 }
+
+sub file {
+    my ($self, $id, $file) = @_;
+
+    return unless 
+        $self->rights_exists($::rCommandInfo) ||
+        $self->rights_exists_event($::rAusweisInfo);
+    my $d = $self->d;
+    
+    my ($rec) = (($d->{rec}) = 
+        $self->model('Command')->search({ id => $id }));
+    $rec || return $self->state(-000105, '');
+    
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{id})) {
+        return unless 
+            $self->rights_check($::rCommandInfo, $::rAll) ||
+            $self->rights_check_event($::rAusweisInfo, $::rAll);
+    }
+    
+    $file =~ s/[^a-zA-Z\d\.\-]+//g;
+    
+    $self->view_select('File');
+    
+    $d->{file} = Func::CachDir('command', $rec->{id})."/$file";
+    
+    if (my $t = $::CommandFile{$file}) {
+        $d->{type} = $t->[0]||'';
+        my $m = Clib::Mould->new();
+        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $rec, dot2hash => 1);
+    }
+}
+
 
 
 1;

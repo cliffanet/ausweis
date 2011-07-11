@@ -59,18 +59,41 @@ foreach (<FH>) {
         $blok{$name} = 0;
         next;
     }
+    $self->log_prefix(sprintf("[blok=%d] \"%s\"", $id, $name));
     $sth->execute($name)
         || next;
-    my $blkid = $self->model('Blok')->insertid;
-    $blok{$name} = $blkid;
-    $blok_name{$blkid} = $name;
+    my $blk_id = ($blok{$name} = $self->model('Blok')->insertid);
+    $blok_name{$blk_id} = $name;
     
     
     # копируем фото
-    if ($photo) {
-        save_photo('Blok', "$id/$photo", $blkid, $name) || next;
+    #if ($photo) {
+    #    save_photo('Blok', "$id/$photo", $blkid, $name) || next;
+    #}
+    
+    if (!Func::MakeCachDir('blok', $blk_id)) {
+        $self->error("Can't create blok dir: $!");
+        next;
     }
+    
+    if ($photo) {
+        {
+        my $photo1 = Img::Copy($self, "$::convertDirPhoto/blok/$id/$photo",
+                Func::CachDir('blok', $blk_id), 'logo') || last;
+        Img::Save($self, "$::convertDirPhoto/blok/$id/$photo",
+                Func::CachDir('blok', $blk_id), 'logo') || last;
+        $self->model('Blok')->update(
+            { photo => $photo1  },
+            { id => $blk_id }, 
+            nolog => 1
+        ) || return;
+        }
+    }
+    #else {
+    #    $self->error("No Logo!");
+    #}
 }
+$self->log_prefix('');
 $sth->finish;
 close FH;
 $self->log("BLOK: OK %d items", scalar(keys %blok));
@@ -93,15 +116,39 @@ foreach (<FH>) {
         $command{$name} = 0;
         next;
     }
+    $self->log_prefix(sprintf("[command=%d] \"%s\"", $id, $name));
     $sth->execute($name)
         || next;
-    $command{$name} = $self->model('Command')->insertid;
+    my $cmd_id = ($command{$name} = $self->model('Command')->insertid);
     
     # копируем фото
-    if ($photo) {
-        save_photo('Command', "$id/$photo", $command{$name}, $name) || next;
+    #if ($photo) {
+    #    save_photo('Command', "$id/$photo", $command{$name}, $name) || next;
+    #}
+    
+    if (!Func::MakeCachDir('command', $cmd_id)) {
+        $self->error("Can't create command dir: $!");
+        next;
     }
+    
+    if ($photo) {
+        {
+        my $photo1 = Img::Copy($self, "$::convertDirPhoto/command/$id/$photo",
+                Func::CachDir('command', $cmd_id), 'logo') || last;
+        Img::Save($self, "$::convertDirPhoto/command/$id/$photo",
+                Func::CachDir('command', $cmd_id), 'logo') || last;
+        $self->model('Command')->update(
+            { photo => $photo1  },
+            { id => $cmd_id }, 
+            nolog => 1
+        ) || return;
+        }
+    }
+    #else {
+    #    $self->error("No Logo!");
+    #}
 }
+$self->log_prefix('');
 $sth->finish;
 close FH;
 $self->log("COMMAND: OK %d items", scalar(keys %command));
@@ -189,14 +236,14 @@ foreach (<FH>) {
     #if ($photo) {
     #    save_photo('Ausweis', "$id/$photo", $aus_id, $nick) || next;
     #}
-    if (!Func::MakeUserDir($aus_id)) {
+    if (!Func::MakeCachDir('ausweis', $aus_id)) {
         $self->error("Can't create user dir: $!");
         next;
     }
     
     if ($photo) {
         my $photo1 = Img::Copy($self, "$::convertDirPhoto/ausweis/$id/$photo",
-                Func::UserDir($aus_id), 'photo');
+                Func::CachDir('ausweis', $aus_id), 'photo');
     
         if ($photo1) {
             $self->model('Ausweis')->update(
@@ -212,13 +259,15 @@ foreach (<FH>) {
         
     # Копируем штрихкод
     if ($barcode && (-f "$::convertDirPhoto/ausweis/$id/code_$barcode")) {
-        if (open(FHI, "$::convertDirPhoto/ausweis/$id/code_$barcode")) {
-            if (open(FHO, ">$::dirPhoto/barcode/$numid.jpg")) {
-                print FHO <FHI>;
-                close FHO;
-            }
-            close FHI;
-        }
+        Img::Copy($self, "$::convertDirPhoto/ausweis/$id/code_$barcode",
+                Func::CachDir('ausweis', $aus_id), "barcode.$numid");
+        #if (open(FHI, "$::convertDirPhoto/ausweis/$id/code_$barcode")) {
+        #    if (open(FHO, ">$::dirPhoto/barcode/$numid.jpg")) {
+        #        print FHO <FHI>;
+        #        close FHO;
+        #    }
+        #    close FHI;
+        #}
     }
                                                                                             
     $c++;
@@ -227,7 +276,7 @@ $sth->finish;
 close FH;
 $self->log("AUSWEIS: OK %d items", $c);
 
-
+=pod
 sub save_photo {
     my ($model, $photo, $id, $name) = @_;
     
@@ -264,7 +313,7 @@ sub save_photo {
     
     1;
 }
-
+=cut
 
 sub field {
     my $field = shift;

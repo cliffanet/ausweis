@@ -42,12 +42,12 @@ while (my ($aus) = $self->model('Ausweis')->search(
     $self->log_prefix(sprintf("[ausweis=%d/%d] nick \"%s\"", $aus->{id}, $aus->{numid}, $aus->{nick}));
     $self->log("Need regenerate: %08b", $aus->{regen});
     
-    if (!Func::MakeUserDir($aus->{id})) {
+    if (!Func::MakeCachDir('ausweis', $aus->{id})) {
         $self->error("Can't create user dir: $!");
         next;
     }
     my @regen = (0, reverse split(//, sprintf("%08b", $aus->{regen})));
-    my $dir = Func::UserDir($aus->{id});
+    my $dir = Func::CachDir('ausweis', $aus->{id});
     
     # Фото
     if ($::regen{photo} && $regen[$::regen{photo}] && $aus->{photo}) { {
@@ -109,7 +109,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
 
 =pod
         $self->log(1);
-        my $dir = Func::UserDir(19);
+        my $dir = Func::CachDir('ausweis', 19);
         my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
         if ($pdf) {
             #$pdf->mediabox(595,842);

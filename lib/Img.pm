@@ -79,7 +79,7 @@ sub Save {
             next;
         }
         
-        $self->debug("Resized($width x $height) \-> $dst_dir/$prefix.$ikey.jpg");
+        #$self->debug("Resized($width x $height) \-> $dst_dir/$prefix.$ikey.jpg");
     }
     
     1;
@@ -182,8 +182,9 @@ sub Ausweis {
                     $o->{x} && $o->{y}) {
             my $file = lc($p) eq 'photo' ? 
                 #"$::dirPhoto/ausweis/$rec->{photo}" :
-                Func::UserDir($rec->{id})."/photo.aus.jpg" :
-                "$::dirPhoto/command/$rec->{command}->{photo}";
+                Func::CachDir('ausweis', $rec->{id})."/photo.aus.jpg" :
+                #"$::dirPhoto/command/$rec->{command}->{photo}";
+                Func::CachDir('command', $rec->{cmdid})."/logo.aus.jpg";
             {
                 my $img1 = Image::Magick->new();
                 $error = $img1->Read($file);
@@ -209,7 +210,8 @@ sub Ausweis {
             }
         }
         elsif ((lc($p) eq 'barcode') && $rec->{numid}) {
-            my $file = "$::dirPhoto/barcode/$rec->{numid}.jpg";
+            #my $file = "$::dirPhoto/barcode/$rec->{numid}.jpg";
+            my $file = Func::CachDir('ausweis', $rec->{id})."/barcode.$rec->{numid}.orig.jpg";
             if (-f $file) { {
                 my $img1 = Image::Magick->new();
                 $error = $img1->Read($file);
