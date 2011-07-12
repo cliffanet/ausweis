@@ -261,7 +261,7 @@ foreach (<FH>) {
     
     if ($photo) {
         my $ext = $photo =~ /(\.[a-zA-Z0-9]{2,5})$/ ? $1 : $photo;
-        my $photo1 = Img::Copy($self, "$::convertDirPhoto/ausweis/$id/photo_$numid$ext",
+        my $photo1 = Img::Copy($self, "$::convertDirPhoto/ausweis/$id/photo_$id$ext",
                 Func::CachDir('ausweis', $aus_id), 'photo');
     
         if ($photo1) {
