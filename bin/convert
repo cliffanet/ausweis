@@ -195,7 +195,7 @@ foreach (<FH>) {
     
     my $key = "$cmdid-$nick-$blocked";
     if (my $id0 = $cmd_nick{$key}) {
-        $self->or("Dublicate. First = \"%d\", current = \"%d\", command = \"%s\".",
+        $self->error("Dublicate. First = \"%d\", current = \"%d\", command = \"%s\".",
             $id0, $id, $command);
         next;
     }
@@ -211,12 +211,12 @@ foreach (<FH>) {
             $cmd2blk{$cmdid} = $blkid;
         }
         elsif (($blkid0 != $blkid) && $blkid0 && $blkid) {
-            $self->or("Wrong blok id. Command = \"%s\", first blok = \"%s\", current blok = \"%s\"",
+            $self->error("Wrong blok id. Command = \"%s\", first blok = \"%s\", current blok = \"%s\"",
                 $blok_name{$blkid0}, $blok_name{$blkid});
         }
     }
     else {
-        $self->or("unknown command");
+        $self->error("unknown command");
     }
     
     s/^\s*[ÕÌ][≈Â][“Ú]\s*$// foreach ($allerg, $neperenos);
