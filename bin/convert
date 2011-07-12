@@ -215,6 +215,8 @@ foreach (<FH>) {
             $self->error("Wrong blok id. Command = \"%s\", first blok = \"%s\", current blok = \"%s\"",
                 $blok_name{$blkid0}, $blok_name{$blkid});
         }
+        
+        $blkid ||= $blkid0 if $blkid0;
     }
     else {
         $self->error("unknown command");
