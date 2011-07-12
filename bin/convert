@@ -172,7 +172,20 @@ my %cmd_nick;
         foreach grep { $::regen{$_} } qw/print_img print_pdf/;
     #$self->debug("regen: $r_all / $r_aus");
 
+my $prevstr;
 foreach (<FH>) {
+    # ќбработка строк с переносом строки внутри значени€
+    s/[\r\n]+//;
+    if (defined $prevstr) {
+        $_ = $prevstr . " " . $_;
+        undef $prevstr;
+    }
+    if (!/\"$/) {
+        $prevstr = $_;
+        next;
+    }
+    
+    # ќсновна€ обработка
     s/\s+$//;
     my ($id, $numid, $part, $blocked, $fio, $nick, $command, 
         $krov, $allerg, $neperenos, $polis, $medik, 
@@ -222,7 +235,7 @@ foreach (<FH>) {
         $self->error("unknown command");
     }
     
-    s/^\s*[Ќн][≈е][“т]\s*$// foreach ($allerg, $neperenos);
+    #s/^\s*[Ќн][≈е][“т]\s*$// foreach ($allerg, $neperenos);
     
     my $regen = $photo ? $r_all : $r_aus;
     
