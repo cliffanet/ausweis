@@ -248,7 +248,7 @@ foreach (<FH>) {
             ) || return;
         }
     }
-    else {
+    elsif (!$blocked) {
         $self->error("No Photo!");
     }
         
