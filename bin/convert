@@ -191,9 +191,16 @@ foreach (<FH>) {
         $krov, $allerg, $neperenos, $polis, $medik, 
         $blok, $comment, $photo, $barcode) = map { field($_) } (split /;/);
     
-    if (!$id || !$nick) {
+    if (!$id) {
         $self->log_prefix('');
-        $self->error("Wrong string: %s", $_);
+        $self->error("Wrong string: %s", $_)
+            if !$blocked || ($blocked !~ /[Ää][Àà]/);
+        next;
+    }
+    if (!$nick) {
+        $self->log_prefix(sprintf("[ausweis=%d]", $id));
+        $self->error("No Nick!")
+            if !$blocked || ($blocked !~ /[Ää][Àà]/);
         next;
     }
     $self->log_prefix(sprintf("[ausweis=%d] nick \"%s\"", $id, $nick));
@@ -221,6 +228,8 @@ foreach (<FH>) {
                 (($blkid0 != $blkid) && !$blkid0 && $blkid)
             ) {
             $self->model('Command')->update({ blkid => $blkid }, { id => $cmdid }, nolog => 1)
+                || next;
+            $self->model('Ausweis')->update({ blkid => $blkid }, { cmdid => $cmdid }, nolog => 1)
                 || next;
             $cmd2blk{$cmdid} = $blkid;
         }
@@ -251,9 +260,8 @@ foreach (<FH>) {
     }
     
     if ($photo) {
-        $photo =~ s/[^ -z]/_/g;
-        $photo =~ s/\?/_/g;
-        my $photo1 = Img::Copy($self, "$::convertDirPhoto/ausweis/$id/$photo",
+        my $ext = $photo =~ /(\.[a-zA-Z0-9]{2,5})$/ ? $1 : $photo;
+        my $photo1 = Img::Copy($self, "$::convertDirPhoto/ausweis/$id/photo_$numid$ext",
                 Func::CachDir('ausweis', $aus_id), 'photo');
     
         if ($photo1) {
