@@ -179,6 +179,7 @@ foreach (<FH>) {
         $blok, $comment, $photo, $barcode) = map { field($_) } (split /;/);
     
     if (!$id || !$nick) {
+        $self->log_prefix('');
         $self->error("Wrong string: %s", $_);
         next;
     }
