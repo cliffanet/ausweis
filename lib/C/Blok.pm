@@ -309,7 +309,7 @@ sub del {
     ) || return $self->state(-000104, '');
     
     # статус с редиректом
-    $self->state(970300, $self->href($::disp{BlokShow}, $id, 'info') );
+    $self->state(970300, $self->href($::disp{BlokList}) );
 }
 
 
