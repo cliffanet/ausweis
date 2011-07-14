@@ -20,8 +20,8 @@
         <td width="100">[% INCLUDE 'sort.tt' field='blocked', name='Блокировка' %]</td>
         <td></td>
     </tr>
-[% IF ausweis.size > 0 %]
-[% FOREACH ausweis %]
+[% IF ausweis_list.size > 0 %]
+[% FOREACH ausweis_list %]
     <tr[% IF blocked %] class="grey"[% END %]>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
