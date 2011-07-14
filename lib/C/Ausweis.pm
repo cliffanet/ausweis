@@ -13,12 +13,17 @@ use Clib::Mould;
 
 sub _item {
     my $self = shift;
+    
     my $command = delete $_[0]->{command};
+    my $blok    = delete $_[0]->{blok};
+    
     my $item = $self->ToHtml(shift, 1);
     my $id = $item->{id};
     
     $item->{command} = C::Command::_item($self, $command)
         if $command;
+    $item->{blok}    = C::Blok::_item($self, $blok)
+        if $blok;
     
     if ($id) {
         # —сылки

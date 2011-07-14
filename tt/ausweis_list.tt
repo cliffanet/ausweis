@@ -52,7 +52,7 @@
     <tr[% IF blocked %] class="grey"[% END %]>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
         <td><a title="Фильтр по команде" alt="Фильтр по команде" href="[% command.href_srch %]">[% command.name %]</a></td>
-        <td>[% IF blok.id %]<a title="Фильтр по блоку" alt="Фильтр по блоку" href="[% aus.href_list %]?blkid=[% blkid %]">[% blok.name %]</a>[% END %]</td>
+        <td>[% IF blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% blok.href_info %]">[% blok.name %]</a>[% END %]</td>
         <td>[% IF blocked %]ЗАБЛОКИРОВАН[% END %]</td>
         <td>&nbsp;</td>
     </tr>

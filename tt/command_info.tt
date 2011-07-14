@@ -6,7 +6,7 @@
     </tr>
     <tr>
         <td class="ltitle">Блок:</td>
-        <td>[% IF rec.blok.id %]<a title="Фильтр команд по блоку" alt="Фильтр команд по блоку" href="[% cmd.href_list %]?blkid=[% rec.blkid %]">[% rec.blok.name %]</a>[% END %]</td>
+        <td>[% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% END %]</td>
     </tr>
 </table>
 

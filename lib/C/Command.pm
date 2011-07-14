@@ -10,8 +10,14 @@ use warnings;
 
 sub _item {
     my $self = shift;
+
+    my $blok    = delete $_[0]->{blok};
+    
     my $item = $self->ToHtml(shift, 1);
     my $id = $item->{id};
+    
+    $item->{blok}    = C::Blok::_item($self, $blok)
+        if $blok;
     
     if ($id) {
         # —сылки
