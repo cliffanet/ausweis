@@ -11,7 +11,7 @@
 <h3>Команды</h3>
 <table class="tbl">
     <tr class="title">
-        <td>[% INCLUDE 'sort.tt' field='name', name='Название' %]</td>
+        <!-- td>[% INCLUDE 'sort.tt' field='name', name='Название' %]</td -->
     </tr>
 [% IF command_list.size > 0 %]
 [% FOREACH command_list %]
