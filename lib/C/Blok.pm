@@ -1,11 +1,11 @@
-package C::Command;
+package C::Blok;
 
 use strict;
 use warnings;
 
 ##################################################
 ###     Список команд
-###     Код модуля: 98
+###     Код модуля: 97
 #############################################
 
 sub _item {
@@ -15,17 +15,16 @@ sub _item {
     
     if ($id) {
         # Ссылки
-        $item->{href_info}      = $self->href($::disp{CommandShow}, $item->{id}, 'info');
-        $item->{href_srch}      = $self->href($::disp{AusweisList}."?cmdid=%d", $item->{id});
-        #$item->{href_del}       = $self->href($::disp{CommandDel}, $item->{id});
-        #$item->{href_delete}    = $self->href($::disp{CommandDel}, $item->{id});
+        $item->{href_info}      = $self->href($::disp{BlokShow}, $item->{id}, 'info');
+        $item->{href_del}       = $self->href($::disp{BlokDel}, $item->{id});
+        $item->{href_delete}    = $self->href($::disp{BlokDel}, $item->{id});
         
-        $item->{href_file}      = sub { $self->href($::disp{CommandFile}, $item->{id}, shift) };
+        $item->{href_file}      = sub { $self->href($::disp{BlokFile}, $item->{id}, shift) };
         $item->{file_size} = sub {
             my $file = shift;
             $file || return;
             return $item->{"_file_size_$file"} ||=
-                -s Func::CachDir('command', $item->{id})."/$file";
+                -s Func::CachDir('blok', $item->{id})."/$file";
         };
     }
     
@@ -34,15 +33,15 @@ sub _item {
 
 sub _list {
     my $self = shift;
-    return $self->d->{cmd}->{_list} ||= [
+    return $self->d->{blk}->{_list} ||= [
         map { _item($self, $_); }
-        $self->model('Command')->search({},{order_by=>'name'})
+        $self->model('Blok')->search({},{order_by=>'name'})
     ];
 }
 
 sub _hash {
     my $self = shift;
-    return $self->d->{cmd}->{_hash} ||= {
+    return $self->d->{blk}->{_hash} ||= {
         map { ($_->{id} => $_) }
         @{ _list($self) }
     };
@@ -51,21 +50,22 @@ sub _hash {
 sub list {
     my ($self) = @_;
 
-    return unless $self->rights_exists_event($::rCommandList);
+    return unless $self->rights_exists_event($::rBlokList);
     
-    $self->patt(TITLE => $text::titles{command_list});
-    $self->view_select->subtemplate("command_list.tt");
+    $self->patt(TITLE => $text::titles{blok_list});
+    $self->view_select->subtemplate("blok_list.tt");
     
-    my $cmd = $self->d->{cmd};
+    my $blk = $self->d->{blk};
     
     my $q = $self->req;
     my $f = {
-        cmdid   => $q->param_dig('cmdid'),
         blkid   => $q->param_dig('blkid'),
         name    => $q->param_str('name'),
     };
+    $f->{name} ||= '*';
+    
     my $srch = {};
-    $srch->{id} = $f->{cmdid} if $f->{cmdid};
+    $srch->{id} = $f->{blkid} if $f->{blkid};
     if ($f->{blkid}) {
         $srch->{blkid} = $f->{blkid} > 0 ? $f->{blkid} : 0;
     }
@@ -90,14 +90,14 @@ sub list {
     
     $self->d->{sort}->{href_template} = sub {
         my $sort = shift;
-        return $self->href($::disp{CommandList})."?".
+        return $self->href($::disp{BlokList})."?".
                 join('&', $srch_url, "sort=$sort");
     };
     my $sort = $self->req->param_str('sort');
 
     $self->d->{pager}->{href} ||= sub {
         my $page = shift;
-        return $self->href($::disp{CommandList})."?".
+        return $self->href($::disp{BlokList})."?".
             join('&', $srch_url, $sort?"sort=$sort":(), $page>1?"page=$page":());
     };
     my $page = $self->req->param_dig('page') || 1;
@@ -107,10 +107,9 @@ sub list {
                 my $item = _item($self, $_);
                 $item;
         }
-        $self->model('Command')->search(
+        $self->model('Blok')->search(
             $srch,
             {
-                prefetch => 'blok',
                 $self->sort($sort || 'name'),
             },
             $self->pager($page, 100),
@@ -120,41 +119,40 @@ sub list {
 }
 
 sub show {
-    my ($self, $cmdid, $type) = @_;
+    my ($self, $blkid, $type) = @_;
 
-    return unless $self->rights_exists_event($::rCommandInfo);
+    return unless $self->rights_exists_event($::rBlokInfo);
     
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
-        return unless $self->rights_check_event($::rCommandInfo, $::rAll);
+    if (!$self->user->{blkid} || ($self->user->{blkid} != $blkid)) {
+        return unless $self->rights_check_event($::rBlokInfo, $::rAll);
     }
     
     $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
     
     my ($rec) = (($self->d->{rec}) = 
         map { _item($self, $_) }
-        $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
+        $self->model('Blok')->search({ id => $blkid }));
     $rec || return $self->state(-000105);
     
-    
-    $self->patt(TITLE => sprintf($text::titles{"command_$type"}, $rec->{name}));
-    $self->view_select->subtemplate("command_$type.tt");
+    $self->patt(TITLE => sprintf($text::titles{"blok_$type"}, $rec->{name}));
+    $self->view_select->subtemplate("blok_$type.tt");
     
     $self->d->{sort}->{href_template} = sub {
         my $sort = shift;
-        return $self->href($::disp{CommandShow}, $rec->{id}, $type)."?sort=$sort";
+        return $self->href($::disp{BlokShow}, $rec->{id}, $type)."?sort=$sort";
     };
     my $sort = $self->req->param_str('sort');
     
-    $self->d->{ausweis_list} =  sub {
-        $self->d->{_ausweis_list} ||= [
+    $self->d->{command_list} =  sub {
+        $self->d->{_command_list} ||= [
         map {
-                my $item = C::Ausweis::_item($self, $_);
+                my $item = C::Command::_item($self, $_);
                 $item;
         }
-        $self->model('Ausweis')->search(
-            { cmdid => $rec->{id} },
+        $self->model('Command')->search(
+            { blkid => $rec->{id} },
             {
-                $self->sort($sort || 'nick'),
+                $self->sort($sort || 'name'),
             },
         )
         ];
@@ -164,37 +162,37 @@ sub show {
 sub show_my {
     my ($self, $type) = @_;
     
-    my $cmdid = $self->user ? $self->user->{cmdid} : 0;
-    $cmdid || return $self->rights_denied();
+    my $blkid = $self->user ? $self->user->{blkid} : 0;
+    $blkid || return $self->rights_denied();
     
-    return show($self, $cmdid, $type);
+    return show($self, $blkid, $type);
 }
 
 sub file {
     my ($self, $id, $file) = @_;
 
     return unless 
-        $self->rights_exists($::rCommandInfo) ||
-        $self->rights_exists_event($::rAusweisInfo);
+        $self->rights_exists($::rBlokInfo) ||
+        $self->rights_exists_event($::rCommandInfo);
     my $d = $self->d;
     
     my ($rec) = (($d->{rec}) = 
-        $self->model('Command')->search({ id => $id }));
+        $self->model('Blok')->search({ id => $id }));
     $rec || return $self->state(-000105, '');
     
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{id})) {
+    if (!$self->user->{blkid} || ($self->user->{blkid} != $rec->{id})) {
         return unless 
-            $self->rights_check($::rCommandInfo, $::rAll) ||
-            $self->rights_check_event($::rAusweisInfo, $::rAll);
+            $self->rights_check($::rBlokInfo, $::rAll) ||
+            $self->rights_check_event($::rCommandInfo, $::rAll);
     }
     
     $file =~ s/[^a-zA-Z\d\.\-]+//g;
     
     $self->view_select('File');
     
-    $d->{file} = Func::CachDir('command', $rec->{id})."/$file";
+    $d->{file} = Func::CachDir('blok', $rec->{id})."/$file";
     
-    if (my $t = $::CommandFile{$file}) {
+    if (my $t = $::BlokFile{$file}) {
         $d->{type} = $t->[0]||'';
         my $m = Clib::Mould->new();
         $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $rec, dot2hash => 1);

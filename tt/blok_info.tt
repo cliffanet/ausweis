@@ -1,0 +1,41 @@
+<h3>Блок</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:</td>
+        <td>[% rec.name %]</td>
+    </tr>
+</table>
+
+<br />
+
+<h3>Команды</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="200">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
+        <td></td>
+    </tr>
+[% IF command_list.size > 0 %]
+[% FOREACH command_list %]
+    <tr>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a></td>
+        <td>&nbsp;</td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+        ничего не найдено
+    </td></tr>
+[% END %]
+</table>
+
+
+<br />
+
+<h3>Эмблема</h3>
+[% IF rec.photo %]
+<img width="300" alt="[% rec.name %]" title="[% rec.name %]" src="[% rec.href_file('logo.site.jpg') %]" />
+<br />
+[% ELSE %]
+<div style="color:red; text-weight:bold;">НЕТ</div>
+[% END %]
+

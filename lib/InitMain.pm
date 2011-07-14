@@ -20,6 +20,11 @@ __PACKAGE__->config(
     dispatcher  => {
         default                         => 'C::Misc::default',
         
+        $::disp{BlokList}               => 'C::Blok::list',
+        $::disp{BlokShow}               => 'C::Blok::show',
+        $::disp{BlokShowMy}             => 'C::Blok::show_my',
+        $::disp{BlokFile}               => 'C::Blok::file',
+        
         $::disp{CommandList}            => 'C::Command::list',
         $::disp{CommandShow}            => 'C::Command::show',
         $::disp{CommandShowMy}          => 'C::Command::show_my',
@@ -82,12 +87,9 @@ sub http_accept {
         ip      => $ENV{REMOTE_ADDR},
         
         blk     => {
-            list        => sub {
-                $self->d->{blk}->{_list} ||= [
-                    map { $self->ToHtml($_) }
-                    $self->model('Blok')->search({}, { order_by => 'name' })
-                ];
-            },
+            href_list   => $self->href($::disp{BlokList}),
+            list        => sub { C::Blok::_list($self); },
+            hash        => sub { C::Blok::_hash($self); },
         },
         cmd     => {
             href_list   => $self->href($::disp{CommandList}),
@@ -117,6 +119,20 @@ sub http_accept {
              { config => $self->config, config_static => $self->{_config_static}, config_mysql => $self->{_config_mysql}  }, )) 
         },
     );
+    
+    ############################
+    
+    my $d = $self->d;
+    if ($self->user && $self->user->{id}) {
+        ($d->{mycmd}) = map { C::Command::_item($self, $_) }
+            $self->model('Command')->search({ id => $self->user->{id} }, { prefetch => 'blok' })
+            if $self->user->{cmdid};
+        $d->{mycmd} ||= { id => 0, blkid => 0 };
+        $self->user->{cmdid} = $d->{mycmd}->{id};
+        $self->user->{blkid} = $d->{mycmd}->{blkid};
+    }
+    
+    ############################
     
     # Меню администратора
     my $i = 0;

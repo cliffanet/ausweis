@@ -68,7 +68,7 @@
     Вы вошли как: <b>[% authenticate.login %]</b><br />
     Группа: [% IF authenticate.group.id %][% authenticate.group.name %][% ELSE %]<i>(Без групппы)</i>[% END %]<br />
     [% IF authenticate.user.cmdid && cmd.hash.${authenticate.user.cmdid} %]
-        Команда: [% cmd.hash.${authenticate.user.cmdid}.name %]<br />
+        Команда: [% mycmd.name %]<br />
     [% END %]
     <small>Ваш IP: [% authenticate.ip %]<br />
     [% TIME %] </small><br />
