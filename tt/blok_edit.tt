@@ -1,4 +1,4 @@
-<form action="[% href_add %]" method="POST">
+<form action="[% href_set %]" method="POST">
 <h3>Блок</h3>
 <table class="tbl">
     <tr>

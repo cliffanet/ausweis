@@ -152,6 +152,8 @@ sub show {
         }
     }
     
+    $d->{href_set} = $self->href($::disp{BlokSet}, $id);
+    
     ##### Список команд
     $d->{sort}->{href_template} = sub {
         my $sort = shift;
