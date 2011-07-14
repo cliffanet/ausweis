@@ -145,11 +145,11 @@ sub show {
             return unless $self->rights_check_event($::rBlokEdit, $::rAll);
         }
         
-        my $fdata = $self->ParamData;
-        $d->{form} = {
-            map { ($_ => defined $fdata->{$_} ? $self->ToHtml($fdata->{$_}) : $rec->{$_}) }
-            grep { !ref $rec->{$_} } keys %$rec
-        };
+        $d->{form} = { map { $rec->{$_} } grep { !ref $rec->{$_} } keys %$rec };
+        if ($self->req->params()) {
+            my $fdata = $self->ParamData;
+            $d->{form} = $fdata->{$_} keys %$fdata;
+        }
     }
     
     ##### Список команд
@@ -265,6 +265,7 @@ sub set {
         return $is_new ? adding($self) : edit($self, $id);
     }
     
+    $self->state(-000104);
     return $is_new ? adding($self) : edit($self, $id);
     
     # Сохраняем данные
