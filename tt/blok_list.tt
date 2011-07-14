@@ -16,7 +16,7 @@
 <h3>Результаты</h3>
 <table class="tbl">
     <tr class="title">
-        <td width="200">[% INCLUDE 'sort.tt' field='name', name='Название' %]</td>
+        <td width="300">[% INCLUDE 'sort.tt' field='name', name='Название' %]</td>
         <td></td>
     </tr>
 [% IF list.size > 0 %]
