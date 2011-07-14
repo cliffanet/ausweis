@@ -20,7 +20,7 @@
         <td></td>
     </tr>
 [% IF list.size > 0 %]
-    <tr><td colspan="3">
+    <tr><td colspan="2">
 [% INCLUDE 'pager.tt' %]
     </td></tr>
 [% FOREACH list %]
@@ -29,11 +29,11 @@
         <td>&nbsp;</td>
     </tr>
 [% END %]
-    <tr><td colspan="3">
+    <tr><td colspan="2">
 [% INCLUDE 'pager.tt' %]
     </td></tr>
 [% ELSE %]
-    <tr><td colspan="3" style="height:50px;text-align:center;vertical-align:middle;">
+    <tr><td colspan="2" style="height:50px;text-align:center;vertical-align:middle;">
         ничего не найдено
     </td></tr>
 [% END %]
