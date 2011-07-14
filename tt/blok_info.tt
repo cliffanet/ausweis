@@ -11,14 +11,12 @@
 <h3>Команды</h3>
 <table class="tbl">
     <tr class="title">
-        <td width="200">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
-        <td></td>
+        <td>[% INCLUDE 'sort.tt' field='name', name='Название' %]</td>
     </tr>
 [% IF command_list.size > 0 %]
 [% FOREACH command_list %]
     <tr>
         <td><a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a></td>
-        <td>&nbsp;</td>
     </tr>
 [% END %]
 [% ELSE %]
