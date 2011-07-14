@@ -145,7 +145,7 @@ sub show {
             return unless $self->rights_check_event($::rBlokEdit, $::rAll);
         }
         
-        $d->{form} = { map { $rec->{$_} } grep { !ref $rec->{$_} } keys %$rec };
+        $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
         if ($self->req->params()) {
             my $fdata = $self->ParamData;
             $d->{form} = $fdata->{$_} keys %$fdata;
