@@ -152,7 +152,7 @@ sub show {
         }
     }
     
-    $d->{href_set} = $self->href($::disp{BlokSet}, $id);
+    $d->{href_set} = $self->href($::disp{BlokSet}, $blkid);
     
     ##### Список команд
     $d->{sort}->{href_template} = sub {
