@@ -25,6 +25,7 @@ __PACKAGE__->config(
         $::disp{BlokShowMy}             => 'C::Blok::show_my',
         $::disp{BlokFile}               => 'C::Blok::file',
         $::disp{BlokAdding}             => 'C::Blok::adding',
+        $::disp{BlokAdd}                => 'C::Blok::add',
         $::disp{BlokSet}                => 'C::Blok::set',
         $::disp{BlokDel}                => 'C::Blok::del',
         
