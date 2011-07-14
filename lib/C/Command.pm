@@ -64,6 +64,8 @@ sub list {
         blkid   => $q->param_dig('blkid'),
         name    => $q->param_str('name'),
     };
+    $f->{name} ||= '*';
+    
     my $srch = {};
     $srch->{id} = $f->{cmdid} if $f->{cmdid};
     if ($f->{blkid}) {
