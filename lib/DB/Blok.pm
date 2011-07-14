@@ -6,7 +6,12 @@ use warnings;
 use base 'Clib::DBIC';
 
 __PACKAGE__->table("blok");
-__PACKAGE__->columns_array(qw/id dtadd name photo/);
+__PACKAGE__->columns_hash(
+    id          => { skip => 1 },
+    dtadd       => { skip => 1 },
+    name        => '!s',
+    photo       => { skip => 1 },
+);
 
 sub create {
     my ($self, $new) = @_;
