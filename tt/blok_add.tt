@@ -1,0 +1,15 @@
+<h3>Блок</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:</td>
+    <td><input type="text" name="name" class="stdin" value="[% form.name %]" /></td>
+</tr>
+<tr>
+    <td class="submit" colspan="2">
+        <input type="submit" value="Добавить">
+        <input type="button" value="Отмена" onClick="history.go(-1)">
+    </td>
+</tr>
+</table>
+
+

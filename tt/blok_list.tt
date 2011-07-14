@@ -35,5 +35,8 @@
         ничего не найдено
     </td></tr>
 [% END %]
+<tr>
+    <td class="submit" colspan="2"> <a href="[% blk.href_adding %]">добавить</a> </td>
+</tr>
 </table>
 [% END %]

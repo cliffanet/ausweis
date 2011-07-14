@@ -24,6 +24,9 @@ __PACKAGE__->config(
         $::disp{BlokShow}               => 'C::Blok::show',
         $::disp{BlokShowMy}             => 'C::Blok::show_my',
         $::disp{BlokFile}               => 'C::Blok::file',
+        $::disp{BlokAdding}             => 'C::Blok::adding',
+        $::disp{BlokSet}                => 'C::Blok::set',
+        $::disp{BlokDel}                => 'C::Blok::del',
         
         $::disp{CommandList}            => 'C::Command::list',
         $::disp{CommandShow}            => 'C::Command::show',
@@ -88,11 +91,13 @@ sub http_accept {
         
         blk     => {
             href_list   => $self->href($::disp{BlokList}),
+            href_adding => $self->href($::disp{BlokAdding}),
             list        => sub { C::Blok::_list($self); },
             hash        => sub { C::Blok::_hash($self); },
         },
         cmd     => {
             href_list   => $self->href($::disp{CommandList}),
+            href_adding => $self->href($::disp{CommandAdding}),
             list        => sub { C::Command::_list($self); },
             hash        => sub { C::Command::_hash($self); },
         },

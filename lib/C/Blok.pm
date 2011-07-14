@@ -16,6 +16,7 @@ sub _item {
     if ($id) {
         # Ссылки
         $item->{href_info}      = $self->href($::disp{BlokShow}, $item->{id}, 'info');
+        $item->{href_edit}      = $self->href($::disp{BlokShow}, $item->{id}, 'edit');
         $item->{href_del}       = $self->href($::disp{BlokDel}, $item->{id});
         $item->{href_delete}    = $self->href($::disp{BlokDel}, $item->{id});
         
@@ -120,6 +121,7 @@ sub list {
 
 sub show {
     my ($self, $blkid, $type) = @_;
+    my $d = $self->d;
 
     return unless $self->rights_exists_event($::rBlokInfo);
     
@@ -129,22 +131,36 @@ sub show {
     
     $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
     
-    my ($rec) = (($self->d->{rec}) = 
-        map { _item($self, $_) }
-        $self->model('Blok')->search({ id => $blkid }));
-    $rec || return $self->state(-000105);
+    $d->{rec} ||= ($self->model('Blok')->search({ id => $blkid }))[0];
+    $d->{rec} || return $self->state(-000105);
+    my ($rec) = ($d->{rec} =  _item($self, $d->{rec}));
     
     $self->patt(TITLE => sprintf($text::titles{"blok_$type"}, $rec->{name}));
     $self->view_select->subtemplate("blok_$type.tt");
     
-    $self->d->{sort}->{href_template} = sub {
+    ##### Редактирование
+    if ($type eq 'edit') {
+        return unless $self->rights_exists_event($::rBlokEdit);
+        if (!$self->user->{blkid} || ($self->user->{blkid} != $blkid)) {
+            return unless $self->rights_check_event($::rBlokEdit, $::rAll);
+        }
+        
+        my $fdata = $self->ParamData;
+        $d->{form} = {
+            map { ($_ => defined $fdata->{$_} ? $self->ToHtml($fdata->{$_}) : $rec->{$_}) }
+            grep { !ref $rec->{$_} } keys %$rec
+        };
+    }
+    
+    ##### Список команд
+    $d->{sort}->{href_template} = sub {
         my $sort = shift;
         return $self->href($::disp{BlokShow}, $rec->{id}, $type)."?sort=$sort";
     };
     my $sort = $self->req->param_str('sort');
     
-    $self->d->{command_list} =  sub {
-        $self->d->{_command_list} ||= [
+    $d->{command_list} =  sub {
+        $d->{_command_list} ||= [
         map {
                 my $item = C::Command::_item($self, $_);
                 $item;
@@ -166,6 +182,11 @@ sub show_my {
     $blkid || return $self->rights_denied();
     
     return show($self, $blkid, $type);
+}
+
+sub edit {
+    my ($self, $id) = @_;
+    return show($self, $id, 'edit');
 }
 
 sub file {
@@ -197,6 +218,96 @@ sub file {
         my $m = Clib::Mould->new();
         $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $rec, dot2hash => 1);
     }
+}
+
+sub adding {
+    my ($self) = @_;
+
+    return unless $self->rights_check_event($::rBlokEdit, $::rAll);
+    
+    $self->patt(TITLE => $text::titles{"blok_add"});
+    $self->view_select->subtemplate("blok_add.tt");
+    
+    my $d = $self->d;
+    $d->{href_add} = $self->href($::disp{BlokAdd});
+    
+    $d->{form} =
+        { map { ($_ => '') } qw/name/ };
+    if ($self->req->params()) {
+        # Автозаполнение полей, если данные из формы не приходили
+        $d->{form} = {
+            %{ $d->{form} },
+            %{ $self->ParamData(fillall => 1) },
+        };
+    }
+    #$d->{form}->{comment_nobr} = $self->ToHtml($d->{form}->{comment});
+    #$d->{form}->{comment} = $self->ToHtml($d->{form}->{comment}, 1);
+}
+
+sub set {
+    my ($self, $id) = @_;
+    my $is_new = !defined($id);
+    
+    return unless $self->rights_exists_event($::rBlokEdit);
+    if (!$id || !$self->user->{blkid} || ($self->user->{blkid} != $id)) {
+        return unless $self->rights_check_event($::rBlokEdit, $::rAll);
+    }
+    
+    # Кэшируем заранее данные
+    my ($rec) = (($self->d->{rec}) = $self->model('Blok')->search({ id => $id })) if $id;
+    if (!$is_new && (!$rec || !$rec->{id})) {
+        $self->state(-000105);
+    }
+    
+    # Проверяем данные из формы
+    if (!$self->ParamParse(model => 'Blok', is_create => $is_new)) {
+        $self->state(-000101);
+        return $is_new ? adding($self) : edit($self, $id);
+    }
+    
+    # Сохраняем данные
+    my $ret = $self->ParamSave( 
+        model           => 'Blok', 
+        $is_new ?
+            ( insert => \$id ) :
+            ( 
+                update => { id => $id }, 
+                preselect => $rec
+            ),
+    );
+    if (!$ret) {
+        $self->state(-000104);
+        return $is_new ? adding($self) : edit($self, $id);
+    }
+    
+    # Статус с редиректом
+    return $self->state($is_new ? 970100 : 970200,  $self->href($::disp{BlokShow}, $id, 'info') );
+}
+
+sub del {
+    my ($self, $id) = @_;
+    
+    return unless $self->rights_check_event($::rBlokEdit, $::rAll);
+    my ($rec) = $self->model('Blok')->search({ id => $id });
+    $rec || return $self->state(-000105);
+    
+    $self->model('Blok')->delete({ id => $id })
+        || return $self->state(-000104, '');
+        
+    # Убираем блок у команд
+    $self->model('Command')->update(
+        { blkid => 0 },
+        { blkid => $id },
+    ) || return $self->state(-000104, '');
+    
+    # Убираем блок у аусвайсов
+    $self->model('Ausweis')->update(
+        { blkid => 0 },
+        { blkid => $id },
+    ) || return $self->state(-000104, '');
+    
+    # статус с редиректом
+    $self->state(970300, $self->href($::disp{BlokShow}, $id, 'info') );
 }
 
 
