@@ -125,7 +125,7 @@ sub http_accept {
     my $d = $self->d;
     if ($self->user && $self->user->{id}) {
         ($d->{mycmd}) = map { C::Command::_item($self, $_) }
-            $self->model('Command')->search({ id => $self->user->{id} }, { prefetch => 'blok' })
+            $self->model('Command')->search({ id => $self->user->{cmdid} }, { prefetch => 'blok' })
             if $self->user->{cmdid};
         $d->{mycmd} ||= { id => 0, blkid => 0 };
         $self->user->{cmdid} = $d->{mycmd}->{id};
