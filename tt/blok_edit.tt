@@ -11,7 +11,7 @@
         <input type="button" value="Отмена" onClick="history.go(-1)">
 <br />
 <a href="[% rec.href_delete %]"
-    onClick="return confirm('Удаление Блока: [% rec.name %]\nВНИМАНИЕ! Все команды в блоке изменят блока на \"<- без блока ->\".\nПродолжать?');"
+    onClick="return confirm('Удаление Блока: [% rec.name %]\nВНИМАНИЕ! Все команды в блоке изменят блока на "<- без блока ->".\nПродолжать?');"
     >удалить</a>
     </td>
 </tr>
