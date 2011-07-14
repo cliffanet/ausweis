@@ -267,9 +267,6 @@ sub set {
         return $is_new ? adding($self) : edit($self, $id);
     }
     
-    $self->state(-000104);
-    return $is_new ? adding($self) : edit($self, $id);
-    
     # Сохраняем данные
     my $ret = $self->ParamSave( 
         model           => 'Blok', 
