@@ -22,7 +22,7 @@
     </tr>
 [% IF ausweis.size > 0 %]
 [% FOREACH ausweis %]
-    <tr[% IF blocked %] class="gray"[% END $]>
+    <tr[% IF blocked %] class="gray"[% END %]>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
         <td>[% IF blocked %]ЗАБЛОКИРОВАН[% END %]</td>
