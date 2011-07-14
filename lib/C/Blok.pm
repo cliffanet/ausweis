@@ -148,7 +148,7 @@ sub show {
         $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
         if ($self->req->params()) {
             my $fdata = $self->ParamData;
-            $d->{form} = $fdata->{$_} keys %$fdata;
+            $d->{form} = $fdata->{$_} foreach keys %$fdata;
         }
     }
     
