@@ -2,6 +2,7 @@
     <tr class="title">
         <td width="100">Дата</td>
         <td width="100">Номер</td>
+        <td width="100">Статус</td>
         <td></td>
     </tr>
 [% IF list.size > 0 %]
@@ -9,12 +10,16 @@
     <tr>
         <td><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% date(dtadd) %]</a></td>
         <td><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% id %]</a></td>
+        <td>[% status_name %]</td>
         <td></td>
     </tr>
 [% END %]
 [% ELSE %]
-    <tr><td colspan="2" style="height:50px;text-align:center;vertical-align:middle;">
+    <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
         ничего не найдено
     </td></tr>
 [% END %]
+    <tr><td colspan="4" class="submit">
+        <a href="[% prn.href_add %]">добавить</a>
+    </td></tr>
 </table>
