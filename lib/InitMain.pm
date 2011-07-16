@@ -53,6 +53,9 @@ __PACKAGE__->config(
         $::disp{PrintAdd}               => 'C::Print::add',
         $::disp{PrintSet}               => 'C::Print::set',
         $::disp{PrintRegen}             => 'C::Print::regen',
+        $::disp{PrintAusweisSearch}     => 'C::Print::ausweis_search',
+        $::disp{PrintAusweisAdd}        => 'C::Print::ausweis_add',
+        $::disp{PrintAusweisDel}        => 'C::Print::ausweis_del',
     },
     
     plugins => [qw/ScriptTime

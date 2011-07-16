@@ -1,0 +1,63 @@
+<h3>Партия на печать</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Партия №:</td>
+        <td<a href="[% rec.href_info %]">[% rec.id %]</a></td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+            <a href="[% rec.href_info %]">инфо о партии</a>
+        </td>
+    </tr>
+</table>
+
+<br />
+
+<!-- Поиск -->
+<h3>Поиск аусвайсов для добавления в партию</h3>
+[% INCLUDE 'print_ausweis_form.tt' %]
+
+[% IF list %]
+<h3>Результаты</h3>
+<form action="#" method="POST">
+<table class="tbl">
+    <tr class="title">
+        <td width="40"></td>
+        <td width="70">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
+        <td width="200">[% INCLUDE 'sort.tt' field='nick', name='Ник' %]</td>
+        <td width="200">[% INCLUDE 'sort.tt' field='command.name', name='Команда' %]</td>
+        <td>[% INCLUDE 'sort.tt' field='blok.name', name='Блок' %]</td>
+    </tr>
+[% IF list.size > 0 %]
+    <tr><td colspan="6">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+[% FOREACH list %]
+    <tr[% IF blocked %] class="grey"[% END %]>
+        <td>
+            <input type="checkbox" name="ausid" value="[% id %]" />
+        </td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
+        <td>[% IF blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% blok.href_info %]">[% blok.name %]</a>[% END %]</td>
+        <td>[% IF blocked %]ЗАБЛОКИРОВАН[% END %]</td>
+    </tr>
+[% END %]
+    <tr><td colspan="6">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+    <tr><td colspan="6" class="submit">
+        <input type="button" value="Добавить"
+            onClick="document.getElementById('formSrch').action='[% rec.href_auseis_add %]';document.getElementById('formSrch').submit()" />
+        <input type="button" value="Удалить"
+            onClick="document.getElementById('formSrch').action='[% rec.href_auseis_del %]';document.getElementById('formSrch').submit()" />
+    </td></tr>
+[% ELSE %]
+    <tr><td colspan="6" style="height:50px;text-align:center;vertical-align:middle;">
+        ничего не найдено
+    </td></tr>
+[% END %]
+</table>
+</form>
+[% END %]

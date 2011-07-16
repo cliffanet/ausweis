@@ -1,0 +1,34 @@
+<form action="[% href_ausweis_search %]" method="GET">
+<table class="tbl">
+    <tr>
+        <td class="ltitle">По всем текстовым полям:</td>
+        <td><input type="text" name="text" class="stdin" value="[% srch.text %]"></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Команда:</td>
+        <td>
+            <select name="cmdid" class="stdin">
+                <option value="0"> &lt;- любой -&gt; </option>
+[% FOREACH cmd.list %]
+                <option value="[% id %]"[% IF srch.cmdid == id %] selected[% END %]>[% name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блок:</td>
+        <td>
+            <select name="blkid" class="stdin">
+                <option value="0"> &lt;- любой -&gt; </option>
+[% FOREACH blk.list %]
+                <option value="[% id %]"[% IF srch.blkid == id %] selected[% END %]>[% name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr><td colspan="2" class="submit">
+        <input type="submit" value="Искать">
+    </td></tr>
+</table>
+</form>
+
