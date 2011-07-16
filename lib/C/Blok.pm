@@ -305,7 +305,8 @@ sub set {
                 photo   => $photo,
             },
             { id => $id }
-        ) || return $self->state(-900102, '');
+        ) || return $self->state(-000104, '');
+        unlink("$dirUpload/$file");
     }
     
     # Статус с редиректом
