@@ -103,7 +103,7 @@
 [% END %]
 [% END # IF authenticate.uid && !denied %]
 
-[% IF allow_ausweis_list %]
+[% IF aus.allow_list %]
 <br />
 Поиск по номеру/нику: <br />
 <form action="[% aus.href_list %]" method="GET">
