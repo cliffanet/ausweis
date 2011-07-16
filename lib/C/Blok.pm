@@ -260,7 +260,7 @@ sub set {
     my ($self, $id) = @_;
     my $is_new = !defined($id);
     
-    my $dirUpload = Func::SetTmpDir()
+    my $dirUpload = Func::SetTmpDir($self)
         || return !$self->state(-900101, '');
     
     return unless $self->rights_exists_event($::rBlokEdit);
