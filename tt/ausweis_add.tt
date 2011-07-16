@@ -10,7 +10,7 @@
         <td>
             <select name="cmdid" class="stdin">
                 <option value="0"> &lt;- выбрать -&gt; </option>
-[% FOREACH blk.list %]
+[% FOREACH cmd.list %]
                 <option value="[% id %]"[% IF form.cmdid == id %] selected[% END %]>[% name %]</option>
 [% END %]
             </select>
