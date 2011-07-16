@@ -77,7 +77,7 @@ sub info {
     
     $d->{allow_print_ausweis} = $self->rights_check($::rPrintAusweis, $::rAll);
     
-    $self->{href_ausweis_search} = $self->href($::disp{PrintAusweisSearch}, $rec->{id});
+    $d->{href_ausweis_search} = $self->href($::disp{PrintAusweisSearch}, $rec->{id});
 }
 
 sub file {
@@ -183,7 +183,7 @@ sub ausweis_search {
     $d->{rec} || return $self->state(-000105);
     my ($rec) = ($d->{rec} =  _item($self, $d->{rec}));
     
-    $self->{href_ausweis_search} = $self->href($::disp{PrintAusweisSearch}, $rec->{id});
+    $d->{href_ausweis_search} = $self->href($::disp{PrintAusweisSearch}, $rec->{id});
     
     my $q = $self->req;
     my $f = {
