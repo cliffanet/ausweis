@@ -319,7 +319,7 @@ sub set {
             || return $self->state(-900102, '');
         my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('command', $id), 'logo')
             || return $self->state(-900102, '');
-        $self->model('Ñommand')->update(
+        $self->model('Command')->update(
             { 
                 regen   => (1<<($::regen{logo}-1)),
                 photo   => $photo,
