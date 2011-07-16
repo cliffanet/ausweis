@@ -6,6 +6,7 @@
         <td><input type="text" name="name" class="stdin" value="[% form.name %]" /></td>
     </tr>
     <tr>
+        <td class="ltitle">Блок:        [% INCLUDE form_error_param.tt  p='blkid' %]</td>
         <td>
             <select name="blkid" class="stdin">
                 <option value="0"> &lt;- без блока -&gt; </option>
