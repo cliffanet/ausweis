@@ -4,6 +4,14 @@
         <td class="ltitle">Название:</td>
         <td>[% rec.name %]</td>
     </tr>
+[% IF rec.regen > 0 %]
+    <tr>
+        <td class="ltitle">Пересборка:</td>
+        <td>
+            в процессе: [% rec.regens %]
+        </td>
+    </tr>
+[% END %]
     <tr>
         <td class="submit" colspan="2">
             <a href="[% rec.href_edit %]">изменить</a>
