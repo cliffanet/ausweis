@@ -28,8 +28,7 @@ sub _item {
     if ($id) {
         # Ññûëêè
         $item->{href_info}      = $self->href($::disp{AusweisShow}, $item->{id}, 'info');
-        #$item->{href_del}       = $self->href($::disp{AusweisDel}, $item->{id});
-        #$item->{href_delete}    = $self->href($::disp{AusweisDel}, $item->{id});
+        $item->{href_edit}      = $self->href($::disp{AusweisShow}, $item->{id}, 'edit');
         
         $item->{href_file}      = sub { $self->href($::disp{AusweisFile}, $item->{id}, shift) };
         $item->{href_regen}     = $self->href($::disp{AusweisRegen}, $item->{id});
