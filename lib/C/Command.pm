@@ -247,14 +247,17 @@ sub adding {
     my $d = $self->d;
     $d->{href_add} = $self->href($::disp{CommandAdd});
     
+    # Автозаполнение полей, если данные из формы не приходили
     $d->{form} =
         { map { ($_ => '') } qw/name blkid/ };
     if ($self->req->params()) {
-        # Автозаполнение полей, если данные из формы не приходили
-        $d->{form} = {
-            %{ $d->{form} },
-            %{ $self->ParamData(fillall => 1) },
-        };
+        # Данные из формы - либо после ParamParse, либо напрямую данные
+        my $fdata = $self->ParamData(fillall => 1);
+        if (keys %$fdata) {
+            $d->{form} = { %{ $d->{form} }, %$fdata };
+        } else {
+            $d->{form}->{$_} = $self->req->param($_) foreach $self->req->params();
+        }
     }
     #$d->{form}->{comment_nobr} = $self->ToHtml($d->{form}->{comment});
     #$d->{form}->{comment} = $self->ToHtml($d->{form}->{comment}, 1);
