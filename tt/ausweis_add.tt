@@ -1,4 +1,4 @@
-<form action="[% href_add %]" method="POST">
+<form action="[% href_add %]" method="POST" enctype="multipart/form-data">
 <h3>Команда</h3>
 <table class="tbl">
     <tr>
@@ -52,6 +52,10 @@
     <tr>
         <td class="ltitle">Комментарии: [% INCLUDE form_error_param.tt  p='comment' %]</td>
         <td><input type="text" name="comment" class="stdin" value="[% form.comment %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Загрузка фото:<br /><small>Фото буден видно через несколько минут после загрузки</small></td>
+        <td><input type="file" name="photo" class="stdin" /></td>
     </tr>
 <tr>
     <td class="submit" colspan="2">

@@ -228,6 +228,9 @@ sub set {
     my ($self, $id) = @_;
     my $is_new = !defined($id);
     
+    my $dirUpload = Func::SetTmpDir($self)
+        || return !$self->state(-900101, '');
+    
     return unless $self->rights_exists_event($::rAusweisEdit);
     my $d = $self->d;
     my $q = $self->req;
@@ -281,6 +284,23 @@ sub set {
     if (!$ret) {
         $self->state(-000104);
         return $is_new ? adding($self) : edit($self, $id);
+    }
+    
+    # Загрузка логотипа
+    if (my $file = $self->req->param("photo")) {
+        Func::MakeCachDir('ausweis', $id)
+            || return $self->state(-900102, '');
+        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('ausweis', $id), 'photo')
+            || return $self->state(-900102, '');
+        my $regen = $rec ? int($rec->{regen}) : 0;
+        $self->model('Ausweis')->update(
+            { 
+                regen   => $regen | (1<<($::regen{logo}-1)),
+                photo   => $photo,
+            },
+            { id => $id }
+        ) || return $self->state(-000104, '');
+        unlink("$dirUpload/$file");
     }
     
     # Статус с редиректом

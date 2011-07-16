@@ -79,15 +79,15 @@ while (my ($cmd) = $self->model('Command')->search(
         { 'regen' => { '>' => 0 } },
         { prefetch => [qw/blok/] },
     )) {
-    $self->log_prefix(sprintf("[blok=%d] \"%s\"", $cmd->{id}, $cmd->{name}));
+    $self->log_prefix(sprintf("[command=%d] \"%s\"", $cmd->{id}, $cmd->{name}));
     $self->log("Need regenerate: %08b", $cmd->{regen});
     
-    if (!Func::MakeCachDir('blok', $cmd->{id})) {
+    if (!Func::MakeCachDir('command', $cmd->{id})) {
         $self->error("Can't create dir: $!");
         next;
     }
     my @regen = (0, reverse split(//, sprintf("%08b", $cmd->{regen})));
-    my $dir = Func::CachDir('blok', $cmd->{id});
+    my $dir = Func::CachDir('command', $cmd->{id});
     
     # Лого
     if ($::regen{logo} && $regen[$::regen{logo}] && $cmd->{photo}) { {

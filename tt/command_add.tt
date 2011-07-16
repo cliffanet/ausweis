@@ -16,6 +16,10 @@
             </select>
         </td>
     </tr>
+    <tr>
+        <td class="ltitle">Загрузка логотипа:<br /><small>Логотип буден виден через несколько минут после загрузки</small></td>
+        <td><input type="file" name="photo" class="stdin" /></td>
+    </tr>
 <tr>
     <td class="submit" colspan="2">
         <input type="submit" value="Добавить">
