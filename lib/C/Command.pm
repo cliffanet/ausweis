@@ -298,7 +298,7 @@ sub set {
     if (!$is_new && defined($fdata->{blkid}) && ($fdata->{blkid} != $rec->{blkid})) {
         $self->model('Ausweis')->update(
             { blkid => $fdata->{blkid} },
-            { blkid => $rec->{blkid} }
+            { cmdid => $id }
         ) || return $self->state(-000104, '');
     }
     
