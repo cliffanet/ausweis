@@ -39,7 +39,7 @@
         ничего не найдено
     </td></tr>
 [% END %]
-    <tr><td colspan="2" class="submit">
+    <tr><td colspan="4" class="submit">
         <a href="[% rec.href_aus_adding %]">добавить</a>
     </td></tr>
 </table>
