@@ -150,6 +150,22 @@ sub show {
     $self->patt(TITLE => sprintf($text::titles{"command_$type"}, $rec->{name}));
     $self->view_select->subtemplate("command_$type.tt");
     
+    ##### Редактирование
+    if ($type eq 'edit') {
+        return unless $self->rights_exists_event($::rCommandEdit);
+        if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
+            return unless $self->rights_check_event($::rCommandEdit, $::rAll);
+        }
+        
+        $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
+        if ($self->req->params()) {
+            my $fdata = $self->ParamData;
+            $d->{form}->{$_} = $fdata->{$_} foreach keys %$fdata;
+        }
+    }
+    
+    $d->{href_set} = $self->href($::disp{CommandSet}, $cmdid);
+    
     $d->{sort}->{href_template} = sub {
         my $sort = shift;
         return $self->href($::disp{CommandShow}, $rec->{id}, $type)."?sort=$sort";
