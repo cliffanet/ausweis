@@ -22,7 +22,7 @@ sub _item {
         
         $item->{href_set_status}= sub { $self->href($::disp{PrintSet}."?status=%s", $item->{id}, shift) };
         
-        $item->{href_regen}     = $self->href($::disp{AusweisRegen}, $item->{id});
+        $item->{href_regen}     = $self->href($::disp{PrintRegen}, $item->{id});
         $item->{href_file}      = sub { $self->href($::disp{PrintFile}, $item->{id}, shift) };
         $item->{file_size} = sub {
             my $file = shift;
