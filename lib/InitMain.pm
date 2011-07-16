@@ -51,6 +51,8 @@ __PACKAGE__->config(
         $::disp{PrintInfo}              => 'C::Print::info',
         $::disp{PrintFile}              => 'C::Print::file',
         $::disp{PrintAdd}               => 'C::Print::add',
+        $::disp{PrintSet}               => 'C::Print::set',
+        $::disp{PrintRegen}             => 'C::Print::regen',
     },
     
     plugins => [qw/ScriptTime
