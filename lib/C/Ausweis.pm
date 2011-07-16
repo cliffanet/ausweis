@@ -88,7 +88,7 @@ sub list {
             $s =~ s/([%_])/\\$1/g;
             $s =~ s/\*/%/g;
             $s =~ s/\?/_/g;
-            $srch->{nick} =  $s;
+            $srch->{nick} =  { LIKE => $s };
         }
     }
     
