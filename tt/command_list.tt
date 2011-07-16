@@ -21,7 +21,7 @@
     <tr><td colspan="2" class="submit">
         <input type="submit" value="Искать">
         <br />
-        <a href="[% blk.href_adding %]">добавить</a>
+        <a href="[% cmd.href_adding %]">добавить</a>
     </td></tr>
 </table>
 </form>
