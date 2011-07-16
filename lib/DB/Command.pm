@@ -9,7 +9,7 @@ __PACKAGE__->table("command");
 __PACKAGE__->columns_hash(
     id          => { skip => 1 },
     dtadd       => { skip => 1 },
-    blkid       => { type => 'd', handler => \&DB::Block::hnd_blkid },
+    blkid       => { type => 'd', handler => \&DB::Blok::hnd_blkid },
     name        => '!s',
     photo       => { skip => 1 },
 );
