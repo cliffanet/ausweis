@@ -144,6 +144,7 @@ sub show {
         map { _item($self, $_) }
         $self->model('Ausweis')->search({ id => $id }, { prefetch => [qw/command blok/] }));
     $rec || return $self->state(-000105);
+    $d->{form} = $rec;
     
     if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
         return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
@@ -152,24 +153,30 @@ sub show {
     $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{nick}));
     $self->view_select->subtemplate("ausweis_$type.tt");
     
-    ##### Редактирование
     if ($type eq 'edit') {
         return unless $self->rights_exists_event($::rAusweisEdit);
         if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
             return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
         }
-        
-        $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
-        if ($self->req->params()) {
-            my $fdata = $self->ParamData;
-            $d->{form}->{$_} = $fdata->{$_} foreach keys %$fdata;
-        }
     }
     
     $d->{href_set} = $self->href($::disp{AusweisSet}, $id);
-    
-    
 }
+
+sub edit {
+    my ($self, $id) = @_;
+    
+    show($self, $id, 'edit');
+    
+    my $d = $self->d;    
+    my $rec = $d->{rec};
+    $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
+    if ($self->req->params()) {
+        my $fdata = $self->ParamData;
+        $d->{form}->{$_} = $self->TiHtml($fdata->{$_}) foreach keys %$fdata;
+    }
+}
+
 sub file {
     my ($self, $id, $file) = @_;
 
@@ -201,7 +208,7 @@ sub file {
 sub adding {
     my ($self) = @_;
 
-    return unless $self->rights_check_event($::rAusweisEdit);
+    return unless $self->rights_exists_event($::rAusweisEdit);
     my $cmdid = $self->req->param_dig('cmdid');
     $cmdid ||= $self->user->{cmdid}
         if !$self->rights_check($::rAusweisEdit, $::rAll);
@@ -240,7 +247,7 @@ sub set {
     my ($rec) = (($self->d->{rec}) = $self->model('Ausweis')->search({ id => $id })) if $id;
     if (!$is_new) {
         if (!$rec || !$rec->{id}) {
-            $self->state(-000105);
+            return $self->state(-000105, '');
         }
         if (!$rec->{cmdid} || !$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
             return unless $self->rights_check_event($::rAusweisEdit, $::rAll);

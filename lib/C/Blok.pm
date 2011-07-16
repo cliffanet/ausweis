@@ -124,35 +124,29 @@ sub list {
 sub show {
     my ($self, $blkid, $type) = @_;
     my $d = $self->d;
+    
+    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
 
     return unless $self->rights_exists_event($::rBlokInfo);
     
     if (!$self->user->{blkid} || ($self->user->{blkid} != $blkid)) {
         return unless $self->rights_check_event($::rBlokInfo, $::rAll);
     }
-    
-    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
-    
-    $d->{rec} ||= ($self->model('Blok')->search({ id => $blkid }))[0];
-    $d->{rec} || return $self->state(-000105);
-    my ($rec) = ($d->{rec} =  _item($self, $d->{rec}));
-    
-    $self->patt(TITLE => sprintf($text::titles{"blok_$type"}, $rec->{name}));
-    $self->view_select->subtemplate("blok_$type.tt");
-    
-    ##### Редактирование
+    ##### Права на едактирование
     if ($type eq 'edit') {
         return unless $self->rights_exists_event($::rBlokEdit);
         if (!$self->user->{blkid} || ($self->user->{blkid} != $blkid)) {
             return unless $self->rights_check_event($::rBlokEdit, $::rAll);
         }
-        
-        $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
-        if ($self->req->params()) {
-            my $fdata = $self->ParamData;
-            $d->{form}->{$_} = $fdata->{$_} foreach keys %$fdata;
-        }
     }
+    
+    $d->{rec} ||= ($self->model('Blok')->search({ id => $blkid }))[0];
+    $d->{rec} || return $self->state(-000105);
+    my ($rec) = ($d->{rec} =  _item($self, $d->{rec}));
+    $d->{form} = $rec;
+    
+    $self->patt(TITLE => sprintf($text::titles{"blok_$type"}, $rec->{name}));
+    $self->view_select->subtemplate("blok_$type.tt");
     
     $d->{href_set} = $self->href($::disp{BlokSet}, $blkid);
     
@@ -190,7 +184,16 @@ sub show_my {
 
 sub edit {
     my ($self, $id) = @_;
-    return show($self, $id, 'edit');
+    
+    show($self, $id, 'edit');
+    
+    my $d = $self->d;    
+    my $rec = $d->{rec};
+    $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
+    if ($self->req->params()) {
+        my $fdata = $self->ParamData;
+        $d->{form}->{$_} = $self->TiHtml($fdata->{$_}) foreach keys %$fdata;
+    }
 }
 
 sub file {
@@ -260,7 +263,7 @@ sub set {
     # Кэшируем заранее данные
     my ($rec) = (($self->d->{rec}) = $self->model('Blok')->search({ id => $id })) if $id;
     if (!$is_new && (!$rec || !$rec->{id})) {
-        $self->state(-000105);
+        return $self->state(-000105, '');
     }
     
     # Проверяем данные из формы

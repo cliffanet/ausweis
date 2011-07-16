@@ -133,38 +133,30 @@ sub list {
 
 sub show {
     my ($self, $cmdid, $type) = @_;
+    my $d = $self->d;
+    
+    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
 
     return unless $self->rights_exists_event($::rCommandInfo);
-    my $d = $self->d;
     
     if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
         return unless $self->rights_check_event($::rCommandInfo, $::rAll);
     }
-    
-    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
-    
-    my ($rec) = (($self->d->{rec}) = 
-        map { _item($self, $_) }
-        $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
-    $rec || return $self->state(-000105);
-    
-    
-    $self->patt(TITLE => sprintf($text::titles{"command_$type"}, $rec->{name}));
-    $self->view_select->subtemplate("command_$type.tt");
-    
-    ##### Редактирование
     if ($type eq 'edit') {
         return unless $self->rights_exists_event($::rCommandEdit);
         if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
             return unless $self->rights_check_event($::rCommandEdit, $::rAll);
         }
-        
-        $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
-        if ($self->req->params()) {
-            my $fdata = $self->ParamData;
-            $d->{form}->{$_} = $fdata->{$_} foreach keys %$fdata;
-        }
     }
+    
+    my ($rec) = (($self->d->{rec}) = 
+        map { _item($self, $_) }
+        $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
+    $rec || return $self->state(-000105);
+    $d->{form} = $rec || {};
+    
+    $self->patt(TITLE => sprintf($text::titles{"command_$type"}, $rec->{name}));
+    $self->view_select->subtemplate("command_$type.tt");
     
     $d->{href_set} = $self->href($::disp{CommandSet}, $cmdid);
     
@@ -201,7 +193,16 @@ sub show_my {
 
 sub edit {
     my ($self, $id) = @_;
-    return show($self, $id, 'edit');
+    
+    show($self, $id, 'edit');
+    
+    my $d = $self->d;
+    my $rec = $d->{rec};
+    $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
+    if ($self->req->params()) {
+        my $fdata = $self->ParamData;
+        $d->{form}->{$_} = $self->TiHtml($fdata->{$_}) foreach keys %$fdata;
+    }
 }
 
 sub file {
@@ -271,7 +272,7 @@ sub set {
     # Кэшируем заранее данные
     my ($rec) = (($self->d->{rec}) = $self->model('Command')->search({ id => $id })) if $id;
     if (!$is_new && (!$rec || !$rec->{id})) {
-        $self->state(-000105);
+        return $self->state(-000105, '');
     }
     
     # Проверяем данные из формы
