@@ -48,7 +48,7 @@ __PACKAGE__->config(
         $::disp{AusweisRegen}           => 'C::Ausweis::regen',
         
         $::disp{PrintList}              => 'C::Print::list',
-        $::disp{PrintInfo}              => 'C::Print::show',
+        $::disp{PrintInfo}              => 'C::Print::info',
         $::disp{PrintFile}              => 'C::Print::file',
         $::disp{PrintAdd}               => 'C::Print::add',
     },
