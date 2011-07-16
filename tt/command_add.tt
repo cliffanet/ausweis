@@ -4,10 +4,9 @@
     <tr>
         <td class="ltitle">Название:    [% INCLUDE form_error_param.tt  p='name' %]</td>
         <td><input type="text" name="name" class="stdin" value="[% form.name %]" /></td>
-    <tr>
-        <td class="ltitle">Блок:        [% INCLUDE form_error_param.tt  p='blkid' %]</td>
     </tr>
     <tr>
+        <td class="ltitle">Блок:        [% INCLUDE form_error_param.tt  p='blkid' %]</td>
         <td>
             <select name="blkid" class="stdin">
                 <option value="0"> &lt;- без блока -&gt; </option>
