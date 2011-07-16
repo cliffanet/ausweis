@@ -297,10 +297,15 @@ sub set {
     
     # Загрузка логотипа
     if (my $file = $self->req->param("photo")) {
-        Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('blok', $id))
+        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('blok', $id))
             || return $self->state(-900102, '');
-        $self->model('Blok')->update({ regen => (1<<($::regen{logo}-1)) }, { id => $id })
-            || return $self->state(-900102, '');
+        $self->model('Blok')->update(
+            { 
+                regen   => (1<<($::regen{logo}-1)),
+                photo   => $photo,
+            },
+            { id => $id }
+        ) || return $self->state(-900102, '');
     }
     
     # Статус с редиректом
