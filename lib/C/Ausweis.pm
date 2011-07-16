@@ -263,7 +263,7 @@ sub set {
         if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
             return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
         }
-        $self->param('cmdid', $cmdid)
+        $q->param('cmdid', $cmdid)
     }
     
     
