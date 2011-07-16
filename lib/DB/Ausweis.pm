@@ -41,7 +41,7 @@ sub create {
 
 sub gen_numid {
     my ($self, $where, %args) = @_;
-    my $numid = $self->max($where, %args) || return;
+    my $numid = $self->max_value('numid', $where, %args) || return;
     
     return $numid + 1;
 }
