@@ -10,6 +10,7 @@ __PACKAGE__->columns_hash(
     id          => { skip => 1 },
     dtadd       => { skip => 1 },
     blkid       => { type => 'd', handler => \&DB::Blok::hnd_blkid },
+    regen       => { skip => 1 },
     name        => '!s',
     photo       => { skip => 1 },
 );

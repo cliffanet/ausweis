@@ -36,6 +36,8 @@ sub _item {
         };
         
         $item->{href_aus_adding}= $self->href($::disp{AusweisAdding}."?cmdid=%d", $id);
+        
+        Func::regen_stat($self, $item);
     }
     
     return $item;

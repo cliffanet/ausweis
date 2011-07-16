@@ -29,6 +29,8 @@ sub _item {
         };
         
         $item->{href_cmd_adding}= $self->href($::disp{CommandAdding}."?blkid=%d", $id);
+        
+        Func::regen_stat($self, $item);
     }
     
     return $item;
@@ -258,6 +260,9 @@ sub set {
     my ($self, $id) = @_;
     my $is_new = !defined($id);
     
+    my $dirUpload = Func::SetTmpDir()
+        || return !$self->state(-900101, '');
+    
     return unless $self->rights_exists_event($::rBlokEdit);
     if (!$id || !$self->user->{blkid} || ($self->user->{blkid} != $id)) {
         return unless $self->rights_check_event($::rBlokEdit, $::rAll);
@@ -288,6 +293,14 @@ sub set {
     if (!$ret) {
         $self->state(-000104);
         return $is_new ? adding($self) : edit($self, $id);
+    }
+    
+    # Загрузка логотипа
+    if (my $file = $self->req->param("photo")) {
+        Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('blok', $id))
+            || return $self->state(-900102, '');
+        $self->model('Blok')->update({ regen => (1<<($::regen{logo}-1)) }, { id => $id })
+            || return $self->state(-900102, '');
     }
     
     # Статус с редиректом

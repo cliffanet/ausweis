@@ -39,22 +39,9 @@ sub _item {
             return $item->{"_file_size_$file"} ||=
                 -s Func::CachDir('ausweis', $item->{id})."/$file";
         };
+        
+        Func::regen_stat($self, $item);
     }
-    
-    $item->{regenb} =
-        sub { $item->{_regenb} ||= [0, split(//, reverse sprintf("%b", $item->{regen}))] };
-    $item->{regenl} = sub {
-        return $item->{_regenl} if $item->{_regenl};
-        my $list = ($item->{_regenl} = []);
-        my $n = 0;
-        foreach my $b (@{ $item->{regenb}->() }) {
-            push(@$list, $n) if $b;
-            $n++;
-        }
-        $item->{_regenl};
-    };
-    $item->{regens} = 
-        sub { $item->{_regens} ||= join(', ', map { $text::regen{$_} } @{ $item->{regenl}->() }); };
     
     return $item;
 }

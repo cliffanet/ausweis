@@ -76,7 +76,7 @@ foreach (<FH>) {
         {
         $photo =~ s/[^ -z]/_/g;
         $photo =~ s/\?/_/g;
-        my $photo1 = Img::Copy($self, "$::convertDirPhoto/blok/$id/$photo",
+        my $photo1 = Func::ImgCopy($self, "$::convertDirPhoto/blok/$id/$photo",
                 Func::CachDir('blok', $blk_id), 'logo') || last;
         Img::Save($self, "$::convertDirPhoto/blok/$id/$photo",
                 Func::CachDir('blok', $blk_id), 'logo') || last;
@@ -129,7 +129,7 @@ foreach (<FH>) {
         $photo =~ s/[^ -z]/_/g;
         $photo =~ s/\?/_/g;
         {
-        my $photo1 = Img::Copy($self, "$::convertDirPhoto/command/$id/$photo",
+        my $photo1 = Func::ImgCopy($self, "$::convertDirPhoto/command/$id/$photo",
                 Func::CachDir('command', $cmd_id), 'logo') || last;
         Img::Save($self, "$::convertDirPhoto/command/$id/$photo",
                 Func::CachDir('command', $cmd_id), 'logo') || last;
@@ -261,7 +261,7 @@ foreach (<FH>) {
     
     if ($photo) {
         my $ext = $photo =~ /(\.[a-zA-Z0-9]{2,5})$/ ? $1 : $photo;
-        my $photo1 = Img::Copy($self, "$::convertDirPhoto/ausweis/$id/photo_$id$ext",
+        my $photo1 = Func::ImgCopy($self, "$::convertDirPhoto/ausweis/$id/photo_$id$ext",
                 Func::CachDir('ausweis', $aus_id), 'photo');
     
         if ($photo1) {
@@ -278,7 +278,7 @@ foreach (<FH>) {
         
     # Копируем штрихкод
     if ($barcode && (-f "$::convertDirPhoto/ausweis/$id/code_$barcode")) {
-        Img::Copy($self, "$::convertDirPhoto/ausweis/$id/code_$barcode",
+        Func::ImgCopy($self, "$::convertDirPhoto/ausweis/$id/code_$barcode",
                 Func::CachDir('ausweis', $aus_id), "barcode.$numid");
     }
                                                                                             

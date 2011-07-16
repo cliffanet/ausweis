@@ -9,6 +9,7 @@ __PACKAGE__->table("blok");
 __PACKAGE__->columns_hash(
     id          => { skip => 1 },
     dtadd       => { skip => 1 },
+    regen       => { skip => 1 },
     name        => '!s',
     photo       => { skip => 1 },
 );
