@@ -55,11 +55,23 @@
 
 <br />
 
-<h3>Эмблема</h3>
+<h3>Эмблема команды / блока</h3>
+<table class="frame" width="100%">
+<tr>
+    <td width="50%" align="center">
 [% IF rec.photo %]
-<img width="300" alt="[% rec.name %]" title="[% rec.name %]" src="[% rec.href_file('logo.site.jpg') %]" />
-<br />
+<img width="200" alt="[% rec.name %]" title="[% rec.name %]" src="[% rec.href_file('logo.site.jpg') %]" />
 [% ELSE %]
-<div style="color:red; text-weight:bold;">НЕТ</div>
+<span style="color:red; text-weight:bold;">[ЭМБЛЕМЫ КОМАНДЫ НЕТ]</span>
 [% END %]
+    </td>
+    <td width="50%" align="center">
+[% IF rec.blok.photo %]
+<img width="200" alt="[% rec.blok.name %]" title="[% rec.blok.name %]" src="[% rec.blok.href_file('logo.site.jpg') %]" />
+[% ELSE %]
+<span style="color:red; text-weight:bold;">[ЭМБЛЕМЫ БЛОКА НЕТ]</span>
+[% END %]
+    </td>
+</tr>
+</table>
 
