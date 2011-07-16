@@ -2,7 +2,7 @@
 <table class="tbl">
     <tr>
         <td class="ltitle">Партия №:</td>
-        <td<a href="[% rec.href_info %]">[% rec.id %]</a></td>
+        <td><a href="[% rec.href_info %]">[% rec.id %]</a></td>
     </tr>
     <tr>
         <td class="submit" colspan="2">
