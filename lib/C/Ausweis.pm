@@ -55,11 +55,13 @@ sub list {
     $self->patt(TITLE => $text::titles{ausweis_list});
     $self->view_select->subtemplate("ausweis_list.tt");
     
+    my $d = $self->d;
     my $q = $self->req;
     my $f = {
         cmdid   => $q->param_dig('cmdid'),
         blkid   => $q->param_dig('blkid'),
         text    => $q->param_str('text'),
+        numidnick=>$q->param_str('numidnick'),
     };
     my $srch = {};
     $srch->{cmdid} = $f->{cmdid} if $f->{cmdid};
@@ -75,6 +77,19 @@ sub list {
         $srch->{-or} = {};
         $srch->{-or}->{$_} = { LIKE => $text }
             foreach qw/nick fio comment krov allerg neperenos polis medik/;
+    }
+    if ($f->{numidnick}) {
+        $d->{aus}->{srch_num} = $self->ToHtml($f->{numidnick});
+        my $s = $f->{numidnick};
+        if ($s =~ /^\d{10}$/) {
+            $srch->{numid} = $s;
+        }
+        else {
+            $s =~ s/([%_])/\\$1/g;
+            $s =~ s/\*/%/g;
+            $s =~ s/\?/_/g;
+            $srch->{nick} =  $s;
+        }
     }
     
     my $srch_url = 

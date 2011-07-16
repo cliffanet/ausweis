@@ -103,6 +103,15 @@
 [% END %]
 [% END # IF authenticate.uid && !denied %]
 
+[% IF allow_ausweis_list %]
+<br />
+Поиск по номеру/нику: <br />
+<form action="[% aus.href_list %]" method="GET">
+    <input type="text" name="numidnick" value="[% aus.srch_num %]" style="width: 100px" />
+    <input type="submit" value="Искать" style="width: 70px" />
+</form>
+[% END %]
+
     </td>
     <td valign="top" class="content">
                     <!-- Заголовок -->

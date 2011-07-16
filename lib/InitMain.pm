@@ -111,8 +111,10 @@ sub http_accept {
             hash        => sub { C::Command::_hash($self); },
         },
         aus     => {
+            srch_num    => '',
             href_list   => $self->href($::disp{AusweisList}),
             href_adding => $self->href($::disp{AusweisAdding}),
+            allow_list  => 0,
         },
     );
     
@@ -145,6 +147,8 @@ sub http_accept {
         $d->{mycmd} ||= { id => 0, blkid => 0 };
         $self->user->{cmdid} = $d->{mycmd}->{id};
         $self->user->{blkid} = $d->{mycmd}->{blkid};
+        
+        $d->{aus}->{allow_list} = $self->rights_exists($::rAusweisList);
     }
     
     ############################
