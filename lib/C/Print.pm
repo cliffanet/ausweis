@@ -18,7 +18,11 @@ sub _item {
     if ($id) {
         # Ссылки
         $item->{href_info}      = $self->href($::disp{PrintInfo}, $item->{id});
+        $item->{href_set}       = $self->href($::disp{PrintSet}, $item->{id});
         
+        $item->{href_set_status}= sub { $self->href($::disp{PrintSet}."status=%s", $item->{id}, shift) };
+        
+        $item->{href_regen}     = $self->href($::disp{AusweisRegen}, $item->{id});
         $item->{href_file}      = sub { $self->href($::disp{PrintFile}, $item->{id}, shift) };
         $item->{file_size} = sub {
             my $file = shift;
@@ -65,6 +69,7 @@ sub info {
     $self->patt(TITLE => sprintf($text::titles{"print_info"}, $rec->{id}));
     $self->view_select->subtemplate("print_info.tt");
     
+    $d->{status_name} = \%text::PrintStatus;
 }
 
 sub file {
@@ -102,6 +107,60 @@ sub add {
     # Статус с редиректом
     return $self->state(960100,  $self->href($::disp{PrintInfo}, $id) );
 }
+
+sub regen {
+    my ($self, $id) = @_;
+
+    return unless $self->rights_check_event($::rPrint, $::rWrite);
+    
+    my ($rec) = (($self->d->{rec}) = 
+        $self->model('Print')->search({ id => $id }));
+    $rec || return $self->state(-000105, '');
+
+    my $r_all = 0;
+    $r_all |= 1 << ($::regen{print_pdf}-1) ;
+    #    foreach grep { $::regen{$_} } qw/photo print_img print_pdf/;    
+    $self->model('Print')->update(
+        { regen => int($rec->{regen})|int($r_all) },
+        { id => $rec->{id} }
+    ) || return $self->state(-000104, '');
+    
+    return $self->state(960400, '');
+}
+
+
+sub set {
+    my ($self, $id) = @_;
+
+    return unless $self->rights_check_event($::rPrint, $::rWrite);
+    
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    my ($rec) = (($d->{rec}) = 
+        $self->model('Print')->search({ id => $id }));
+    $rec || return $self->state(-000105, '');
+
+    my %rec = ();
+    
+    if ($q->param('status') && ($q->param('status') =~ /^[ACPZ]$/)) {
+        $rec{status} = $q->param_code('status');
+    }
+    
+    foreach my $p (keys %rec) {
+        delete($rec{$p}) if $rec{$p} eq $rec->{$p};
+    }
+    
+    %rec || return $self->state(-000106, '');
+
+    $self->model('Print')->update(
+        \%rec,
+        { id => $rec->{id} }
+    ) || return $self->state(-000104, '');
+    
+    return $self->state(960200, '');
+}
+
 
 
 1;
