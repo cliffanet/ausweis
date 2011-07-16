@@ -62,7 +62,8 @@ sub list {
     $self->patt(TITLE => $text::titles{command_list});
     $self->view_select->subtemplate("command_list.tt");
     
-    my $cmd = $self->d->{cmd};
+    my $d = $self->d;
+    my $cmd = $d->{cmd};
     
     my $q = $self->req;
     my $f = {
@@ -93,24 +94,24 @@ sub list {
             grep { $f->{$_} } keys %$f));
     $srch_url ||= '';
     
-    $self->d->{srch} = $self->ToHtml($f);
+    $d->{srch} = $self->ToHtml($f);
     
     
-    $self->d->{sort}->{href_template} = sub {
+    $d->{sort}->{href_template} = sub {
         my $sort = shift;
         return $self->href($::disp{CommandList})."?".
                 join('&', $srch_url, "sort=$sort");
     };
     my $sort = $self->req->param_str('sort');
 
-    $self->d->{pager}->{href} ||= sub {
+    $d->{pager}->{href} ||= sub {
         my $page = shift;
         return $self->href($::disp{CommandList})."?".
             join('&', $srch_url, $sort?"sort=$sort":(), $page>1?"page=$page":());
     };
     my $page = $self->req->param_dig('page') || 1;
     
-    $self->d->{list} = [
+    $d->{list} = [
         map {
                 my $item = _item($self, $_);
                 $item;
@@ -124,7 +125,7 @@ sub list {
             $self->pager($page, 100),
         )
     ] if $srch_url;
-    $self->d->{list} ||= 0;
+    $d->{list} ||= 0;
 }
 
 sub show {
@@ -260,6 +261,8 @@ sub set {
         return $is_new ? adding($self) : edit($self, $id);
     }
     
+    my $fdata = $self->ParamData;
+    
     # Сохраняем данные
     my $ret = $self->ParamSave( 
         model           => 'Command', 
@@ -273,6 +276,13 @@ sub set {
     if (!$ret) {
         $self->state(-000104);
         return $is_new ? adding($self) : edit($self, $id);
+    }
+    
+    if (!$is_new && defined($fdata->{blkid}) && ($fdata->{blkid} != $rec->{blkid})) {
+        $self->model('Ausweis')->update(
+            { blkid => $fdata->{blkid} },
+            { blkid => $rec->{blkid} }
+        ) || return $self->state(-000104, '');
     }
     
     # Статус с редиректом

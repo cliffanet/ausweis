@@ -8,6 +8,11 @@
         <td class="ltitle">Блок:</td>
         <td>[% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% END %]</td>
     </tr>
+    <tr>
+        <td class="submit" colspan="2">
+            <a href="[% rec.href_edit %]">изменить</a>
+        </td>
+    </tr>
 </table>
 
 <br />
