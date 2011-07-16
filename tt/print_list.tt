@@ -1,0 +1,20 @@
+<table class="tbl">
+    <tr class="title">
+        <td width="100">Дата</td>
+        <td width="100">Номер</td>
+        <td></td>
+    </tr>
+[% IF list.size > 0 %]
+[% FOREACH list %]
+    <tr>
+        <td><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% date(dtadd) %]</a></td>
+        <td><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% id %]</a></td>
+        <td></td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="2" style="height:50px;text-align:center;vertical-align:middle;">
+        ничего не найдено
+    </td></tr>
+[% END %]
+</table>

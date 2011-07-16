@@ -1,0 +1,24 @@
+<h3>Партия на печать</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Партия №:</td>
+        <td>[% rec.id %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Дата создания:</td>
+        <td>[% date(rec.dtadd) %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">На печать:</td>
+        <td>
+[% IF rec.file_size('print.pdf') %]
+<a href="[% rec.href_file('print.pdf') %]">PDF</a><br />
+[% END %]
+            <a href="[% rec.href_regen %]">Пересобрать</a>
+[% IF rec.regen > 0 %]
+            (в процессе: [% rec.regens %])
+[% END %]
+        </td>
+    </tr>
+</table>
+

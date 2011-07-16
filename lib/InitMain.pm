@@ -46,6 +46,11 @@ __PACKAGE__->config(
         $::disp{AusweisSet}             => 'C::Ausweis::set',
         $::disp{AusweisDel}             => 'C::Ausweis::del',
         $::disp{AusweisRegen}           => 'C::Ausweis::regen',
+        
+        $::disp{PrintList}              => 'C::Print::list',
+        $::disp{PrintInfo}              => 'C::Print::show',
+        $::disp{PrintFile}              => 'C::Print::file',
+        $::disp{PrintAdd}               => 'C::Print::add',
     },
     
     plugins => [qw/ScriptTime
@@ -95,8 +100,10 @@ sub http_accept {
     $self->{_run_count} ++;
     
     $self->data(
-        IS_DEVEL=> $::isDevel ? 1 : 0,
-        ip      => $ENV{REMOTE_ADDR},
+        date            => \&Func::dt_date,
+        datetime        => \&Func::dt_datetime,
+        IS_DEVEL        => $::isDevel ? 1 : 0,
+        ip              => $ENV{REMOTE_ADDR},
         
         blk     => {
             href_list   => $self->href($::disp{BlokList}),
@@ -115,6 +122,10 @@ sub http_accept {
             href_list   => $self->href($::disp{AusweisList}),
             href_adding => $self->href($::disp{AusweisAdding}),
             allow_list  => 0,
+        },
+        prn     => {
+            href_list   => $self->href($::disp{PrintList}),
+            href_add    => $self->href($::disp{PrintAdd}),
         },
     );
     
