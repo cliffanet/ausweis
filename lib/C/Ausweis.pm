@@ -129,8 +129,9 @@ sub list {
             $self->pager($page, 100),
         )
     ] if $srch_url;
+    $d->{list} ||= 0;
     
-    if (@{ $d->{list} } == 1) {
+    if ($d->{list} && (@{ $d->{list} } == 1)) {
         $self->res->redirect($d->{list}->[0]->{href_info});
     }
 }
