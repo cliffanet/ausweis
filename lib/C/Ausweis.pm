@@ -295,7 +295,7 @@ sub set {
         my $regen = $rec ? int($rec->{regen}) : 0;
         $self->model('Ausweis')->update(
             { 
-                regen   => $regen | (1<<($::regen{logo}-1)),
+                regen   => $regen | (1<<($::regen{photo}-1)),
                 photo   => $photo,
             },
             { id => $id }
