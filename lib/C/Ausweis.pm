@@ -115,7 +115,7 @@ sub list {
     };
     my $page = $self->req->param_dig('page') || 1;
     
-    $self->d->{list} = [
+    $d->{list} = [
         map {
                 my $item = _item($self, $_);
                 $item;
@@ -129,7 +129,10 @@ sub list {
             $self->pager($page, 100),
         )
     ] if $srch_url;
-    $self->d->{list} ||= 0;
+    
+    if (@{ $d->{list} } == 1) {
+        $self->res->redirect($d->{list}->[0]->{href_info});
+    }
 }
 
 
