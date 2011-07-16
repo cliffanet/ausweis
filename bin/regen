@@ -33,7 +33,87 @@ my $self = __PACKAGE__->new(
     debug_file          => $::logDebug ? "$::logPath/regen.log" : undef,
 );
 
+
 #########################################################################
+###     Блоки
+
+while (my ($blk) = $self->model('Blok')->search( 
+        { 'regen' => { '>' => 0 } },
+    )) {
+    $self->log_prefix(sprintf("[blok=%d] \"%s\"", $blk->{id}, $blk->{name}));
+    $self->log("Need regenerate: %08b", $blk->{regen});
+    
+    if (!Func::MakeCachDir('blok', $blk->{id})) {
+        $self->error("Can't create dir: $!");
+        next;
+    }
+    my @regen = (0, reverse split(//, sprintf("%08b", $blk->{regen})));
+    my $dir = Func::CachDir('blok', $blk->{id});
+    
+    # Лого
+    if ($::regen{logo} && $regen[$::regen{logo}] && $blk->{photo}) { {
+        Img::Save($self, "$dir/$blk->{photo}", $dir, 'logo')
+            && $self->log("Gen logo OK");
+        $self->model('Blok')->regen_off($blk->{id}, $::regen{logo});
+        $regen[$::regen{logo}] = 0;
+    } }
+
+    # Убиваем непроверяемые флаги
+    my $n=0;
+    my @regenl;
+    foreach my $b (@regen) {
+        push(@regenl, $n) if $b;
+        $n++;
+    }
+    if (@regenl) {
+        $self->model('Blok')->regen_off($blk->{id}, @regenl)
+            || last;
+    }
+}
+
+
+#########################################################################
+###     Команды
+
+while (my ($cmd) = $self->model('Command')->search( 
+        { 'regen' => { '>' => 0 } },
+        { prefetch => [qw/blok/] },
+    )) {
+    $self->log_prefix(sprintf("[blok=%d] \"%s\"", $cmd->{id}, $cmd->{name}));
+    $self->log("Need regenerate: %08b", $cmd->{regen});
+    
+    if (!Func::MakeCachDir('blok', $cmd->{id})) {
+        $self->error("Can't create dir: $!");
+        next;
+    }
+    my @regen = (0, reverse split(//, sprintf("%08b", $cmd->{regen})));
+    my $dir = Func::CachDir('blok', $cmd->{id});
+    
+    # Лого
+    if ($::regen{logo} && $regen[$::regen{logo}] && $cmd->{photo}) { {
+        Img::Save($self, "$dir/$cmd->{photo}", $dir, 'logo')
+            && $self->log("Gen logo OK");
+        $self->model('Command')->regen_off($cmd->{id}, $::regen{logo});
+        $regen[$::regen{logo}] = 0;
+    } }
+
+    # Убиваем непроверяемые флаги
+    my $n=0;
+    my @regenl;
+    foreach my $b (@regen) {
+        push(@regenl, $n) if $b;
+        $n++;
+    }
+    if (@regenl) {
+        $self->model('Command')->regen_off($cmd->{id}, @regenl)
+            || last;
+    }
+}
+
+
+
+#########################################################################
+###     Аусвайсы
 
 while (my ($aus) = $self->model('Ausweis')->search( 
         { 'regen' => { '>' => 0 } },

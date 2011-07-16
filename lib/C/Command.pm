@@ -269,6 +269,9 @@ sub set {
     my ($self, $id) = @_;
     my $is_new = !defined($id);
     
+    my $dirUpload = Func::SetTmpDir($self)
+        || return !$self->state(-900101, '');
+    
     return unless $self->rights_exists_event($::rCommandEdit);
     if (!$id || !$self->user->{cmdid} || ($self->user->{cmdid} != $id)) {
         return unless $self->rights_check_event($::rCommandEdit, $::rAll);
@@ -308,6 +311,22 @@ sub set {
             { blkid => $fdata->{blkid} },
             { cmdid => $id }
         ) || return $self->state(-000104, '');
+    }
+    
+    # Загрузка логотипа
+    if (my $file = $self->req->param("photo")) {
+        Func::MakeCachDir('command', $id)
+            || return $self->state(-900102, '');
+        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('command', $id), 'logo')
+            || return $self->state(-900102, '');
+        $self->model('command')->update(
+            { 
+                regen   => (1<<($::regen{logo}-1)),
+                photo   => $photo,
+            },
+            { id => $id }
+        ) || return $self->state(-000104, '');
+        unlink("$dirUpload/$file");
     }
     
     # Статус с редиректом

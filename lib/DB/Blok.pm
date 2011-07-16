@@ -24,6 +24,24 @@ sub create {
     return $self->SUPER::create($new);
 }
 
+sub regen_off {
+    my ($self, $id, @bnum) = @_;
+    
+    my $count = '0';
+    foreach my $bnum (@bnum) {
+        $bnum || next;
+        my $b = 1 << ($bnum-1);
+        
+        my $sql = "UPDATE `$self->{_table}` SET `regen` = `regen` ^ ? WHERE `id` = ?";
+    
+        $self->do(sql => $sql, params => [$b, $id]) || return;
+        
+        $count ++;
+    }
+    
+    return $count;
+}
+
 
 #######################################################################
 sub hnd_blkid {
