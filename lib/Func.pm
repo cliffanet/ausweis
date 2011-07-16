@@ -35,6 +35,9 @@ sub MakeCachDir {
     foreach my $di (_CachDir($type, $id)) {    
         $dir .= "/" if $dir;
         $dir .= $di;
+        if (!(-d $dir)) {
+            mkdir($dir) || return;
+        }
     }
         
     return 1;
