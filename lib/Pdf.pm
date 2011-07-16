@@ -138,7 +138,7 @@ sub Ausweis {
             my $fnt = $pdf->ttfont("$::font_dir/arial.ttf", -encode=>'cp1251'); 
             my $bc =  $pdf->xo_code128(
                     -font   => $fnt,    # the font to use for text
-                    -type   => 'code128a',    # the type of barcode
+                    -type   => 'a',    # the type of barcode
                     -code   => $rec->{numid}, # the code of the barcode
                 #    -extn   => '012345',    # the extension of the barcode
                     -umzn   => 10,         # (u)pper (m)ending (z)o(n)e -  высота штриха
