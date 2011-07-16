@@ -201,7 +201,7 @@ sub file {
 sub adding {
     my ($self) = @_;
 
-    return unless $self->rights_check($::rAusweisEdit);
+    return unless $self->rights_check_event($::rAusweisEdit);
     my $cmdid = $self->req->param_dig('cmdid');
     $cmdid ||= $self->user->{cmdid}
         if !$self->rights_check($::rAusweisEdit, $::rAll);
