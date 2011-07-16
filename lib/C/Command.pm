@@ -23,8 +23,9 @@ sub _item {
         # —сылки
         $item->{href_info}      = $self->href($::disp{CommandShow}, $item->{id}, 'info');
         $item->{href_srch}      = $self->href($::disp{AusweisList}."?cmdid=%d", $item->{id});
-        #$item->{href_del}       = $self->href($::disp{CommandDel}, $item->{id});
-        #$item->{href_delete}    = $self->href($::disp{CommandDel}, $item->{id});
+        $item->{href_edit}      = $self->href($::disp{CommandShow}, $item->{id}, 'edit');
+        $item->{href_del}       = $self->href($::disp{CommandDel}, $item->{id});
+        $item->{href_delete}    = $self->href($::disp{CommandDel}, $item->{id});
         
         $item->{href_file}      = sub { $self->href($::disp{CommandFile}, $item->{id}, shift) };
         $item->{file_size} = sub {
