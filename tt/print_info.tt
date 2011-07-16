@@ -9,6 +9,12 @@
         <td>[% date(rec.dtadd) %]</td>
     </tr>
     <tr>
+        <td class="ltitle">Статус:</td>
+        <td>
+            [% rec.status_name %]
+        </td>
+    </tr>
+    <tr>
         <td class="ltitle">На печать:</td>
         <td>
 [% IF rec.file_size('print.pdf') %]

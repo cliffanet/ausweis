@@ -8,8 +8,8 @@
 [% IF list.size > 0 %]
 [% FOREACH list %]
     <tr>
-        <td><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% date(dtadd) %]</a></td>
-        <td><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% id %]</a></td>
+        <td align="right"><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% date(dtadd) %]</a></td>
+        <td align="right"><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% id %]</a></td>
         <td>[% status_name %]</td>
         <td></td>
     </tr>
