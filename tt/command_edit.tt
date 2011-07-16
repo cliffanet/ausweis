@@ -1,18 +1,30 @@
 <form action="[% href_set %]" method="POST">
-<h3>Блок</h3>
+<h3>Команда</h3>
 <table class="tbl">
     <tr>
         <td class="ltitle">Название:    [% INCLUDE form_error_param.tt  p='name' %]</td>
         <td><input type="text" name="name" class="stdin" value="[% form.name %]" /></td>
     </tr>
+    <tr>
+        <td>
+            <select name="blkid" class="stdin">
+                <option value="0"> &lt;- без блока -&gt; </option>
+[% FOREACH blk.list %]
+                <option value="[% id %]"[% IF form.blkid == id %] selected[% END %]>[% name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
 <tr>
     <td class="submit" colspan="2">
         <input type="submit" value="Сохранить">
         <input type="button" value="Отмена" onClick="history.go(-1)">
+[% IF ausweis_list.size == 0 %]
 <br />
 <a href="[% rec.href_delete %]"
-    onClick="return confirm('Удаление Блока: [% rec.name %]\nВНИМАНИЕ! Все команды в блоке изменят блок на \'без блока\'.\nПродолжать?');"
+    onClick="return confirm('Удаление Команды: [% rec.name %]\nПродолжать?');"
     >удалить</a>
+[% END %]
     </td>
 </tr>
 </table>

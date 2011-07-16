@@ -24,4 +24,14 @@ sub create {
 }
 
 
+#######################################################################
+sub hnd_blkid {
+    my ($self, $param, $index, $value, $ptr) = @_;
+    
+    return 0 unless $value;
+    
+    my ($item) = $self->model('Blok')->search({ id => $value });
+    return $item ? 0 : 11;
+}
+
 1;

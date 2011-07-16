@@ -131,6 +131,7 @@ sub show {
     my ($self, $cmdid, $type) = @_;
 
     return unless $self->rights_exists_event($::rCommandInfo);
+    my $d = $self->d;
     
     if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
         return unless $self->rights_check_event($::rCommandInfo, $::rAll);
@@ -147,14 +148,14 @@ sub show {
     $self->patt(TITLE => sprintf($text::titles{"command_$type"}, $rec->{name}));
     $self->view_select->subtemplate("command_$type.tt");
     
-    $self->d->{sort}->{href_template} = sub {
+    $d->{sort}->{href_template} = sub {
         my $sort = shift;
         return $self->href($::disp{CommandShow}, $rec->{id}, $type)."?sort=$sort";
     };
     my $sort = $self->req->param_str('sort');
     
-    $self->d->{ausweis_list} =  sub {
-        $self->d->{_ausweis_list} ||= [
+    $d->{ausweis_list} =  sub {
+        $d->{_ausweis_list} ||= [
         map {
                 my $item = C::Ausweis::_item($self, $_);
                 $item;
@@ -176,6 +177,11 @@ sub show_my {
     $cmdid || return $self->rights_denied();
     
     return show($self, $cmdid, $type);
+}
+
+sub edit {
+    my ($self, $id) = @_;
+    return show($self, $id, 'edit');
 }
 
 sub file {
@@ -208,6 +214,88 @@ sub file {
         $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $rec, dot2hash => 1);
     }
 }
+
+sub adding {
+    my ($self) = @_;
+
+    return unless $self->rights_check_event($::rCommandEdit, $::rAll);
+    
+    $self->patt(TITLE => $text::titles{"command_add"});
+    $self->view_select->subtemplate("command_add.tt");
+    
+    my $d = $self->d;
+    $d->{href_add} = $self->href($::disp{CommandAdd});
+    
+    $d->{form} =
+        { map { ($_ => '') } qw/name blkid/ };
+    if ($self->req->params()) {
+        # Автозаполнение полей, если данные из формы не приходили
+        $d->{form} = {
+            %{ $d->{form} },
+            %{ $self->ParamData(fillall => 1) },
+        };
+    }
+    #$d->{form}->{comment_nobr} = $self->ToHtml($d->{form}->{comment});
+    #$d->{form}->{comment} = $self->ToHtml($d->{form}->{comment}, 1);
+}
+
+sub set {
+    my ($self, $id) = @_;
+    my $is_new = !defined($id);
+    
+    return unless $self->rights_exists_event($::rCommandEdit);
+    if (!$id || !$self->user->{cmdid} || ($self->user->{cmdid} != $id)) {
+        return unless $self->rights_check_event($::rCommandEdit, $::rAll);
+    }
+    
+    # Кэшируем заранее данные
+    my ($rec) = (($self->d->{rec}) = $self->model('Command')->search({ id => $id })) if $id;
+    if (!$is_new && (!$rec || !$rec->{id})) {
+        $self->state(-000105);
+    }
+    
+    # Проверяем данные из формы
+    if (!$self->ParamParse(model => 'Command', is_create => $is_new)) {
+        $self->state(-000101);
+        return $is_new ? adding($self) : edit($self, $id);
+    }
+    
+    # Сохраняем данные
+    my $ret = $self->ParamSave( 
+        model           => 'Command', 
+        $is_new ?
+            ( insert => \$id ) :
+            ( 
+                update => { id => $id }, 
+                preselect => $rec
+            ),
+    );
+    if (!$ret) {
+        $self->state(-000104);
+        return $is_new ? adding($self) : edit($self, $id);
+    }
+    
+    # Статус с редиректом
+    return $self->state($is_new ? 980100 : 980200,  $self->href($::disp{CommandShow}, $id, 'info') );
+}
+
+sub del {
+    my ($self, $id) = @_;
+    
+    return unless $self->rights_check_event($::rCommandEdit, $::rAll);
+    my ($rec) = $self->model('Command')->search({ id => $id });
+    $rec || return $self->state(-000105);
+    
+    my ($item) = $self->model('Ausweis')->search({ cmdid => $id }, { limit => 1 });
+    return $self->state(-980301) if $item;
+    
+    $self->model('Command')->delete({ id => $id })
+        || return $self->state(-000104, '');
+    
+    # статус с редиректом
+    $self->state(980300, $self->href($::disp{CommandList}) );
+}
+
 
 
 

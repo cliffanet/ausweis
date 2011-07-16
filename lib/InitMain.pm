@@ -33,6 +33,10 @@ __PACKAGE__->config(
         $::disp{CommandShow}            => 'C::Command::show',
         $::disp{CommandShowMy}          => 'C::Command::show_my',
         $::disp{CommandFile}            => 'C::Command::file',
+        $::disp{CommandAdding}          => 'C::Command::adding',
+        $::disp{CommandAdd}             => 'C::Command::set',
+        $::disp{CommandSet}             => 'C::Command::set',
+        $::disp{CommandDel}             => 'C::Command::del',
 
         $::disp{AusweisList}            => 'C::Ausweis::list',
         $::disp{AusweisShow}            => 'C::Ausweis::show',

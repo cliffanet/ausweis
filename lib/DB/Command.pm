@@ -9,7 +9,7 @@ __PACKAGE__->table("command");
 __PACKAGE__->columns_hash(
     id          => { skip => 1 },
     dtadd       => { skip => 1 },
-    blkid       => 'd',
+    blkid       => { type => 'd', handler => \&DB::Block::hnd_blkid },
     name        => '!s',
     photo       => { skip => 1 },
 );
@@ -25,6 +25,17 @@ sub create {
     }
     
     return $self->SUPER::create($new);
+}
+
+
+#######################################################################
+sub hnd_cmdid {
+    my ($self, $param, $index, $value, $ptr) = @_;
+    
+    return 0 unless $value;
+    
+    ($self->d->{command}) = $self->model('Command')->search({ id => $value });
+    return $self->d->{command} ? 0 : 12;
 }
 
 
