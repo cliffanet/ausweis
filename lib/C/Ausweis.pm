@@ -132,7 +132,7 @@ sub list {
     $d->{list} ||= 0;
     
     if ($d->{list} && (@{ $d->{list} } == 1)) {
-        $self->res->forward(sprintf($::disp{AusweisShow}, $d->{list}->[0]->{id}, 'show'));
+        $self->forward(sprintf($::disp{AusweisShow}, $d->{list}->[0]->{id}, 'show'));
     }
 }
 
