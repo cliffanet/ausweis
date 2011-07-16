@@ -1,0 +1,64 @@
+<form action="[% href_set %]" method="POST">
+<h3>Команда</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Ник/позывной:[% INCLUDE form_error_param.tt  p='nick' %]</td>
+        <td><input type="text" name="nick" class="stdin" value="[% form.nick %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Команда:     [% INCLUDE form_error_param.tt  p='cmdid' %]</td>
+        <td>
+            <select name="cmdid" class="stdin">
+                <option value="0"> &lt;- выбрать -&gt; </option>
+[% FOREACH blk.list %]
+                <option value="[% id %]"[% IF form.cmdid == id %] selected[% END %]>[% name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блокировка:  [% INCLUDE form_error_param.tt  p='blocked' %]</td>
+        <td>
+            <select name="blocked" class="stdin">
+                <option value="0"> нет </option>
+                <option value="1"[% IF form.blocked  %] selected[% END %]> ЗАБЛОКИРОВАН </option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">ФИО:         [% INCLUDE form_error_param.tt  p='fio' %]</td>
+        <td><input type="text" name="fio" class="stdin" value="[% form.fio %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Группа крови:[% INCLUDE form_error_param.tt  p='krov' %]</td>
+        <td><input type="text" name="krov" class="stdin" value="[% form.krov %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Аллергия:    [% INCLUDE form_error_param.tt  p='allerg' %]</td>
+        <td><input type="text" name="allerg" class="stdin" value="[% form.allerg %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Непереносимость:[% INCLUDE form_error_param.tt  p='neperenos' %]</td>
+        <td><input type="text" name="neperenos" class="stdin" value="[% form.neperenos %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Полис:       [% INCLUDE form_error_param.tt  p='polis' %]</td>
+        <td><input type="text" name="polis" class="stdin" value="[% form.polis %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Медик:       [% INCLUDE form_error_param.tt  p='medik' %]</td>
+        <td><input type="text" name="medik" class="stdin" value="[% form.medik %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Комментарии: [% INCLUDE form_error_param.tt  p='comment' %]</td>
+        <td><input type="text" name="comment" class="stdin" value="[% form.comment %]" /></td>
+    </tr>
+<tr>
+    <td class="submit" colspan="2">
+        <input type="submit" value="Сохранить">
+        <input type="button" value="Отмена" onClick="history.go(-1)">
+    </td>
+</tr>
+</table>
+</form>
+

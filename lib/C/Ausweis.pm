@@ -152,6 +152,23 @@ sub show {
     $self->patt(TITLE => sprintf($text::titles{"ausweis_$type"}, $rec->{nick}));
     $self->view_select->subtemplate("ausweis_$type.tt");
     
+    ##### Ğåäàêòèğîâàíèå
+    if ($type eq 'edit') {
+        return unless $self->rights_exists_event($::rAusweisEdit);
+        if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
+            return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
+        }
+        
+        $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
+        if ($self->req->params()) {
+            my $fdata = $self->ParamData;
+            $d->{form}->{$_} = $fdata->{$_} foreach keys %$fdata;
+        }
+    }
+    
+    $d->{href_set} = $self->href($::disp{AusweisSet}, $id);
+    
+    
 }
 sub file {
     my ($self, $id, $file) = @_;
@@ -181,6 +198,96 @@ sub file {
     }
 }
 
+sub adding {
+    my ($self) = @_;
+
+    return unless $self->rights_check($::rAusweisEdit);
+    my $cmdid = $self->req->param_dig('cmdid');
+    $cmdid ||= $self->user->{cmdid}
+        if !$self->rights_check($::rAusweisEdit, $::rAll);
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
+        return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
+    }
+    
+    $self->patt(TITLE => $text::titles{"ausweis_add"});
+    $self->view_select->subtemplate("ausweis_add.tt");
+    
+    my $d = $self->d;
+    $d->{href_add} = $self->href($::disp{AusweisAdd});
+    
+    $d->{form} =
+        { map { ($_ => '') } qw/nick cmdid fio krov allerg neperenos polis medik comment/ };
+    if ($self->req->params()) {
+        # Àâòîçàïîëíåíèå ïîëåé, åñëè äàííûå èç ôîğìû íå ïğèõîäèëè
+        $d->{form} = {
+            %{ $d->{form} },
+            %{ $self->ParamData(fillall => 1) },
+        };
+    }
+    #$d->{form}->{comment_nobr} = $self->ToHtml($d->{form}->{comment});
+    #$d->{form}->{comment} = $self->ToHtml($d->{form}->{comment}, 1);
+}
+
+sub set {
+    my ($self, $id) = @_;
+    my $is_new = !defined($id);
+    
+    return unless $self->rights_exists_event($::rAusweisEdit);
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    # Êıøèğóåì çàğàíåå äàííûå
+    my ($rec) = (($self->d->{rec}) = $self->model('Ausweis')->search({ id => $id })) if $id;
+    if (!$is_new) {
+        if (!$rec || !$rec->{id}) {
+            $self->state(-000105);
+        }
+        if (!$rec->{cmdid} || !$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
+            return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
+        }
+    }
+    else {
+        my $cmdid = $q->param_dig('cmdid');
+        $cmdid ||= $self->user->{cmdid}
+            if !$self->rights_check($::rAusweisEdit, $::rAll);
+        if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
+            return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
+        }
+        $self->param('cmdid', $cmdid)
+    }
+    
+    
+    # Ïğîâåğÿåì äàííûå èç ôîğìû
+    if (!$self->ParamParse(model => 'Ausweis', is_create => $is_new)) {
+        $self->state(-000101);
+        return $is_new ? adding($self) : edit($self, $id);
+    }
+    
+    my $fdata = $self->ParamData;
+    
+    if ($d->{command} && ($is_new || ($d->{command}->{blkid} != $rec->{blkid}))) {
+        $fdata->{blkid} = $d->{command}->{blkid};
+    }
+    
+    # Ñîõğàíÿåì äàííûå
+    my $ret = $self->ParamSave( 
+        model           => 'Ausweis', 
+        $is_new ?
+            ( insert => \$id ) :
+            ( 
+                update => { id => $id }, 
+                preselect => $rec
+            ),
+    );
+    if (!$ret) {
+        $self->state(-000104);
+        return $is_new ? adding($self) : edit($self, $id);
+    }
+    
+    # Ñòàòóñ ñ ğåäèğåêòîì
+    return $self->state($is_new ? 990100 : 990200,  $self->href($::disp{AusweisShow}, $id, 'info') );
+}
+
 
 sub regen {
     my ($self, $id) = @_;
@@ -200,7 +307,7 @@ sub regen {
         { id => $rec->{id} }
     ) || return $self->state(-000104, '');
     
-    return $self->state(990104, '');
+    return $self->state(990400, '');
 }
 
 

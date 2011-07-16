@@ -27,6 +27,8 @@ sub _item {
             return $item->{"_file_size_$file"} ||=
                 -s Func::CachDir('blok', $item->{id})."/$file";
         };
+        
+        $item->{href_cmd_adding}= $self->href($::disp{CommandAdding}."?blkid=%d", $id);
     }
     
     return $item;

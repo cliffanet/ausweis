@@ -34,6 +34,8 @@ sub _item {
             return $item->{"_file_size_$file"} ||=
                 -s Func::CachDir('command', $item->{id})."/$file";
         };
+        
+        $item->{href_aus_adding}= $self->href($::disp{AusweisAdding}."?cmdid=%d", $id);
     }
     
     return $item;

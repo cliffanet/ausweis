@@ -41,6 +41,10 @@ __PACKAGE__->config(
         $::disp{AusweisList}            => 'C::Ausweis::list',
         $::disp{AusweisShow}            => 'C::Ausweis::show',
         $::disp{AusweisFile}            => 'C::Ausweis::file',
+        $::disp{AusweisAdding}          => 'C::Ausweis::adding',
+        $::disp{AusweisAdd}             => 'C::Ausweis::set',
+        $::disp{AusweisSet}             => 'C::Ausweis::set',
+        $::disp{AusweisDel}             => 'C::Ausweis::del',
         $::disp{AusweisRegen}           => 'C::Ausweis::regen',
     },
     
@@ -108,6 +112,7 @@ sub http_accept {
         },
         aus     => {
             href_list   => $self->href($::disp{AusweisList}),
+            href_adding => $self->href($::disp{AusweisAdding}),
         },
     );
     

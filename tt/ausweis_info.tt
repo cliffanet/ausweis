@@ -14,7 +14,7 @@
     </tr>
     <tr>
         <td class="ltitle">Блок:</td>
-        <td>[% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% END %]</td>
+        <td>[% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% ELSE %]-[% END %]</td>
     </tr>
     <tr>
         <td class="ltitle">Блокировка:</td>
@@ -53,6 +53,11 @@
         <td>
             <a href="[% rec.href_regen %]">Пересобрать</a>
             [% IF rec.regen > 0 %](в процессе: [% rec.regens %])[% END %]
+        </td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+            <a href="[% rec.href_edit %]">изменить</a>
         </td>
     </tr>
 </table>

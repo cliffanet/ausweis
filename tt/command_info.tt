@@ -6,7 +6,7 @@
     </tr>
     <tr>
         <td class="ltitle">Блок:</td>
-        <td>[% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% END %]</td>
+        <td>[% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% ELSE %]-[% END %]</td>
     </tr>
     <tr>
         <td class="submit" colspan="2">
@@ -39,6 +39,9 @@
         ничего не найдено
     </td></tr>
 [% END %]
+    <tr><td colspan="2" class="submit">
+        <a href="[% rec.href_aus_adding %]">добавить</a>
+    </td></tr>
 </table>
 
 
