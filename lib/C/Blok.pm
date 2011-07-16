@@ -299,7 +299,7 @@ sub set {
     if (my $file = $self->req->param("photo")) {
         Func::MakeCachDir('blok', $id)
             || return $self->state(-900102, '');
-        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('blok', $id))
+        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('blok', $id), 'logo')
             || return $self->state(-900102, '');
         $self->model('Blok')->update(
             { 
