@@ -33,9 +33,17 @@ sub create {
     
     if (ref($new) eq 'HASH') {
         $new->{dtadd} ||= \ 'NOW()';
+        $new->{numid} ||= $self->gen_numid || return;
     }
     
     return $self->SUPER::create($new);
+}
+
+sub gen_numid {
+    my ($self, $where, %args) = @_;
+    my $numid = $self->max($where, %args) || return;
+    
+    return $numid + 1;
 }
 
 sub regen_off {

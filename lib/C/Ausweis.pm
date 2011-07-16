@@ -277,6 +277,9 @@ sub set {
     if ($d->{command} && ($is_new || ($d->{command}->{blkid} != $rec->{blkid}))) {
         $fdata->{blkid} = $d->{command}->{blkid};
     }
+    if (!$is_new && !$rec->{numid}) {
+        $fdata->{numid} = $self->model('Ausweis')->gen_numid;
+    }
     
     # Сохраняем данные
     my $ret = $self->ParamSave( 
