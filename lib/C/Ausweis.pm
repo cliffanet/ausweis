@@ -170,6 +170,16 @@ sub show {
     }
     
     $d->{href_set} = $self->href($::disp{AusweisSet}, $id);
+    
+    $d->{print_list} = sub {
+        return $d->{_print_list} ||= [
+            map { C::Print::_item($self, $_) }
+            $self->model('Print')->search(
+                { 'ausweis.ausid' => $rec->{id} },
+                { join => 'ausweis', order_by => 'id' }
+            )
+        ];
+    }
 }
 
 sub edit {

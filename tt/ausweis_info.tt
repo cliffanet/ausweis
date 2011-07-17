@@ -49,6 +49,17 @@
         <td>[% rec.comment %]</td>
     </tr>
     <tr>
+        <td class="ltitle">Печать массовая:</td>
+        <td>
+        [% in_open_party = 0 %]
+        [% FOREACH print_list %]
+        - <a href="[% href_info %]">Партия № [% id %]</a>: [% status_name %]
+        [% IF status == 'A' %][% in_open_party = id %](<a href="[% href_ausweis_del(rec.id) %]">отменить</a>)[% END %]
+        [% END %]
+        </td>
+    </tr>
+    
+    <tr>
         <td class="ltitle">Пересборка:</td>
         <td>
             <a href="[% rec.href_regen %]">Пересобрать</a>

@@ -32,8 +32,16 @@ sub _item {
         };
     
         $item->{href_ausweis_search} = $self->href($::disp{PrintAusweisSearch}, $item->{id});
-        $item->{href_ausweis_add} = $self->href($::disp{PrintAusweisAdd}, $item->{id});
-        $item->{href_ausweis_del} = $self->href($::disp{PrintAusweisDel}, $item->{id});
+        $item->{href_ausweis_add} = sub {
+            my $href = $self->href($::disp{PrintAusweisAdd}, $item->{id});
+            $href .= '?'.join('&', map {"ausid=$_"} @_) if @_;
+            return $href;
+        };
+        $item->{href_ausweis_del} = sub {
+            my $href = $self->href($::disp{PrintAusweisDel}, $item->{id});
+            $href .= '?'.join('&', map {"ausid=$_"} @_) if @_;
+            return $href;
+        };
         
         Func::regen_stat($self, $item);
     }
