@@ -153,6 +153,11 @@ sub regen {
     my ($rec) = (($self->d->{rec}) = 
         $self->model('Print')->search({ id => $id }));
     $rec || return $self->state(-000105, '');
+    
+    if ($rec->{status} ne 'A') { 
+        $self->state(-960401, '');
+        return;
+    }
 
     my $r_all = 0;
     $r_all |= 1 << ($::regen{print_pdf}-1) ;

@@ -29,11 +29,16 @@
         <td class="ltitle">На печать:</td>
         <td>
 [% IF rec.file_size('print.pdf') %]
-<a href="[% rec.href_file('print.pdf') %]">PDF</a><br />
+            <a href="[% rec.href_file('print.pdf') %]">PDF</a><br />
 [% END %]
+[% IF (rec.status = 'A') && (rec.regen == 0) %]
             <a href="[% rec.href_regen %]">Пересобрать</a>
-[% IF rec.regen > 0 %]
-            (в процессе: [% rec.regens %])
+[% END %]
+[% IF rec.status = 'D' %]
+            Выполняется компановка pdf-файла[% IF rec.complete > 0 %]: [% rec.complete %] из [% count_all %][% END %]<br />
+            <a href="[% rec.href_set_status('A')>отменить</a>
+[% ELSIF (rec.regen > 0) %]
+            в процессе: [% rec.regens %]
 [% END %]
         </td>
     </tr>

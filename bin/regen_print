@@ -58,17 +58,23 @@ while (my ($prn) = $self->model('Print')->search(
         my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
         if ($pdf) {
             $pdf->mediabox(595,842);
+            my $count = 0;
             foreach my $aus ($self->model('Ausweis')->search(
                     { 'print.prnid' => $prn->{id} },
-                    { prefetch => [qw/command blok print/] },
+                    { prefetch => [qw/command blok print/], order_by => 'numid' },
                 )) {
                 $self->log_prefix(sprintf("[party=%d ausweis=%d/%d] nick \"%s\"", 
                     $prn->{id}, $aus->{id}, $aus->{numid}, $aus->{nick}));
                 my $page = Pdf::Ausweis($self, $pdf, $aus);
                 if ($page) {
                     $self->log("Gen print_pdf OK");
+                    $count ++;
                 }
-            } 
+                $self->model('Print')->update({ complete => $count }, { id => $prn->{id} })
+                    || last;
+                ($prn) = $self->model('Print')->update({ id => $prn->{id} });
+                last if !$prn || $prn->{status} eq 'A';
+            }
             $pdf->save;
             $pdf->end( );
         } else {
