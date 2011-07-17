@@ -43,6 +43,7 @@
     <tr>
     <td>
         <input type="checkbox" onClick="selectAll(this.checked)" />
+        все
     </td>
     <td colspan="4">
 [% INCLUDE 'pager.tt' %]
