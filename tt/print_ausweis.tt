@@ -19,7 +19,7 @@
 
 [% IF list %]
 <h3>Результаты</h3>
-<form action="#" method="POST">
+<form action="#" method="POST" id="formSrch">
 <table class="tbl">
     <tr class="title">
         <td width="40"></td>
