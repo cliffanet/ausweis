@@ -54,7 +54,12 @@
         [% in_open_party = 0 %]
         [% FOREACH print_list %]
         - <a href="[% href_info %]">Партия № [% id %]</a>: [% status_name %]
-        [% IF status == 'A' %][% in_open_party = id %](<a href="[% href_ausweis_del(rec.id) %]">отменить</a>)[% END %]
+        [% IF status == 'A' %][% in_open_party = id %](<a href="[% href_ausweis_del(rec.id) %]">отменить</a>)[% END %]<br />
+        [% END %]
+        [% IF print_open && (print_open.id != in_open_party) %]
+            <b>Открыта партия на печать:</b>
+                <a href="[% print_open.href_info %]">Партия № [% print_open.id %]</a>:
+                <a href="[% print_open.href_ausweis_add(rec.id) %]">отправить в партию</a>
         [% END %]
         </td>
     </tr>

@@ -180,6 +180,17 @@ sub show {
             )
         ];
     }
+    
+    $d->{print_open} = sub {
+        return $d->{_print_open} if defined $d->{_print_open};
+        ($d->{_print_open}) = 
+            map { C::Print::_item($self, $_) } 
+                $self->model('Print')->search(
+                    { status => 'A' },
+                    { order_by => '-id', limit => 1 }
+                );
+        return $d->{_print_open} ||= 0;
+    };
 }
 
 sub edit {
