@@ -31,7 +31,7 @@
 [% END %]
 <table class="tbl">
     <tr class="title">
-        <td width="50">
+        <td width="50" align="left">
     [% IF print_open %]
         <input type="checkbox" onClick="selectAll(this.checked)" />
         все
@@ -58,23 +58,22 @@
     </tr>
 [% END %]
 [% ELSE %]
-    <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+    <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
         ничего не найдено
     </td></tr>
 [% END %]
-    <tr><td colspan="4" class="submit">
+    <tr><td colspan="5" class="submit">
         <a href="[% rec.href_aus_adding %]">добавить</a>
     </td></tr>
 </table>
 
 [% IF print_open %]
-<br />
 <h3>Открыта партия на печать</h3>
 <table class="tbl">
     <tr><td class="ltitle">
         <a href="[% print_open.href_info %]">Партия № [% print_open.id %]</a>:
     </td><td class="submit">
-        <input type="button" value="Добавить"
+        <input type="button" value="Добавить в партию"
             onClick="document.getElementById('formList').action='[% print_open.href_ausweis_add %]';document.getElementById('formList').submit()" />
         <input type="button" value="Удалить"
             onClick="document.getElementById('formList').action='[% print_open.href_ausweis_del %]';document.getElementById('formList').submit()" />
