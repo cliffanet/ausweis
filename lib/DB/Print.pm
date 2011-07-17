@@ -6,7 +6,7 @@ use warnings;
 use base 'Clib::DBIC';
 
 __PACKAGE__->table("print_party");
-__PACKAGE__->columns_array(qw/id dtadd regen status/);
+__PACKAGE__->columns_array(qw/id dtadd regen status complete/);
 
 sub create {
     my ($self, $new) = @_;
