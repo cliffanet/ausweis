@@ -13,15 +13,15 @@
         <td>
             [% rec.status_name %]
             [% IF rec.status == 'A' %]
-                (Изменить: <a href="[% rec.href_set_status('C') %]">[% status_name.C %]</a>)
+                <br />Изменить: <a href="[% rec.href_set_status('C') %]">[% status_name.C %]</a>
             [% ELSIF rec.status == 'C' %]
-                (Изменить: <a href="[% rec.href_set_status('A') %]">[% status_name.A %]</a> |
+                <br />Изменить: <a href="[% rec.href_set_status('A') %]">[% status_name.A %]</a> |
                 <a href="[% rec.href_set_status('P') %]">[% status_name.P %]</a>)
             [% ELSIF rec.status == 'P' %]
-                (Изменить: <a href="[% rec.href_set_status('C') %]">[% status_name.C %]</a> |
+                <br />Изменить: <a href="[% rec.href_set_status('C') %]">[% status_name.C %]</a> |
                 <a href="[% rec.href_set_status('Z') %]">[% status_name.Z %]</a>)
             [% ELSIF rec.status == 'Z' %]
-                (Изменить: <a href="[% rec.href_set_status('P') %]">[% status_name.P %]</a>)
+                <br />Изменить: <a href="[% rec.href_set_status('P') %]">[% status_name.P %]</a>
             [% END %]
         </td>
     </tr>
