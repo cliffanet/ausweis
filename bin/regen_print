@@ -1,0 +1,99 @@
+#!/usr/bin/perl
+
+use strict;
+#use warnings;
+
+BEGIN {
+    $::pathRoot = $0;
+    $::pathRoot =~ s/\/+/\//g;
+    $::pathRoot =~ s/[^\/]+$//;
+    if ($::pathRoot !~ s/\/[^\/]+\/$//) {
+        $::pathRoot .= '..';
+    }
+};
+
+use lib "$::pathRoot/lib";
+use base 'Clib::LineScript';
+
+use Func;
+use Img;
+use Pdf;
+
+require "$::pathRoot/conf/defines.conf";
+
+# Чтобы warnings не ругался
+$::logDebug ||= 0;
+$::logPath ||= '/var/log';
+$::pidPath ||= '/var/run';
+my $self = __PACKAGE__->new(
+    schema              => 'DB',
+    log_file            => "$::logPath/regen_print.log",
+    pid_file            => "$::pidPath/regen_print.pid",
+    pid_file_noerror    => 1,
+    debug_file          => $::logDebug ? "$::logPath/regen_print.log" : undef,
+);
+
+
+#########################################################################
+###     Партии на печать
+
+while (my ($prn) = $self->model('Print')->search( 
+        { 'regen' => { '>' => 0 }, status => ['A', 'D'] },
+    )) {
+    $self->log_prefix(sprintf("[party=%d]", $prn->{id}));
+    $self->log("Need regenerate: %08b", $prn->{regen});
+    
+    $self->model('Print')->update({ complete => 0, status => 'D' }, { id => $prn->{id} })
+        || last;
+    
+    if (!Func::MakeCachDir('print', $prn->{id})) {
+        $self->error("Can't create dir: $!");
+        last;
+    }
+    my @regen = (0, reverse split(//, sprintf("%08b", $prn->{regen})));
+    my $dir = Func::CachDir('print', $prn->{id});
+    
+    # Печатная форма PDF
+    if ($::regen{print_pdf} && $regen[$::regen{print_pdf}]) { {
+        my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
+        if ($pdf) {
+            $pdf->mediabox(595,842);
+            foreach my $aus ($self->model('Ausweis')->search(
+                    { 'print.prnid' => $prn->{id} },
+                    { prefetch => [qw/command blok print/] },
+                )) {
+                $self->log_prefix(sprintf("[party=%d ausweis=%d/%d] nick \"%s\"", 
+                    $prn->{id}, $aus->{id}, $aus->{numid}, $aus->{nick}));
+                my $page = Pdf::Ausweis($self, $pdf, $aus);
+                if ($page) {
+                    $self->log("Gen print_pdf OK");
+                }
+            } 
+            $pdf->save;
+            $pdf->end( );
+        } else {
+            $self->error("Can't create PDF-file: $@");
+        }
+
+        #$self->model('Print')->regen_off($prn->{id}, $::regen{print_pdf});
+        $regen[$::regen{print_pdf}] = 0;
+    } }
+    
+    # Убиваем непроверяемые флаги
+    #my $n=0;
+    #my @regenl;
+    #foreach my $b (@regen) {
+    #    push(@regenl, $n) if $b;
+    #    $n++;
+    #}
+    #if (@regenl) {
+    #    $self->model('Print')->regen_off($aus->{id}, @regenl)
+    #        || last;
+    #}
+    $self->model('Print')->update({ status => 'A', regen => 0 }, { id => $prn->{id} })
+        || last;
+}
+
+#==========================================================
+#================================================== End ===
+#==========================================================

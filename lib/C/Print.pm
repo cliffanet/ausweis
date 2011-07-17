@@ -28,7 +28,7 @@ sub _item {
             my $file = shift;
             $file || return;
             return $item->{"_file_size_$file"} ||=
-                -s Func::CachDir('Print', $item->{id})."/$file";
+                -s Func::CachDir('print', $item->{id})."/$file";
         };
     
         $item->{href_ausweis_search} = $self->href($::disp{PrintAusweisSearch}, $item->{id});
