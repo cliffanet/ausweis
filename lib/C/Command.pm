@@ -168,6 +168,16 @@ sub show {
     };
     my $sort = $self->req->param_str('sort');
     
+    if ($type eq 'info') {
+        ($d->{print_open}) = 
+            map { C::Print::_item($self, $_) } 
+                $self->model('Print')->search(
+                    { status => 'A' },
+                    { order_by => '-id', limit => 1 }
+                );
+        $d->{print_open} ||= 0;
+    }
+    
     $d->{ausweis_list} =  sub {
         $d->{_ausweis_list} ||= [
         map {
@@ -177,6 +187,12 @@ sub show {
         $self->model('Ausweis')->search(
             { cmdid => $rec->{id} },
             {
+                $d->{print_open} ? (
+                    prefetch        => [qw/print/],
+                    join_cond => {
+                        print => { prnid => $d->{print_open}->{id} },
+                    },
+                ) : (),
                 $self->sort($sort || 'nick'),
             },
         )

@@ -26,8 +26,17 @@
 <br />
 
 <h3>Аусвайсы</h3>
+[% IF print_open %]
+<form action="#" method="POST" id="formList">
+[% END %]
 <table class="tbl">
     <tr class="title">
+        <td width="50">
+    [% IF print_open %]
+        <input type="checkbox" onClick="selectAll(this.checked)" />
+        все
+    [% END %]
+        </td>
         <td width="100">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
         <td width="200">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
         <td width="100">[% INCLUDE 'sort.tt' field='blocked', name='Блокировка' %]</td>
@@ -36,6 +45,12 @@
 [% IF ausweis_list.size > 0 %]
 [% FOREACH ausweis_list %]
     <tr[% IF blocked %] class="grey"[% END %]>
+        <td>
+        [% IF print_open %]
+            <input type="checkbox" name="ausid" value="[% id %]" />
+            [% IF print.id %]<b>+</b>[% END %]
+        [% END %]
+        </td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
         <td>[% IF blocked %]ЗАБЛОКИРОВАН[% END %]</td>
@@ -51,6 +66,22 @@
         <a href="[% rec.href_aus_adding %]">добавить</a>
     </td></tr>
 </table>
+
+[% IF print_open %]
+<br />
+<h3>Открыта партия на печать</h3>
+<table class="tbl">
+    <tr><td class="ltitle">
+        <a href="[% print_open.href_info %]">Партия № [% print_open.id %]</a>:
+    </td><td class="submit">
+        <input type="button" value="Добавить"
+            onClick="document.getElementById('formList').action='[% print_open.href_ausweis_add %]';document.getElementById('formList').submit()" />
+        <input type="button" value="Удалить"
+            onClick="document.getElementById('formList').action='[% print_open.href_ausweis_del %]';document.getElementById('formList').submit()" />
+    </td></tr>
+</table>
+</form>
+[% END # print_open %]
 
 
 <br />
