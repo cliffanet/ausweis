@@ -248,7 +248,7 @@ sub ausweis_add {
     my ($self, $id) = @_;
     my $d = $self->d;
 
-    return unless $self->rights_check_event($::rPrintAusweis, $::rAll);
+    return unless $self->rights_exists_event($::rPrintAusweis);
     
     $d->{rec} ||= ($self->model('Print')->search({ id => $id }))[0];
     $d->{rec} || return $self->state(-000105);
@@ -260,7 +260,7 @@ sub ausweis_del {
     my ($self, $id) = @_;
     my $d = $self->d;
 
-    return unless $self->rights_check_event($::rPrintAusweis, $::rAll);
+    return unless $self->rights_exists_event($::rPrintAusweis);
     
     $d->{rec} ||= ($self->model('Print')->search({ id => $id }))[0];
     $d->{rec} || return $self->state(-000105);
