@@ -49,9 +49,9 @@
     </td></tr>
     <tr><td colspan="6" class="submit">
         <input type="button" value="Добавить"
-            onClick="document.getElementById('formSrch').action='[% rec.href_auseis_add %]';document.getElementById('formSrch').submit()" />
+            onClick="document.getElementById('formSrch').action='[% rec.href_ausweis_add %]';document.getElementById('formSrch').submit()" />
         <input type="button" value="Удалить"
-            onClick="document.getElementById('formSrch').action='[% rec.href_auseis_del %]';document.getElementById('formSrch').submit()" />
+            onClick="document.getElementById('formSrch').action='[% rec.href_ausweis_del %]';document.getElementById('formSrch').submit()" />
     </td></tr>
 [% ELSE %]
     <tr><td colspan="6" style="height:50px;text-align:center;vertical-align:middle;">
