@@ -6,12 +6,7 @@ use warnings;
 use base 'Clib::DBIC';
 
 __PACKAGE__->table("print_party");
-__PACKAGE__->columns_hash(
-    id          => { skip => 1 },
-    dtadd       => { skip => 1 },
-    regen       => { skip => 1 },
-    status       => { skip => 1 },
-);
+__PACKAGE__->columns_array(qw/id dtadd regen status/);
 
 sub create {
     my ($self, $new) = @_;

@@ -43,6 +43,10 @@ sub _item {
         Func::regen_stat($self, $item);
     }
     
+    if ($item->{print}) {
+        $item->{print}->{id} ||= 0;
+    }
+    
     return $item;
 }
 

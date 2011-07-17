@@ -183,6 +183,11 @@ sub ausweis_search {
     $d->{rec} || return $self->state(-000105);
     my ($rec) = ($d->{rec} =  _item($self, $d->{rec}));
     
+    if ($d->{rec}->{status} ne 'A') { 
+        $self->state(-960501, '');
+        return;
+    }
+    
     $d->{href_ausweis_search} = $self->href($::disp{PrintAusweisSearch}, $rec->{id});
     
     my $q = $self->req;
@@ -233,7 +238,10 @@ sub ausweis_search {
         $self->model('Ausweis')->search(
             $srch,
             {
-                prefetch => [qw/command blok/],
+                prefetch => [qw/command blok print/],
+                join_cond => {
+                    print => { prnid => $id },
+                },
                 $self->sort($sort || 'nick'),
             },
             $self->pager($page, 100),
@@ -242,29 +250,85 @@ sub ausweis_search {
     $d->{list} ||= 0;
     
     
-}    
+}
 
-sub ausweis_add {
-    my ($self, $id) = @_;
+sub _ausweis_add_del {
+    my ($self, $id, $is_add) = @_;
     my $d = $self->d;
 
     return unless $self->rights_exists_event($::rPrintAusweis);
     
     $d->{rec} ||= ($self->model('Print')->search({ id => $id }))[0];
-    $d->{rec} || return $self->state(-000105);
+    $d->{rec} || do { $self->state(-000105, ''); return };
+    if ($d->{rec}->{status} ne 'A') { 
+        $self->state(-960501, '');
+        return;
+    }
     
+    my @list = $self->req->param_dig('ausid');
+    @list || do { $self->state(-000106, ''); return };
+    
+    # Проверка на урезанные права
+    if (!$self->rights_check($::rPrintAusweis, $::rAll)) {
+        return $self->rights_check_event($::rPrintAusweis, $::rAll)
+            if !$self->user->{cmdid};
+        my ($item) = $self->model('Ausweis')->search(
+            { id => \@list, cmdid => { '!=' => $self->user->{cmdid} } },
+            { limit => 1 }
+        );
+        return $self->rights_check_event($::rPrintAusweis, $::rAll)
+            if $item
+    }
+    
+    # Уже отправленные аусвайсы
+    my %ex = (
+        map { ($_->{ausid} => $_->{id}) } 
+        $self->model('PrintAusweis')->search({ prnid => $id })
+    );
+    
+    my %aus_ex;
+    if ($is_add) {
+        # валидные id аусвайсов
+        %aus_ex = (
+            map { ($_->{id} => 1) }
+            $self->model('Ausweis')->search(
+                { id => \@list, blocked => 0 },
+                { columns => ['id'] }
+            )
+        );
+    }
+    
+    my $count = 0;
+    foreach my $ausid (@list) {
+        if ($is_add) {
+            next if $ex{$ausid} || !$aus_ex{$ausid};
+            $self->model("PrintAusweis")->create({ prnid => $id, ausid => $ausid })
+                || do { $self->state(-000104, ''); return };
+        }
+        else  {
+            my $id1 = $ex{$ausid} || next;
+            $self->model("PrintAusweis")->create({ id => $id1 })
+                || do { $self->state(-000104, ''); return };
+        }
+        $count ++;
+    }
+    
+    $count || do { $self->state(-000106, ''); return };
+    
+    1;
+}
+
+sub ausweis_add {
+    my ($self, $id) = @_;
+    
+    _ausweis_add_del($self, $id, 1);
     return $self->state(960500, '');
 }
 
 sub ausweis_del {
     my ($self, $id) = @_;
-    my $d = $self->d;
-
-    return unless $self->rights_exists_event($::rPrintAusweis);
     
-    $d->{rec} ||= ($self->model('Print')->search({ id => $id }))[0];
-    $d->{rec} || return $self->state(-000105);
-    
+    _ausweis_add_del($self, $id, 0);
     return $self->state(960600, '');
 }
 

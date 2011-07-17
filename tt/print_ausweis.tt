@@ -52,6 +52,7 @@
     <tr[% IF blocked %] class="grey"[% END %]>
         <td>
             <input type="checkbox" name="ausid" value="[% id %]" />
+            [% IF print.id %]<b>+</b>[% END %]
         </td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
