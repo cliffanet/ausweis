@@ -179,7 +179,7 @@ sub show {
                 { join => 'ausweis', order_by => 'id' }
             )
         ];
-    }
+    };
     
     $d->{print_open} = sub {
         return $d->{_print_open} if defined $d->{_print_open};
