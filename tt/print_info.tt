@@ -39,11 +39,11 @@
     </tr>
 </table>
 
+[% IF stat_ausweis %]
 <br />
 
 <!-- Поиск -->
 <h3>Поиск аусвайсов для добавления в партию</h3>
-[% IF stat_ausweis %]
 [% INCLUDE 'print_ausweis_form.tt' %]
 [% END %]
 
