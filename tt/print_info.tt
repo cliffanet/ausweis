@@ -43,5 +43,78 @@
 
 <!-- Поиск -->
 <h3>Поиск аусвайсов для добавления в партию</h3>
+[% IF stat_ausweis %]
 [% INCLUDE 'print_ausweis_form.tt' %]
+[% END %]
+
+
+<br />
+
+<script language="JavaScript">
+    function selectAll(val) {
+        var Set = document.getElementsByTagName("input");
+        for (var i=0; i<Set.length; i++) {
+            var e = Set[i];
+            if (e && e.name && (e.name == 'ausid'))
+                    e.checked = val
+        }
+    }
+</script>
+
+<!-- Список -->
+<h3>Аусвайсы в этой партии</h3>
+[% IF stat_ausweis %]
+<form action="#" method="POST" id="formList">
+[% END %]
+<table class="tbl">
+    <tr class="title">
+        <td width="40"></td>
+        <td width="70">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
+        <td width="200">[% INCLUDE 'sort.tt' field='nick', name='Ник' %]</td>
+        <td width="200">[% INCLUDE 'sort.tt' field='command.name', name='Команда' %]</td>
+        <td>[% INCLUDE 'sort.tt' field='blok.name', name='Блок' %]</td>
+    </tr>
+[% IF list.size > 0 %]
+    <tr>
+    <td>
+    [% IF stat_ausweis %]
+        <input type="checkbox" onClick="selectAll(this.checked)" />
+        все
+    [% END %]
+    </td>
+    <td colspan="4">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+[% FOREACH list %]
+    <tr[% IF blocked %] class="grey"[% END %]>
+        <td>
+        [% IF stat_ausweis %]
+            <input type="checkbox" name="ausid" value="[% id %]" />
+            <b>+</b>
+        [% END %]
+        </td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
+        <td>[% IF blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% blok.href_info %]">[% blok.name %]</a>[% END %]</td>
+    </tr>
+[% END %]
+    <tr><td colspan="5">
+[% INCLUDE 'pager.tt' %]
+    </td></tr>
+[% IF stat_ausweis %]
+    <tr><td colspan="5" class="submit">
+        <input type="button" value="Удалить"
+            onClick="document.getElementById('formList').action='[% rec.href_ausweis_del %]';document.getElementById('formList').submit()" />
+    </td></tr>
+[% END # stat_ausweis %]
+[% ELSE %]
+    <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
+        ничего не найдено
+    </td></tr>
+[% END %]
+</table>
+[% IF stat_ausweis %]
+</form>
+[% END %]
 

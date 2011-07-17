@@ -76,8 +76,37 @@ sub info {
     $d->{status_name} = \%text::PrintStatus;
     
     $d->{allow_print_ausweis} = $self->rights_check($::rPrintAusweis, $::rAll);
+    $d->{stat_ausweis} = $rec->{status} eq 'A' ? 1 : 0;
     
     $d->{href_ausweis_search} = $self->href($::disp{PrintAusweisSearch}, $rec->{id});
+    
+    
+    $self->d->{sort}->{href_template} = sub {
+        my $sort = shift;
+        return $self->href($::disp{PrintInfo}, $id)."?sort=$sort";
+    };
+    my $sort = $self->req->param_str('sort');
+
+    $self->d->{pager}->{href} ||= sub {
+        my $page = shift;
+        return $self->href($::disp{PrintInfo}, $id)."?".
+            join('&', $sort?"sort=$sort":(), $page>1?"page=$page":());
+    };
+    my $page = $self->req->param_dig('page') || 1;
+    
+    $d->{list} = [
+        map { C::Ausweis::_item($self, $_); }
+        $self->model('Ausweis')->search(
+            { 'print.prnid' => $id },
+            {
+                prefetch => [qw/command blok print/],
+                $self->sort($sort || 'nick'),
+            },
+            $self->pager($page, 100),
+        )
+    ];
+    
+    $d->{count_all} = $d->{pager}->{count_all};
 }
 
 sub file {
@@ -184,7 +213,7 @@ sub ausweis_search {
     my ($rec) = ($d->{rec} =  _item($self, $d->{rec}));
     
     if ($d->{rec}->{status} ne 'A') { 
-        $self->state(-960501, '');
+        $self->state(-960501, $self->href($::disp{PrintInfo}, $rec->{id}));
         return;
     }
     
@@ -260,7 +289,7 @@ sub _ausweis_add_del {
     
     $d->{rec} ||= ($self->model('Print')->search({ id => $id }))[0];
     $d->{rec} || do { $self->state(-000105, ''); return };
-    if ($d->{rec}->{status} ne 'A') { 
+    if ($d->{rec}->{status} ne 'A') {
         $self->state(-960501, '');
         return;
     }
