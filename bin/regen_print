@@ -75,6 +75,7 @@ while (my ($prn) = $self->model('Print')->search(
                 ($prn) = $self->model('Print')->search({ id => $prn->{id} });
                 last if !$prn || $prn->{status} eq 'A';
             }
+            $self->log_prefix(sprintf("[party=%d]", $prn->{id}));
             $pdf->save;
             $pdf->end( );
         } else {
