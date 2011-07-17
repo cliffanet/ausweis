@@ -2,7 +2,7 @@
 <table class="tbl">
     <tr>
         <td class="ltitle">Партия №:</td>
-        <td>[% rec.id %]</td>
+        <td><b>[% rec.id %]</b></td>
     </tr>
     <tr>
         <td class="ltitle">Дата создания:</td>
@@ -11,7 +11,7 @@
     <tr>
         <td class="ltitle">Статус:</td>
         <td>
-            [% rec.status_name %]
+            <b>[% rec.status_name %]</b>
             [% IF rec.status == 'A' %]
                 <br />Изменить: <a href="[% rec.href_set_status('C') %]">[% status_name.C %]</a>
             [% ELSIF rec.status == 'C' %]
