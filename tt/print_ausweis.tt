@@ -60,7 +60,9 @@
         <td>[% IF blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% blok.href_info %]">[% blok.name %]</a>[% END %]</td>
     </tr>
 [% END %]
-    <tr><td colspan="5">
+    <tr>
+    <td></td>
+    <td colspan="4">
 [% INCLUDE 'pager.tt' %]
     </td></tr>
     <tr><td colspan="5" class="submit">
