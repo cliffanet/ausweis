@@ -321,14 +321,14 @@ sub _ausweis_add_del {
 sub ausweis_add {
     my ($self, $id) = @_;
     
-    _ausweis_add_del($self, $id, 1);
+    _ausweis_add_del($self, $id, 1) || return;
     return $self->state(960500, '');
 }
 
 sub ausweis_del {
     my ($self, $id) = @_;
     
-    _ausweis_add_del($self, $id, 0);
+    _ausweis_add_del($self, $id, 0) || return;
     return $self->state(960600, '');
 }
 
