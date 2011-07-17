@@ -72,7 +72,7 @@ while (my ($prn) = $self->model('Print')->search(
                 }
                 $self->model('Print')->update({ complete => $count }, { id => $prn->{id} })
                     || last;
-                ($prn) = $self->model('Print')->update({ id => $prn->{id} });
+                ($prn) = $self->model('Print')->search({ id => $prn->{id} });
                 last if !$prn || $prn->{status} eq 'A';
             }
             $pdf->save;
