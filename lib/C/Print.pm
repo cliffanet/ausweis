@@ -106,7 +106,9 @@ sub info {
         )
     ];
     
-    $d->{count_all} = $d->{pager}->{count_all};
+    $d->{count_all} = $d->{pager}->{countall};
+    
+    $d->{AUTOREFRESH} = 30 if $rec->{status} eq 'D';
 }
 
 sub file {

@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+    [% IF AUTOREFRESH %]<meta http-equiv=refresh content='[% AUTOREFRESH %]'>[% END %]
     <link rel="stylesheet" type="text/css" href="http://airsoftclub.ru/css/styles.css" />
     <link href="/style.css" rel="stylesheet" type="text/css">
 <!--[if IE]>

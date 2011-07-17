@@ -109,6 +109,7 @@ sub http_accept {
         datetime        => \&Func::dt_datetime,
         IS_DEVEL        => $::isDevel ? 1 : 0,
         ip              => $ENV{REMOTE_ADDR},
+        AUTOREFRESH     => 0,
         
         blk     => {
             href_list   => $self->href($::disp{BlokList}),
