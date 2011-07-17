@@ -307,7 +307,7 @@ sub _ausweis_add_del {
         }
         else  {
             my $id1 = $ex{$ausid} || next;
-            $self->model("PrintAusweis")->create({ id => $id1 })
+            $self->model("PrintAusweis")->delete({ id => $id1 })
                 || do { $self->state(-000104, ''); return };
         }
         $count ++;
