@@ -2,7 +2,7 @@
     <tr class="title">
         <td width="100">Дата</td>
         <td width="100">Номер</td>
-        <td width="100">Статус</td>
+        <td width="250">Статус</td>
         <td></td>
     </tr>
 [% IF list.size > 0 %]
