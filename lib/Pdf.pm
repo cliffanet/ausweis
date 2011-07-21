@@ -54,20 +54,24 @@ sub Ausweis {
         $o->{$_} += $oy
             foreach grep { defined $o->{$_} } qw/y y1 y2/;
         $o->{$_} *= 2.835
-            foreach grep { defined $o->{$_} } qw/x x1 x2 y y1 y2 width height/;
+            foreach grep { defined $o->{$_} } qw/x x1 x2 y y1 y2 width height stroke/;
         $o->{$_} = 842-$o->{$_}
             foreach grep { defined $o->{$_} } qw/y y1 y2/;
         
         if (lc($p) eq 'area') {
             $self->debug('AREA: %s', join('', Dumper($o)));
             my $gfx = $page->gfx;
+            $gfx->save;
             $gfx->strokecolor($o->{color}||'black');
+            $gfx->linewidth($o->{stroke}) if $o->{stroke};
+            $gfx->linedash($o->{dash}) if $o->{dash};
             $gfx->move($o->{x1}||0, $o->{y1}||0);
             $gfx->line($o->{x2}||0, $o->{y1}||0);
             $gfx->line($o->{x2}||0, $o->{y2}||0);
             $gfx->line($o->{x1}||0, $o->{y2}||0);
             $gfx->line($o->{x1}||0, $o->{y1}||0);
             $gfx->stroke;
+            $gfx->restore;
         }
         elsif ((lc($p) eq 'text') && $o->{text}) {
             my $m = Clib::Mould->new();
@@ -136,20 +140,23 @@ sub Ausweis {
 #            } }
             my $gfx = $page->gfx;
             my $fnt = $pdf->ttfont("$::font_dir/arial.ttf", -encode=>'cp1251'); 
+            $o->{width} ||= 51*2.835;
+            my $k = $o->{width}/(51*2.835);
             my $bc =  $pdf->xo_code128(
                     -font   => $fnt,    # the font to use for text
-                    -type   => 'a',    # the type of barcode
+                    #-ean => 1,
+                    -type   => 'b',    # the type of barcode
                     -code   => $rec->{numid}, # the code of the barcode
                 #    -extn   => '012345',    # the extension of the barcode
                     -umzn   => 10,         # (u)pper (m)ending (z)o(n)e -  высота штриха
                 #    -lmzn   => 10,         # (l)ower (m)ending (z)o(n)e -  высота теста, если нужен текст
-                    -zone   => $o->{height},         # height (zone) of bars,
+                    -zone   => $o->{height}/$k,         # height (zone) of bars,
                 #    -quzn   => 10,         # (qu)iet (z)o(n)e - горизонтальные поля
-                #    -ofwt   => 0.01,       # (o)ver(f)low (w)id(t)h
+                    -ofwt   => 0.001,       # (o)ver(f)low (w)id(t)h
                     #-fnsz   => 5,          # (f)o(n)t(s)i(z)e
                     #-text   => 'alternative text'
                     );
-            my $fi = $gfx->formimage($bc, $o->{x}, $o->{y});
+            my $fi = $gfx->formimage($bc, $o->{x}, $o->{y}, $k);
         }
         
         };
