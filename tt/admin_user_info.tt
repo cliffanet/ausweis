@@ -12,7 +12,7 @@
     <td class="ltitle">Команда:</td>
     <td>
         [% IF user.cmdid && cmd.hash.${user.cmdid} %]
-        <a title="Фильтр по команде" alt="Фильтр по команде" href="[% cmd.hash.${user.cmdid}.href_srch %]">[% cmd.hash.${user.cmdid}.name %]</a>
+        <a title="Просмотр команды" alt="Просмотр команды" href="[% cmd.hash.${user.cmdid}.href_info %]">[% cmd.hash.${user.cmdid}.name %]</a>
         [% ELSE %]
         -
         [% END %]

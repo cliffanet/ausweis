@@ -43,7 +43,7 @@
         <td><a title="Просмотр информации о группе " alt="Просмотр информации о группе" href="[% d.group.${gid}.href_info %]">[% d.group.${gid}.name %]</a></td>
         <td>
             [% IF cmdid && cmd.hash.${cmdid} %]
-            <a title="Фильтр по команде" alt="Фильтр по команде" href="[% cmd.hash.${cmdid}.href_srch %]">[% cmd.hash.${cmdid}.name %]</a>
+            <a title="Просмотр команды" alt="Просмотр команды" href="[% cmd.hash.${cmdid}.href_info %]">[% cmd.hash.${cmdid}.name %]</a>
             [% END %]
         </td>
     </tr>
