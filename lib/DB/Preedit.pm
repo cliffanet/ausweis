@@ -37,11 +37,13 @@ sub add {
     my $fields  = delete($args{fields}) || delete($args{field});
     my $old     = delete($args{old}) || delete($args{fields_old}) || delete($args{field_old});
     
+    # Проверка списка изменяемых полей
     if (($op eq 'C') || ($op eq 'D')) {
         $fields ||= $old;
         undef $old;
     }
     return '0E0' if !$fields || !(keys %$fields);
+    my @fields;
     if ($op eq 'E') {
         return if !$old || !(keys %$old);
         my $count = 0;
@@ -50,19 +52,53 @@ sub add {
             $value = $$value if ref($value) eq 'SCALAR';
             my $o = exists($old->{$f}) ? $old->{$f} : undef;
             next if defined($o) && ($o eq $value);
-            $count ++;
+            push @fields, $f;
         }
-        return '0E0' if !$count;
+        return '0E0' if !@fields;
     }
     
+    # Создание точки изменения
     $self->create(\%args) || return;
     my $id = $self->insertid;
     
     my $count = '0E0';
     
+    # Изменение полей
     if ($fields) {
         my $ret = $self->schema->model('PreeditField')->add($id, $fields, $old) || return;
         $count = $ret;
+    }
+    
+    # Удаяем предыдущие неотмодерированные одноименные поля
+    if ($count && ($count > 0) && ($op eq 'E') && !$args{modered} && @fields) {
+        my @p = $self->search(
+            { 
+                tbl     => $args{tbl},
+                op      => 'E',
+                recid   => $args{recid},
+                modered => 0,
+                'field.param' => \@fields,
+            } ,
+            { prefetch => 'field' },
+        );
+        foreach my $p (@p) {
+            $self->schema->model('PreeditField')->delete({ id => $p->{field}->{id} })
+                || return;
+        }
+        @p = $self->search(
+            { 
+                tbl     => $args{tbl},
+                op      => 'E',
+                recid   => $args{recid},
+                modered => 0,
+                'COUNT(id)' => 0,
+            } ,
+            { join => 'field', group_by => 'id' },
+        );
+        foreach my $p (@p) {
+            $self->schema->model('Preedit')->delete({ id => $p->{id} })
+                || return;
+        }
     }
     
     $count;

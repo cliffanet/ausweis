@@ -391,6 +391,9 @@ sub set {
     return $self->state(-000106, '') if $ret == 0;
     
     # Статус с редиректом
+    if ($preedit && $is_new && $fdata->{cmdid}) {
+        return $self->state(990100,  $self->href($::disp{CommandShow}, $fdata->{cmdid}, 'info') );
+    }
     return $self->state($is_new ? 990100 : 990200,  $self->href($::disp{AusweisShow}, $id, 'info') );
 }
 
