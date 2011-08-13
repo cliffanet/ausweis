@@ -195,6 +195,18 @@ sub show {
                 );
         return $d->{_print_open} ||= 0;
     };
+    
+    $d->{preedit_field} = sub {
+        my ($param, $get_value) = @_;
+        $d->{_preedit_field} ||= {
+            map { ($_->{field}->{param} => $_->{field}->{value}) }
+            $self->model('Preedit')->search(
+                { tbl => 'Ausweis', op => 'E', recid => $id, modered => 0 },
+                { prefetch => 'field', order_by => 'field.id' }
+            )
+        };
+        return $get_value ? $d->{_preedit_field}->{$param} : exists($d->{_preedit_field}->{$param});
+    };
 }
 
 sub edit {
@@ -242,12 +254,16 @@ sub file {
 sub adding {
     my ($self) = @_;
 
-    return unless $self->rights_exists_event($::rAusweisEdit);
+    return unless 
+        $self->rights_exists($::rAusweisEdit) ||
+        $self->rights_exists_event($::rAusweisPreEdit);
     my $cmdid = $self->req->param_dig('cmdid');
     $cmdid ||= $self->user->{cmdid}
         if !$self->rights_check($::rAusweisEdit, $::rAll);
     if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
-        return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
+        return unless 
+            $self->rights_check($::rAusweisEdit, $::rAll) ||
+            $self->rights_check_event($::rAusweisPreEdit, $::rAll);
     }
     
     $self->patt(TITLE => $text::titles{"ausweis_add"});

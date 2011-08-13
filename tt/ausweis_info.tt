@@ -6,47 +6,51 @@
     </tr>
     <tr>
         <td class="ltitle">Ник:</td>
-        <td>[% rec.nick %]</td>
+        <td>[% rec.nick %][% INCLUDE preedit_field.tt field='nick' %]</td>
     </tr>
     <tr>
         <td class="ltitle">Команда:</td>
-        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% rec.command.href_info %]">[% rec.command.name %]</a></td>
+        <td>
+            <a title="Просмотр команды" alt="Просмотр команды" href="[% rec.command.href_info %]">[% rec.command.name %]</a>
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Блок:</td>
-        <td>[% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% ELSE %]-[% END %]</td>
+        <td>
+            [% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% ELSE %]-[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Блокировка:</td>
-        <td>[% IF rec.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %]</td>
+        <td>[% IF rec.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %][% INCLUDE preedit_field.tt field='blocked' %]</td>
     </tr>
     <tr>
         <td class="ltitle">ФИО:</td>
-        <td>[% rec.fio %]</td>
+        <td>[% rec.fio %][% INCLUDE preedit_field.tt field='fio' %]</td>
     </tr>
     <tr>
         <td class="ltitle">Группа крови:</td>
-        <td>[% rec.krov %]</td>
+        <td>[% rec.krov %][% INCLUDE preedit_field.tt field='krov' %]</td>
     </tr>
     <tr>
         <td class="ltitle">Аллергия:</td>
-        <td>[% rec.allerg %]</td>
+        <td>[% rec.allerg %][% INCLUDE preedit_field.tt field='allerg' %]</td>
     </tr>
     <tr>
         <td class="ltitle">Непереносимость:</td>
-        <td>[% rec.neperenos %]</td>
+        <td>[% rec.neperenos %][% INCLUDE preedit_field.tt field='neperenos' %]</td>
     </tr>
     <tr>
         <td class="ltitle">Полис:</td>
-        <td>[% rec.polis %]</td>
+        <td>[% rec.polis %][% INCLUDE preedit_field.tt field='polis' %]</td>
     </tr>
     <tr>
         <td class="ltitle">Медик:</td>
-        <td>[% rec.medik %]</td>
+        <td>[% rec.medik %][% INCLUDE preedit_field.tt field='medik' %]</td>
     </tr>
     <tr>
         <td class="ltitle">Примечания:</td>
-        <td>[% rec.comment %]</td>
+        <td>[% rec.comment %][% INCLUDE preedit_field.tt field='comment' %]</td>
     </tr>
     <tr>
         <td class="ltitle">Печать массовая:</td>
