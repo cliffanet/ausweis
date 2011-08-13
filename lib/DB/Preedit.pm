@@ -78,7 +78,7 @@ sub add {
                 recid   => $args{recid},
                 modered => 0,
                 'field.param' => \@fields,
-                id      => { '!=' => $eid },
+                id      => { '!=' => $id },
             } ,
             { prefetch => 'field' },
         );
