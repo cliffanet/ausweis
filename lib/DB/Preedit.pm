@@ -78,6 +78,7 @@ sub add {
                 recid   => $args{recid},
                 modered => 0,
                 'field.param' => \@fields,
+                id      => { '!=' => $eid },
             } ,
             { prefetch => 'field' },
         );
@@ -91,9 +92,13 @@ sub add {
                 op      => 'E',
                 recid   => $args{recid},
                 modered => 0,
-                'COUNT(id)' => 0,
+                '`cnt`' => 0,
             } ,
-            { join => 'field', group_by => 'id' },
+            { 
+                join => 'field',
+                '+columns' => ['COUNT(*) as `cnt`'],
+                group_by => 'id',
+            },
         );
         foreach my $p (@p) {
             $self->schema->model('Preedit')->delete({ id => $p->{id} })
