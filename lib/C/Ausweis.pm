@@ -163,9 +163,13 @@ sub show {
     $self->view_select->subtemplate("ausweis_$type.tt");
     
     if ($type eq 'edit') {
-        return unless $self->rights_exists_event($::rAusweisEdit);
+        return unless 
+            $self->rights_exists($::rAusweisEdit) ||
+            $self->rights_exists_event($::rAusweisPreEdit);
         if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
-            return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
+            return unless
+                $self->rights_check($::rAusweisEdit, $::rAll) ||
+                $self->rights_check_event($::rAusweisPreEdit, $::rAll);
         }
     }
     
@@ -269,13 +273,18 @@ sub adding {
 }
 
 sub set {
-    my ($self, $id) = @_;
+    my ($self, $id, $preedit) = @_;
     my $is_new = !defined($id);
     
     my $dirUpload = Func::SetTmpDir($self)
         || return !$self->state(-900101, '');
     
-    return unless $self->rights_exists_event($::rAusweisEdit);
+    $preedit = 1 if !$preedit && !$self->rights_exists($::rAusweisEdit);
+    if ($preedit) {
+        return unless $self->rights_exists_event($::rAusweisPreEdit);
+    } else {
+        return unless $self->rights_exists_event($::rAusweisEdit);
+    }
     my $d = $self->d;
     my $q = $self->req;
     
@@ -286,7 +295,12 @@ sub set {
             return $self->state(-000105, '');
         }
         if (!$rec->{cmdid} || !$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
-            return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
+            $preedit = 1 if !$preedit && !$self->rights_check($::rAusweisEdit, $::rAll);
+            if ($preedit) {
+                return unless $self->rights_check_event($::rAusweisPreEdit, $::rAll);
+            } else {
+                return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
+            }
         }
     }
     else {
@@ -315,37 +329,50 @@ sub set {
         $fdata->{numid} = $self->model('Ausweis')->gen_numid;
     }
     
-    # Сохраняем данные
-    my $ret = $self->ParamSave( 
-        model           => 'Ausweis', 
-        $is_new ?
-            ( insert => \$id ) :
-            ( 
-                update => { id => $id }, 
-                preselect => $rec
-            ),
-    );
-    if (!$ret) {
-        $self->state(-000104);
-        return $is_new ? adding($self) : edit($self, $id);
+    if ($preedit) {
+    } else {
+        # Сохраняем данные
+        my $ret = $self->ParamSave(
+            model           => 'Ausweis', 
+            $is_new ?
+                ( insert => \$id ) :
+                ( 
+                    update => { id => $id }, 
+                    preselect => $rec
+                ),
+        );
+        if (!$ret) {
+            $self->state(-000104);
+            return $is_new ? adding($self) : edit($self, $id);
+        }
+    
+        # Загрузка логотипа
+        if (my $file = $self->req->param("photo")) {
+            Func::MakeCachDir('ausweis', $id)
+                || return $self->state(-900102, '');
+            my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('ausweis', $id), 'photo')
+                || return $self->state(-900102, '');
+            my $regen = $rec ? int($rec->{regen}) : 0;
+            $self->model('Ausweis')->update(
+                { 
+                    regen   => $regen | (1<<($::regen{photo}-1)),
+                    photo   => $photo,
+                },
+                { id => $id }
+            ) || return $self->state(-000104, '');
+            unlink("$dirUpload/$file");
+        }
     }
     
-    # Загрузка логотипа
-    if (my $file = $self->req->param("photo")) {
-        Func::MakeCachDir('ausweis', $id)
-            || return $self->state(-900102, '');
-        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('ausweis', $id), 'photo')
-            || return $self->state(-900102, '');
-        my $regen = $rec ? int($rec->{regen}) : 0;
-        $self->model('Ausweis')->update(
-            { 
-                regen   => $regen | (1<<($::regen{photo}-1)),
-                photo   => $photo,
-            },
-            { id => $id }
-        ) || return $self->state(-000104, '');
-        unlink("$dirUpload/$file");
-    }
+    my $ret = $self->model('Preedit')->add(
+        tbl     => 'Ausweis',
+        op      => $is_new ? 'C' : 'E',
+        recid   => $id,
+        modered => $preedit ? 0 : 1,
+        fields  => $fdata,
+        old     => $rec,
+    ) || return $self->state(-000104, '');
+    return $self->state(-000106, '') if $ret == 0;
     
     # Статус с редиректом
     return $self->state($is_new ? 990100 : 990200,  $self->href($::disp{AusweisShow}, $id, 'info') );
