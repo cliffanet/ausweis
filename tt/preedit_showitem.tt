@@ -8,10 +8,10 @@
     <tr class="title">
         <td></td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
-        <td>Новое значение</td>
+        <td width="300">Новое значение</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>Текущее значение</td>
+        <td width="300">Текущее значение</td>
         [% END %]
     </tr>
 [% INCLUDE $subtmpl_name %]
