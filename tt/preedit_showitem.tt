@@ -8,7 +8,7 @@
     <tr class="title">
         <td></td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
-        <td[% IF pre.op == 'E' %] width="300"[% END %]>Новое значение</td>
+        <td[% IF pre.op == 'E' %] width="250"[% END %]>Новое значение</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
         <td>Текущее значение</td>

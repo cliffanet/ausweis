@@ -16,7 +16,7 @@
         <td>[% IF field_exists('nick') %][% field.nick %][% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>[% rec.nick %][% INCLUDE preedit_field.tt field='nick' %]</td>
+        <td>[% rec.nick %]</td>
         [% END %]
     </tr>
     <tr[% IF !field_exists('cmdid') %] class="grey"[% END %]>
@@ -36,7 +36,7 @@
         <td>[% IF field_exists('blocked') %][% IF field.blocked %]<b>抢了问刃温劳</b>[% ELSE %]-[% END %][% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>[% IF rec.blocked %]<b>抢了问刃温劳</b>[% ELSE %]-[% END %][% INCLUDE preedit_field.tt field='blocked' %]</td>
+        <td>[% IF rec.blocked %]<b>抢了问刃温劳</b>[% ELSE %]-[% END %]</td>
         [% END %]
     </tr>
     <tr[% IF !field_exists('fio') %] class="grey"[% END %]>
@@ -45,7 +45,7 @@
         <td>[% IF field_exists('fio') %][% field.fio %][% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>[% rec.fio %][% INCLUDE preedit_field.tt field='fio' %]</td>
+        <td>[% rec.fio %]</td>
         [% END %]
     </tr>
     <tr[% IF !field_exists('krov') %] class="grey"[% END %]>
@@ -54,7 +54,7 @@
         <td>[% IF field_exists('krov') %][% field.krov %][% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>[% rec.krov %][% INCLUDE preedit_field.tt field='krov' %]</td>
+        <td>[% rec.krov %]</td>
         [% END %]
     </tr>
     <tr[% IF !field_exists('allerg') %] class="grey"[% END %]>
@@ -63,7 +63,7 @@
         <td>[% IF field_exists('allerg') %][% field.allerg %][% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>[% rec.allerg %][% INCLUDE preedit_field.tt field='allerg' %]</td>
+        <td>[% rec.allerg %]</td>
         [% END %]
     </tr>
     <tr[% IF !field_exists('neperenos') %] class="grey"[% END %]>
@@ -72,7 +72,7 @@
         <td>[% IF field_exists('neperenos') %][% field.neperenos %][% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>[% rec.neperenos %][% INCLUDE preedit_field.tt field='neperenos' %]</td>
+        <td>[% rec.neperenos %]</td>
         [% END %]
     </tr>
     <tr[% IF !field_exists('polis') %] class="grey"[% END %]>
@@ -81,7 +81,7 @@
         <td>[% IF field_exists('polis') %][% field.polis %][% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>[% rec.polis %][% INCLUDE preedit_field.tt field='polis' %]</td>
+        <td>[% rec.polis %]</td>
         [% END %]
     </tr>
     <tr[% IF !field_exists('medik') %] class="grey"[% END %]>
@@ -90,7 +90,7 @@
         <td>[% IF field_exists('medik') %][% field.medik %][% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>[% rec.medik %][% INCLUDE preedit_field.tt field='medik' %]</td>
+        <td>[% rec.medik %]</td>
         [% END %]
     </tr>
     <tr[% IF !field_exists('comment') %] class="grey"[% END %]>
@@ -99,7 +99,22 @@
         <td>[% IF field_exists('comment') %][% field.comment %][% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
-        <td>[% rec.comment %][% INCLUDE preedit_field.tt field='comment' %]</td>
+        <td>[% rec.comment %]</td>
+        [% END %]
+    </tr>
+    <tr[% IF !field_exists('photo') %] class="grey"[% END %]>
+        <td class="ltitle">灶蝾:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('photo') %]<img width="200" src="[% href_file('photo') %]" />[% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td align="center">
+[% IF rec.photo %]
+<img width="200" alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_file('photo.site.jpg') %]" />
+[% ELSE %]
+<span style="text-weight:bold;">[晕椅 团襗</span>
+[% END %]
+        </td>
         [% END %]
     </tr>
 
