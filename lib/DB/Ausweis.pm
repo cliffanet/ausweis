@@ -73,7 +73,7 @@ sub hnd_nick {
     my $rec = $self->d->{rec};
     my %id = $rec ? (id => { '!=' => $rec->{id}}) : ();
     
-    my $item = $self->model('Ausweis')->search({ nick => $value, blocked => 0, %id });
+    my $item = $self->model('Ausweis')->search({ nick => $value, blocked => 0, cmdid => $self->d->{cmdid}, %id });
     return $item ? 0 : 21;
 }
 
@@ -83,7 +83,7 @@ sub hnd_fio {
     my $rec = $self->d->{rec};
     my %id = $rec ? (id => { '!=' => $rec->{id}}) : ();
     
-    my $item = $self->model('Ausweis')->search({ fio => $value, blocked => 0, %id });
+    my $item = $self->model('Ausweis')->search({ fio => $value, blocked => 0, cmdid => $self->d->{cmdid}, %id });
     return $item ? 0 : 22;
 }
 

@@ -317,23 +317,21 @@ sub set {
         if (!$rec || !$rec->{id}) {
             return $self->state(-000105, '');
         }
-        if (!$rec->{cmdid} || !$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
-            $preedit = 1 if !$preedit && !$self->rights_check($::rAusweisEdit, $::rAll);
-            if ($preedit) {
-                return unless $self->rights_check_event($::rAusweisPreEdit, $::rAll);
-            } else {
-                return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
-            }
-        }
+        $d->{cmdid} = $rec->{cmdid};
     }
     else {
-        my $cmdid = $q->param_dig('cmdid');
-        $cmdid ||= $self->user->{cmdid}
+        $d->{cmdid} = $q->param_dig('cmdid');
+        $d->{cmdid} ||= $self->user->{cmdid}
             if !$self->rights_check($::rAusweisEdit, $::rAll);
-        if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
+        $q->param('cmdid', $d->{cmdid});
+    }
+    if (!$d->{cmdid} || !$self->user->{cmdid} || ($self->user->{cmdid} != $d->{cmdid})) {
+        $preedit = 1 if !$preedit && !$self->rights_check($::rAusweisEdit, $::rAll);
+        if ($preedit) {
+            return unless $self->rights_check_event($::rAusweisPreEdit, $::rAll);
+        } else {
             return unless $self->rights_check_event($::rAusweisEdit, $::rAll);
         }
-        $q->param('cmdid', $cmdid)
     }
     
     
