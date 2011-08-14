@@ -19,6 +19,8 @@ use Func;
 use Img;
 use Pdf;
 
+use GD::Barcode;
+
 require "$::pathRoot/conf/defines.conf";
 
 # Чтобы warnings не ругался
@@ -128,6 +130,37 @@ while (my ($aus) = $self->model('Ausweis')->search(
     }
     my @regen = (0, reverse split(//, sprintf("%08b", $aus->{regen})));
     my $dir = Func::CachDir('ausweis', $aus->{id});
+    
+    # Штрихкод
+    if ($::regen{code} && $regen[$::regen{code}] && $aus->{numid}) { {
+        my $file = "$dir/code.$aus->{numid}.orig.png";
+        if (!open(FH, ">$file")) {
+            $self->error("Can't create file '$file': $!");
+            last;
+        }
+        print FH GD::Barcode->new('Code39', $aus->{numid})->plot->jpg;
+        close FH;
+        
+        my $img = Image::Magick->new();
+        if (!$img) {
+            $self->error("Image::Magick->new Error");
+            last;
+        }
+        if (my $error = $img->Read($file)) {
+            $self->error("Image::Magick->Read($file): $error");
+            last;
+        }
+        if (my $error = $img->Write(
+                filename => "$dir/code.$aus->{numid}.orig.jpg",
+                compression => 'JPEG',
+                quality => 100)) {
+            $self->error("Image::Magick->Write: $error");
+            last;
+        }
+        
+        $self->model('Ausweis')->regen_off($aus->{id}, $::regen{code});
+        $regen[$::regen{code}] = 0;
+    } }
     
     # Фото
     if ($::regen{photo} && $regen[$::regen{photo}] && $aus->{photo}) { {
