@@ -81,8 +81,8 @@ sub add {
             my $file = $files->{$f};
             Func::MakeCachDir('preedit', $id) || next;
             my $name = lc $1 if $file =~ /^(.+)\.([a-zA-Z0-9]{1,5})$/;
-            $name || next;
-            my $file1 = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('preedit', $id), 'photo')
+            $name ||= $file;
+            my $file1 = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('preedit', $id), $name)
                 || next;
             unlink("$dirUpload/$file");
             $f{$f} = $file1;

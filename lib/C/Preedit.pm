@@ -1,4 +1,4 @@
-package C::Ausweis;
+package C::Preedit;
 
 use strict;
 use warnings;

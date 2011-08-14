@@ -197,15 +197,21 @@ sub show {
     };
     
     $d->{preedit_field} = sub {
-        my ($param, $get_value) = @_;
+        my ($param) = @_;
         $d->{_preedit_field} ||= {
-            map { ($_->{field}->{param} => $_->{field}->{value}) }
+            map { ($_->{field}->{param} => $_->{field}) }
             $self->model('Preedit')->search(
                 { tbl => 'Ausweis', op => 'E', recid => $id, modered => 0 },
                 { prefetch => 'field', order_by => 'field.id' }
             )
         };
-        return $get_value ? $d->{_preedit_field}->{$param} : exists($d->{_preedit_field}->{$param});
+        return {
+            exists      => exists($d->{_preedit_field}->{$param}),
+            value       => sub { $d->{_preedit_field}->{$param}->{value} },
+            href_file   => sub { $self->href($::disp{PreeditFile}, 
+                $d->{_preedit_field}->{$param}->{eid},
+                $d->{_preedit_field}->{$param}->{value}) },
+        };
     };
 }
 

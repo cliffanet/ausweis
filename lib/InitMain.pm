@@ -56,6 +56,8 @@ __PACKAGE__->config(
         $::disp{PrintAusweisSearch}     => 'C::Print::ausweis_search',
         $::disp{PrintAusweisAdd}        => 'C::Print::ausweis_add',
         $::disp{PrintAusweisDel}        => 'C::Print::ausweis_del',
+        
+        $::disp{PreeditFile}            => 'C::Preedit::file',
     },
     
     plugins => [qw/ScriptTime

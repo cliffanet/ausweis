@@ -1,1 +1,1 @@
-[% IF preedit_field(field) %]<br /><small><i><u>Модерация:</u> [% preedit_field(field, 1) %]</i><small>[% END %]
+[% IF preedit_field(field).exists %]<br /><small><i><u>Модерация:</u> [% preedit_field(field).value %]</i><small>[% END %]

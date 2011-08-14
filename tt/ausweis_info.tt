@@ -104,6 +104,14 @@
 </tr>
 </table>
 
+[% IF preedit_field('photo').exists %]
+<br />
+
+<h3>Фото - Ожидание модерации</h3>
+<img width="200" src="[% preedit_field('photo').href_file %]" />
+
+[% END %]
+
 <br />
 
 <h3>На печать</h3>
