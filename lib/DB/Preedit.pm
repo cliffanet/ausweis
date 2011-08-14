@@ -86,6 +86,7 @@ sub add {
                 || next;
             unlink("$dirUpload/$file");
             $f{$f} = $file1;
+            push @fields, $f;
         }
         if (%f) {
             my $ret = $self->schema->model('PreeditField')->add($id, \%f) || return;
