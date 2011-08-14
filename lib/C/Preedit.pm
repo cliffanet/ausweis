@@ -102,10 +102,29 @@ sub op {
             if ($pre->{op} eq 'C') || ($pre->{op} eq 'E');
         if ($pre->{op} eq 'C') {
             $ret = $self->model($pre->{tbl})->create($fields);
+            $pre->{recid} = $self->model($pre->{tbl})->insertid;
         } elsif ($pre->{op} eq 'E') {
             $ret = $self->model($pre->{tbl})->update($fields, { id => $pre->{recid} });
         } elsif ($pre->{op} eq 'D') {
             $ret = $self->model($pre->{tbl})->delete({ id => $pre->{recid} });
+        }
+        
+        # Загрузка файлов
+        if (($pre->{tbl} eq 'Ausweis') && $fields && $fields->{photo}) {
+            Func::MakeCachDir('ausweis', $pre->{recid})
+                || return $self->state(-900102, '');
+            my $photo = Func::ImgCopy($self, 
+                Func::CachDir('preedit', $pre->{id})."/".$fields->{photo},
+                Func::CachDir('ausweis', $pre->{recid}), 'photo')
+                    || return $self->state(-900102, '');
+            my $regen = (1<<($::regen{photo}-1));
+            $self->model('Ausweis')->update(
+                { 
+                    regen   => \ "`regen` | $regen",
+                    photo   => $photo,
+                },
+                { id => $pre->{recid} }
+            ) || return $self->state(-000104, '');
         }
     }
     else {
