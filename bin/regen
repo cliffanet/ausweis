@@ -138,7 +138,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
             $self->error("Can't create file '$file': $!");
             last;
         }
-        print FH GD::Barcode->new('Code39', $aus->{numid})->plot->jpg;
+        print FH GD::Barcode->new('Code39', $aus->{numid})->plot->png;
         close FH;
         
         my $img = Image::Magick->new();
