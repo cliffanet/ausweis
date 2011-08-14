@@ -70,8 +70,17 @@
 [% END %]
 [% ELSE %]
     <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
-        ничего не найдено
+        ничего нет
     </td></tr>
+[% END %]
+[% FOREACH ausweis_preedit_list %]
+    <tr>
+        <td></td>
+        <td><i>Ожидает модерации</i></td>
+        <td><i>[% field_nick.value %]</i></td>
+        <td></td>
+        <td>&nbsp;</td>
+    </tr>
 [% END %]
     <tr><td colspan="5" class="submit">
         <a href="[% rec.href_aus_adding %]">добавить</a>

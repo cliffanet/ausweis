@@ -8,8 +8,12 @@ use base 'Clib::DBIC';
 __PACKAGE__->table("preedit");
 __PACKAGE__->columns_array(qw/id dtadd tbl op recid modered uid ip/);
 
-__PACKAGE__->link( field => 'PreeditField', id => 'eid', {join_type => 'left'} );
 __PACKAGE__->link( user   => 'UserList', uid => 'id', {join_type => 'left'} );
+__PACKAGE__->link( field => 'PreeditField', id => 'eid', {join_type => 'left'} );
+__PACKAGE__->link( field_cmdid => 'PreeditField', id => 'eid', 
+                        {join_type => 'left', join_cond => '`field_cmdid`.`param`="cmdid"'} );
+__PACKAGE__->link( field_nick => 'PreeditField', id => 'eid', 
+                        {join_type => 'left', join_cond => '`field_nick`.`param`="nick"'} );
 
 sub create {
     my ($self, $new) = @_;

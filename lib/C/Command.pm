@@ -198,6 +198,20 @@ sub show {
         )
         ];
     };
+    
+    $d->{ausweis_preedit_list} = sub {
+        $d->{_ausweis_preedit_list} ||= [
+            map { $self->ToHtml($_) }
+            $self->model('Preedit')->search({
+                tbl     => 'Ausweis',
+                modered => 0,
+                'field_cmdid.value' => $rec->{id},
+            }, {
+                prefetch => ['field_cmdid', 'field_nick'],
+                order_by => 'field_nick.value',
+            })
+        ];
+    };
 }
 
 sub show_my {
