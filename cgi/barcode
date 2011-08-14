@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 
-use GD::Barcode::UPCE;
+use GD::Barcode;
 
 binmode(STDOUT);
 print "Content-Type: image/png\n\n";
-print GD::Barcode->new('EAN13', $ENV{QUERY_STRING}||'123456789012')->plot->png;
+print GD::Barcode->new('COOP2of5', $ENV{QUERY_STRING}||'1234567890')->plot->png;
 
