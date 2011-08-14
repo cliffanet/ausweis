@@ -19,7 +19,7 @@ sub _item {
     
     $item->{field} = sub {
         return $item->{_field} if $item->{_field};
-        $item->{_field} = $self->model('PreeditField')->get_value();
+        $item->{_field} = $self->model('PreeditField')->get_value($item);
         if ($item->{type} eq 'Ausweis') {
             $item->{_field} = C::Ausweis::_item($self, $item->{_field});
         }
