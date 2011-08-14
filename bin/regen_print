@@ -122,7 +122,7 @@ while (my ($prn) = $self->model('Print')->search(
             $self->log_prefix(sprintf("[party=%d ausweis=%d/%d] nick \"%s\"", 
                 $prn->{id}, $aus->{id}, $aus->{numid}, $aus->{nick}));
             my $photo = "photo/$aus->{numid}.jpg" if $aus->{photo};
-            my $logo = "logo/$aus->{numid}.jpg" if $aus->{command}->{logo};
+            my $logo = "logo/$aus->{numid}.jpg" if $aus->{command}->{photo};
             my $code = "code/$aus->{numid}.jpg";
             if ($photo) {
                 Func::CopyFile($self, Func::CachDir('ausweis', $aus->{id})."/photo.aus.jpg", "$dir/$photo")
