@@ -46,7 +46,7 @@ sub showitem {
         map { _item($self, $_) } 
         $self->model('Preedit')->search(
             { modered => 0, $afterid ? (id => { '>' => $afterid }) : () },
-            { oreder_by => 'id', limit => 1 }
+            { order_by => 'id', limit => 1 }
         ));
     
     $d->{type} = $pre ? lc $pre->{tbl} : '';
