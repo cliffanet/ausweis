@@ -14,8 +14,8 @@ __PACKAGE__->columns_hash(
     blkid       => { skip => 1 },
     blocked     => 'b',
     regen       => { skip => 1 },
-    nick        => '!s',
-    fio         => 's',
+    nick        => { type => '!s', handler => \&hnd_nick },
+    fio         => { type => '!s', handler => \&hnd_fio },
     krov        => 's',
     allerg      => 's',
     neperenos   => 's',
@@ -64,5 +64,29 @@ sub regen_off {
     
     return $count;
 }
+
+
+#######################################################################
+sub hnd_nick {
+    my ($self, $param, $index, $value, $ptr) = @_;
+    
+    my $rec = $self->d->{rec};
+    my %id = $rec ? (id => { '!=' => $rec->{id}}) : ();
+    
+    my $item = $self->model('Ausweis')->search({ nick => $value, blocked => 0, %id });
+    return $item ? 0 : 21;
+}
+
+sub hnd_fio {
+    my ($self, $param, $index, $value, $ptr) = @_;
+    
+    my $rec = $self->d->{rec};
+    my %id = $rec ? (id => { '!=' => $rec->{id}}) : ();
+    
+    my $item = $self->model('Ausweis')->search({ fio => $value, blocked => 0, %id });
+    return $item ? 0 : 22;
+}
+
+
 
 1;
