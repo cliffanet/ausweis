@@ -92,7 +92,6 @@ sub add {
                 op      => 'E',
                 recid   => $args{recid},
                 modered => 0,
-                '`cnt`' => 0,
             } ,
             { 
                 join => 'field',
@@ -101,6 +100,7 @@ sub add {
             },
         );
         foreach my $p (@p) {
+            next if $p->{cnt} || !defined($p->{cnt});
             $self->schema->model('Preedit')->delete({ id => $p->{id} })
                 || return;
         }
