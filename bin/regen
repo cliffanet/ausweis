@@ -133,7 +133,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
     
     # Штрихкод
     if ($::regen{code} && $regen[$::regen{code}] && $aus->{numid}) { {
-        my $file = "$dir/code.$aus->{numid}.orig.png";
+        my $file = "$dir/barcode.$aus->{numid}.orig.png";
         if (!open(FH, ">$file")) {
             $self->error("Can't create file '$file': $!");
             last;
@@ -151,7 +151,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
             last;
         }
         if (my $error = $img->Write(
-                filename => "$dir/code.$aus->{numid}.orig.jpg",
+                filename => "$dir/barcode.$aus->{numid}.orig.jpg",
                 compression => 'JPEG',
                 quality => 100)) {
             $self->error("Image::Magick->Write: $error");
