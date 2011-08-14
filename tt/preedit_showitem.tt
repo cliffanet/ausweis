@@ -15,6 +15,21 @@
         [% END %]
     </tr>
 [% INCLUDE $subtmpl_name %]
+    <form action="[% href_op %]" method="post">
+    <tr>
+        <td class="ltitle">Действие:</td>
+        <td colspan="2">
+            <label><input type="radio" name="modered" value="1"> принять</label><br />
+            <label><input type="radio" name="modered" value="-1"> отклонить</label><br />
+            <table border="0" width="100%">
+            <tr>
+            <td align="left"><input type="text" name="comment" size="100" /></td>
+            <td align="right"><input type="submit" value=" Выполнить " /></td>
+            </tr>
+            </table>
+        </td>
+    </tr>
+    </form>
     <tr>
         <td class="submit" colspan="3">
             <a href="[% href_skipitem %]">пропустить</a>

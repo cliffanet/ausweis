@@ -59,6 +59,7 @@ __PACKAGE__->config(
         
         $::disp{PreeditShowItem}        => 'C::Preedit::showitem',
         $::disp{PreeditFile}            => 'C::Preedit::file',
+        $::disp{PreeditOp}              => 'C::Preedit::op',
     },
     
     plugins => [qw/ScriptTime

@@ -59,6 +59,7 @@ sub showitem {
     $d->{field_exists} = sub { exists $d->{field}->()->{$_[0]} };
     
     $d->{href_skipitem} = $self->href($::disp{PreeditShowItem})."?afterid=$pre->{id}";
+    $d->{href_op} = $self->href($::disp{PreeditOp}, $pre->{id});
     
     if ($pre->{tbl} eq 'Ausweis') {
         ($d->{rec}) = map { C::Ausweis::_item($self, $_) }
@@ -80,6 +81,45 @@ sub file {
     $self->view_select('File');
     
     $d->{file} = Func::CachDir('preedit', $rec->{eid})."/$file";
+}
+
+sub op {
+    my ($self, $eid) = @_;
+    
+    return unless $self->rights_exists_event($::rPreedit);
+    my $d = $self->d;
+    
+    my ($pre) = 
+        $self->model('Preedit')->search({ id => $eid, modered => 0 });
+    $pre || return $self->state(-000105, '');
+    
+    my $modered = $self->req->param_dig('modered')
+        || return $self->state(-000101, '');
+        
+    my $ret;
+    if ($modered > 0) {
+        my $fields = $self->model('PreeditField')->get_value($pre->{id})
+            if ($pre->{op} eq 'C') || ($pre->{op} eq 'E');
+        if ($pre->{op} eq 'C') {
+            $ret = $self->model($pre->{tbl})->create($fields);
+        } elsif ($pre->{op} eq 'E') {
+            $ret = $self->model($pre->{tbl})->update($fields, { id => $pre->{recid} });
+        } elsif ($pre->{op} eq 'D') {
+            $ret = $self->model($pre->{tbl})->delete({ id => $pre->{recid} });
+        }
+    }
+    else {
+        $ret = 1;
+    }
+    $ret || return $self->state(-000104, '');
+    
+    # Обновляем статус Preedit
+    $self->model('Preedit')->update(
+        { modered => $modered, comment => $self->req->param_str('comment') },
+        { id => $eid }
+    ) || return $self->state(-000104, '');
+    
+    return $self->state($ret > 0 ? 950100 : -000106, '');
 }
 
 
