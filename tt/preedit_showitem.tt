@@ -16,7 +16,7 @@
     </tr>
 [% INCLUDE $subtmpl_name %]
     <tr>
-        <td class="submit" colspan="2">
+        <td class="submit" colspan="3">
             <a href="[% href_skipitem %]">пропустить</a>
         </td>
     </tr>

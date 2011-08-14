@@ -10,7 +10,7 @@
         [% END %]
     </tr>
 [% END %]
-    <tr[% IF !field_exists('nick') %] class="grey"[% END %]>>
+    <tr[% IF !field_exists('nick') %] class="grey"[% END %]>
         <td class="ltitle">Ник:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>[% IF field_exists('nick') %][% field.nick %][% END %]</td>
@@ -19,7 +19,7 @@
         <td>[% rec.nick %][% INCLUDE preedit_field.tt field='nick' %]</td>
         [% END %]
     </tr>
-    <tr[% IF !field_exists('cmdid') %] class="grey"[% END %]>>
+    <tr[% IF !field_exists('cmdid') %] class="grey"[% END %]>
         <td class="ltitle">Команда:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>[% IF field_exists('cmdid') %][% field.command.name %][% END %]</td>
@@ -30,7 +30,7 @@
         </td>
         [% END %]
     </tr>
-    <tr[% IF !field_exists('blocked') %] class="grey"[% END %]>>
+    <tr[% IF !field_exists('blocked') %] class="grey"[% END %]>
         <td class="ltitle">Блокировка:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>[% IF field_exists('blocked') %][% IF field.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %][% END %]</td>
@@ -39,7 +39,7 @@
         <td>[% IF rec.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %][% INCLUDE preedit_field.tt field='blocked' %]</td>
         [% END %]
     </tr>
-    <tr[% IF !field_exists('fio') %] class="grey"[% END %]>>
+    <tr[% IF !field_exists('fio') %] class="grey"[% END %]>
         <td class="ltitle">ФИО:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>[% IF field_exists('fio') %][% field.fio %][% END %]</td>
@@ -48,7 +48,7 @@
         <td>[% rec.fio %][% INCLUDE preedit_field.tt field='fio' %]</td>
         [% END %]
     </tr>
-    <tr[% IF !field_exists('krov') %] class="grey"[% END %]>>
+    <tr[% IF !field_exists('krov') %] class="grey"[% END %]>
         <td class="ltitle">Группа крови:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>[% IF field_exists('krov') %][% field.krov %][% END %]</td>
@@ -57,7 +57,7 @@
         <td>[% rec.krov %][% INCLUDE preedit_field.tt field='krov' %]</td>
         [% END %]
     </tr>
-    <tr[% IF !field_exists('allerg') %] class="grey"[% END %]>>
+    <tr[% IF !field_exists('allerg') %] class="grey"[% END %]>
         <td class="ltitle">Аллергия:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>[% IF field_exists('allerg') %][% field.allerg %][% END %]</td>
@@ -66,7 +66,7 @@
         <td>[% rec.allerg %][% INCLUDE preedit_field.tt field='allerg' %]</td>
         [% END %]
     </tr>
-    <tr[% IF !field_exists('neperenos') %] class="grey"[% END %]>>
+    <tr[% IF !field_exists('neperenos') %] class="grey"[% END %]>
         <td class="ltitle">Непереносимость:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>[% IF field_exists('neperenos') %][% field.neperenos %][% END %]</td>
@@ -75,7 +75,7 @@
         <td>[% rec.neperenos %][% INCLUDE preedit_field.tt field='neperenos' %]</td>
         [% END %]
     </tr>
-    <tr[% IF !field_exists('polis') %] class="grey"[% END %]>>
+    <tr[% IF !field_exists('polis') %] class="grey"[% END %]>
         <td class="ltitle">Полис:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>[% IF field_exists('polis') %][% field.polis %][% END %]</td>
@@ -84,7 +84,7 @@
         <td>[% rec.polis %][% INCLUDE preedit_field.tt field='polis' %]</td>
         [% END %]
     </tr>
-    <tr[% IF !field_exists('medik') %] class="grey"[% END %]>>
+    <tr[% IF !field_exists('medik') %] class="grey"[% END %]>
         <td class="ltitle">Медик:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>[% IF field_exists('medik') %][% field.medik %][% END %]</td>
