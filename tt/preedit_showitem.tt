@@ -3,7 +3,8 @@
 [% IF pre.op == 'C' %]Создание[% ELSIF pre.op == 'E' %]Изменение[% ELSIF pre.op == 'D' %]Удаление[% END -%]
  [% IF type == 'ausweis' %]аусвайса[% END %]
 </h3>
-[% INCLUDE 'preedit_'+type+'.tt' %]
+[% tmpl_name = 'preedit_'+type+'.tt' %]
+[% INCLUDE $tmpl_name %]
 
 [% ELSE # IF type %]
 <h3>Нет элементов для модерации</h3>
