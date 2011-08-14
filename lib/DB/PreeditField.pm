@@ -33,4 +33,25 @@ sub add {
     $count;
 }
 
+sub get {
+    my ($self, $eid, %args) = @_;
+    
+    my $pre = ref($eid) eq 'HASH' ? $eid : { id => $eid };
+    $eid = $pre->{id};
+    
+    $args{eid} = $eid;
+    return {
+        map { ($_->{param} => $_) }
+        $self->search(\%args)
+    }
+}
+
+sub get_value {
+    my ($self, $eid, %args) = @_;
+    
+    my $h = $self->get($eid, %args) || return;
+    return { map { ($_ => $h->{$_}->{value}) } keys %$h };
+}
+
+
 1;

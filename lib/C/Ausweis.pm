@@ -22,6 +22,8 @@ sub _item {
     
     $item->{command} = C::Command::_item($self, $command)
         if $command;
+    $item->{command} ||= sub { C::Command::_hash($self)->{$item->{cmdid}} }
+        if $item->{cmdid};
     $item->{blok}    = C::Blok::_item($self, $blok)
         if $blok;
     

@@ -17,6 +17,18 @@ sub _item {
     my $item = $self->ToHtml(shift, 1);
     my $id = $item->{id};
     
+    $item->{field} = sub {
+        return $item->{_field} if $item->{_field};
+        $item->{_field} = $self->model('PreeditField')->get_value();
+        if ($item->{type} eq 'Ausweis') {
+            $item->{_field} = C::Ausweis::_item($self, $item->{_field});
+        }
+        else {
+            $item->{_field} = $self->ToHtml($item->{_field});
+        }
+        $item->{_field};
+    };
+    
     return $item;
 }
 
@@ -30,7 +42,9 @@ sub showitem {
     $self->view_select->subtemplate("preedit_showitem.tt");
     
     my $afterid = $self->req->param_dig('afterid');
-    my ($pre) = (($d->{pre}) = $self->model('Preedit')->search(
+    my ($pre) = (($d->{pre}) = 
+        map { _item($self, $_) } 
+        $self->model('Preedit')->search(
             { modered => 0, $afterid ? (id => { '>' => $afterid }) : () },
             { oreder_by => 'id', limit => 1 }
         ));
@@ -39,6 +53,10 @@ sub showitem {
     $pre || return;
     
     $d->{subtmpl_name} = "preedit_$d->{type}.tt";
+    $d->{field} = $pre->{field};
+    $d->{field_exists} = sub { exists $d->{field}->()->{$_[0]} };
+    
+    $d->{href_skipitem} = $self->href($::disp{PreeditShowItem})."?afterid=$pre->{id}";
     
     if ($pre->{tbl} eq 'Ausweis') {
         ($d->{rec}) = map { C::Ausweis::_item($self, $_) }

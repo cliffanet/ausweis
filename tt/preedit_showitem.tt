@@ -3,7 +3,24 @@
 [% IF pre.op == 'C' %]Создание[% ELSIF pre.op == 'E' %]Изменение[% ELSIF pre.op == 'D' %]Удаление[% END -%]
  [% IF type == 'ausweis' %]аусвайса[% END %]
 </h3>
+
+<table class="tbl">
+    <tr class="title">
+        <td></td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>Новое значение</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>Текущее значение</td>
+        [% END %]
+    </tr>
 [% INCLUDE $subtmpl_name %]
+    <tr>
+        <td class="submit" colspan="2">
+            <a href="[% href_skipitem %]">пропустить</a>
+        </td>
+    </tr>
+</table>
 
 [% ELSE # IF type %]
 <h3>Нет элементов для модерации</h3>
