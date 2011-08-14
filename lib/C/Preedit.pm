@@ -14,7 +14,7 @@ use Clib::Mould;
 sub _item {
     my $self = shift;
     
-    my $item = $self->ToHtml(shift, 1);
+    my $item = $self->ToHtml(shift, 1) || return;
     my $id = $item->{id};
     
     $item->{field} = sub {
