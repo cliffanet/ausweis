@@ -74,7 +74,7 @@ sub hnd_nick {
     my %id = $rec ? (id => { '!=' => $rec->{id}}) : ();
     
     my $item = $self->model('Ausweis')->search({ nick => $value, blocked => 0, cmdid => $self->d->{cmdid}, %id });
-    return $item ? 0 : 21;
+    return $item ? 21 : 0;
 }
 
 sub hnd_fio {
@@ -84,7 +84,7 @@ sub hnd_fio {
     my %id = $rec ? (id => { '!=' => $rec->{id}}) : ();
     
     my $item = $self->model('Ausweis')->search({ fio => $value, blocked => 0, cmdid => $self->d->{cmdid}, %id });
-    return $item ? 0 : 22;
+    return $item ? 22 : 0;
 }
 
 
