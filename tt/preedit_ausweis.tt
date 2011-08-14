@@ -1,7 +1,7 @@
 <table class="tbl">
     <tr class="title">
         <td></td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>Новое значение</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -11,7 +11,7 @@
 [% IF (pre.op == 'E') || (pre.op == 'D') %]
     <tr>
         <td class="ltitle">ШтрихКод:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -21,7 +21,7 @@
 [% END %]
     <tr>
         <td class="ltitle">Ник:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -30,7 +30,7 @@
     </tr>
     <tr>
         <td class="ltitle">Команда:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -41,7 +41,7 @@
     </tr>
     <tr>
         <td class="ltitle">Блок:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -52,7 +52,7 @@
     </tr>
     <tr>
         <td class="ltitle">Блокировка:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -61,7 +61,7 @@
     </tr>
     <tr>
         <td class="ltitle">ФИО:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -70,7 +70,7 @@
     </tr>
     <tr>
         <td class="ltitle">Группа крови:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -79,7 +79,7 @@
     </tr>
     <tr>
         <td class="ltitle">Аллергия:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -88,7 +88,7 @@
     </tr>
     <tr>
         <td class="ltitle">Непереносимость:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -97,7 +97,7 @@
     </tr>
     <tr>
         <td class="ltitle">Полис:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -106,7 +106,7 @@
     </tr>
     <tr>
         <td class="ltitle">Медик:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
@@ -115,7 +115,7 @@
     </tr>
     <tr>
         <td class="ltitle">Примечания:</td>
-        [% IF (pre.op == 'С') || (pre.op == 'У') %]
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td></td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
