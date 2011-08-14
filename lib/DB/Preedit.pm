@@ -95,7 +95,7 @@ sub add {
             } ,
             { 
                 join => 'field',
-                '+columns' => ['COUNT(*) as `cnt`'],
+                '+columns' => ['COUNT(`field`.`id`) as `cnt`'],
                 group_by => 'id',
             },
         );
