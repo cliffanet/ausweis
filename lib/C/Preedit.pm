@@ -29,6 +29,8 @@ sub _item {
         $item->{_field};
     };
     
+    $item->{href_file} = sub { $self->href($::disp{PreeditFile}, $item->{id}, shift) };
+    
     return $item;
 }
 

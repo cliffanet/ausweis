@@ -105,7 +105,7 @@
     <tr[% IF !field_exists('photo') %] class="grey"[% END %]>
         <td class="ltitle">Фото:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
-        <td>[% IF field_exists('photo') %]<img width="200" src="[% href_file('photo') %]" />[% END %]</td>
+        <td>[% IF field_exists('photo') %]<img width="200" src="[% pre.href_file('photo') %]" />[% END %]</td>
         [% END %]
         [% IF (pre.op == 'E') || (pre.op == 'D') %]
         <td align="center">
