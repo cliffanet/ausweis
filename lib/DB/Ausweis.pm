@@ -35,6 +35,7 @@ sub create {
     if (ref($new) eq 'HASH') {
         $new->{dtadd} ||= \ 'NOW()';
         $new->{numid} ||= $self->gen_numid || return;
+        $new->{regen} ||= (1<<($::regen{code}-1)) if $::regen{code};
     }
     
     return $self->SUPER::create($new);
