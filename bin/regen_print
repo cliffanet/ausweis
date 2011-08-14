@@ -86,6 +86,61 @@ while (my ($prn) = $self->model('Print')->search(
         $regen[$::regen{print_pdf}] = 0;
     } }
     
+    $self->log_prefix(sprintf("[party=%d]", $prn->{id}));
+    
+    # ZIP -архив с фото, штрих-кодами и списком с данными
+    if ($::regen{print_zip} && $regen[$::regen{print_zip}]) { {
+        if (!(-d "$dir/photo")) {
+            if (!mkdir("$dir/photo")) {
+                $self->error("Can't create dir '$dir/photo': $!");
+                last;
+            }
+        }
+        if (!(-d "$dir/code")) {
+            if (!mkdir("$dir/code")) {
+                $self->error("Can't create dir '$dir/code': $!");
+                last;
+            }
+        }
+        if (!(-d "$dir/logo")) {
+            if (!mkdir("$dir/logo")) {
+                $self->error("Can't create dir '$dir/logo': $!");
+                last;
+            }
+        }
+        
+        if (!open(FHC, ">$dir/print.csv")) {
+            
+        }
+        foreach my $aus ($self->model('Ausweis')->search(
+                { 'print.prnid' => $prn->{id} },
+                { prefetch => [qw/command blok print/], order_by => 'numid' },
+            )) {
+            $self->log_prefix(sprintf("[party=%d ausweis=%d/%d] nick \"%s\"", 
+                $prn->{id}, $aus->{id}, $aus->{numid}, $aus->{nick}));
+            my $photo = "photo/$aus->{numid}.jpg" if $aus->{photo};
+            my $logo = "logo/$aus->{numid}.jpg" if $aus->{command}->{logo};
+            my $code = "code/$aus->{numid}.jpg";
+            if ($photo) {
+                Func::CopyFile($self, Func::CachDir('ausweis', $aus->{id})."/photo.aus.jpg", "$dir/$photo")
+                    || ($photo='');
+            }
+            if ($code) {
+                Func::CopyFile($self, Func::CachDir('ausweis', $aus->{id})."/barcode.$aus->{numid}.orig.jpg", 
+                    "$dir/$code") || ($code='');
+            }
+            if ($logo) {
+                Func::CopyFile($self, Func::CachDir('command', $aus->{cmdid})."/logo.aus.jpg", "$dir/$logo")
+                    || ($logo='');
+            }
+            
+        }
+        close FHC;
+
+        #$self->model('Print')->regen_off($prn->{id}, $::regen{print_zip});
+        $regen[$::regen{print_zip}] = 0;
+    } }
+    
     # Убиваем непроверяемые флаги
     #my $n=0;
     #my @regenl;

@@ -171,6 +171,7 @@ sub regen {
 
     my $r_all = 0;
     $r_all |= 1 << ($::regen{print_pdf}-1) ;
+    $r_all |= 1 << ($::regen{print_zip}-1) ;
     #    foreach grep { $::regen{$_} } qw/photo print_img print_pdf/;    
     $self->model('Print')->update(
         { regen => int($rec->{regen})|int($r_all) },

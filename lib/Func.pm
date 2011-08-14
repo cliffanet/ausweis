@@ -61,23 +61,32 @@ sub ImgCopy {
     
     $src_file || return '0E0';
     
-    if (!(-f $src_file)) {
-        $self->error("file not found ($src_file)");
-        return;
-    }
-    
-    if (!open(FHI, $src_file)) {
-        $self->error("Can't read photo file($src_file): $!");
-        return;
-    }
-    
     my $ext = lc $1 if $src_file =~ /\.([a-zA-Z0-9]{1,5})$/;
     $ext ||= 'jpg';
     $name ||= '';
     my $file = "$name.orig.$ext";
     
-    if (!open(FHO, ">$dst_dir/$file")) {
-        $self->error("Can't copy photo (\-> $dst_dir/$file): $!");
+    CopyFile($self, $src_file, "$dst_dir/$file") || return;
+    
+    #$self->debug("Copy image $src_file \-> $dst_dir/$file");
+    
+    $file;
+}
+
+sub CopyFile {
+    my ($self, $src, $dst) = $_;
+    
+    if (!(-f $src)) {
+        $self->error("file not found ($src)");
+        return;
+    }
+    
+    if (!open(FHI, $src)) {
+        $self->error("Can't read photo file($src): $!");
+        return;
+    }
+    if (!open(FHO, ">$dst")) {
+        $self->error("Can't copy file ($src \-> $dst): $!");
         close FHI;
         return;
     }
@@ -86,9 +95,7 @@ sub ImgCopy {
     close FHO;
     close FHI;
     
-    #$self->debug("Copy image $src_file \-> $dst_dir/$file");
-    
-    $file;
+    1;
 }
 
 sub regen_stat {
