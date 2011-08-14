@@ -38,6 +38,8 @@ sub showitem {
     $d->{type} = $pre ? lc $pre->{tbl} : '';
     $pre || return;
     
+    $d->{subtmpl_name} = "preedit_$d->{type}.tt";
+    
     if ($pre->{tbl} eq 'Ausweis') {
         ($d->{rec}) = map { C::Ausweis::_item($self, $_) }
             $self->model('Ausweis')->search({ id => $pre->{recid} }, { prefetch => [qw/command blok/] });
