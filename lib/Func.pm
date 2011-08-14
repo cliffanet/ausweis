@@ -74,8 +74,9 @@ sub ImgCopy {
 }
 
 sub CopyFile {
-    my ($self, $src, $dst) = $_;
+    my ($self, $src, $dst) = @_;
     
+    $src || return;
     if (!(-f $src)) {
         $self->error("file not found ($src)");
         return;
