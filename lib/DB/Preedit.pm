@@ -90,7 +90,7 @@ sub add {
         }
         if (%f) {
             my $ret = $self->schema->model('PreeditField')->add($id, \%f) || return;
-            $count =+ $ret;
+            $count += $ret;
         }
     }
     

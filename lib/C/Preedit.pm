@@ -20,6 +20,29 @@ sub _item {
     return $item;
 }
 
+sub showitem {
+    my ($self) = @_;
+    
+    return unless $self->rights_exists_event($::rPreedit);
+    my $d = $self->d;
+    
+    $self->patt(TITLE => $text::titles{"preedit_showitem"});
+    $self->view_select->subtemplate("preedit_showitem.tt");
+    
+    my $afterid = $self->req->param_dig('afterid');
+    my ($pre) = (($d->{pre}) = $self->model('Preedit')->search(
+            { modered => 0, $afterid ? (id => { '>' => $afterid }) : () },
+            { oreder_by => 'id', limit => 1 }
+        ));
+    
+    $d->{type} = $pre ? lc $pre->{tbl} : '';
+    $pre || return;
+    
+    if ($pre->{tbl} eq 'Ausweis') {
+        ($d->{rec}) = map { C::Ausweis::_item($self, $_) }
+            $self->model('Ausweis')->search({ id => $pre->{recid} }, { prefetch => [qw/command blok/] });
+    }
+}
 
 sub file {
     my ($self, $eid, $field) = @_;

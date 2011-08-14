@@ -57,6 +57,7 @@ __PACKAGE__->config(
         $::disp{PrintAusweisAdd}        => 'C::Print::ausweis_add',
         $::disp{PrintAusweisDel}        => 'C::Print::ausweis_del',
         
+        $::disp{PreeditShowItem}        => 'C::Preedit::showitem',
         $::disp{PreeditFile}            => 'C::Preedit::file',
     },
     
@@ -134,6 +135,9 @@ sub http_accept {
         prn     => {
             href_list   => $self->href($::disp{PrintList}),
             href_add    => $self->href($::disp{PrintAdd}),
+        },
+        preedit     => {
+            href_showitem=>$self->href($::disp{PreeditShowItem}),
         },
     );
     
