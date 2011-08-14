@@ -209,8 +209,7 @@ sub show {
             exists      => exists($d->{_preedit_field}->{$param}),
             value       => sub { $d->{_preedit_field}->{$param}->{value} },
             href_file   => sub { $self->href($::disp{PreeditFile}, 
-                $d->{_preedit_field}->{$param}->{eid},
-                $d->{_preedit_field}->{$param}->{value}) },
+                $d->{_preedit_field}->{$param}->{eid}, $param) },
         };
     };
 }
