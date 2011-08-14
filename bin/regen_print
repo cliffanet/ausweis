@@ -19,6 +19,8 @@ use Func;
 use Img;
 use Pdf;
 
+use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
+
 require "$::pathRoot/conf/defines.conf";
 
 # ×òîáû warnings íå ğóãàëñÿ
@@ -110,11 +112,12 @@ while (my ($prn) = $self->model('Print')->search(
         }
         
         if (!open(FHC, ">$dir/print.csv")) {
-            print FHC join(';', map { "\"$_\"" }
-                qw/id ÊÎÄ Ïàğòèÿ Çàáëîêèğîâàí ÔÈÎ Ïîçûâíîé Êîìàíäà
+            $self->error("Can't create file '$dir/print.csv': $!");
+        }
+        print FHC join(';', map { "\"$_\"" }
+            qw/id ÊÎÄ Ïàğòèÿ Çàáëîêèğîâàí ÔÈÎ Ïîçûâíîé Êîìàíäà
                     ÃğóïïàÊğîâè Àëëåğãèÿ Íåïåğåíîñèìîñòü Ïîëèñ Ìåäèê
                     Áëîê Êîììåíòàğèè Ôîòî ØÊ Ëîãî/)."\n";
-        }
         foreach my $aus ($self->model('Ausweis')->search(
                 { 'print.prnid' => $prn->{id} },
                 { prefetch => [qw/command blok print/], order_by => 'numid' },
@@ -145,6 +148,17 @@ while (my ($prn) = $self->model('Print')->search(
                 )."\n";
         }
         close FHC;
+        
+        my $zip = Archive::Zip->new();
+        chdir $dir;
+        $zip->addDirectory( 'photo/' );
+        $zip->addDirectory( 'code/' );
+        $zip->addDirectory( 'logo/' );
+        $zip->addFile( 'print.csv' );
+        if ($zip->writeToFileNamed('print.zip') != AZ_OK) {
+            $self->error("Can't create ZIP 'print.zip': $!");
+            last;
+        }
 
         #$self->model('Print')->regen_off($prn->{id}, $::regen{print_zip});
         $regen[$::regen{print_zip}] = 0;
