@@ -36,6 +36,7 @@ __PACKAGE__->config(
         $::disp{CommandAdding}          => 'C::Command::adding',
         $::disp{CommandAdd}             => 'C::Command::set',
         $::disp{CommandSet}             => 'C::Command::set',
+        $::disp{CommandLogo}            => 'C::Command::logo',
         $::disp{CommandDel}             => 'C::Command::del',
 
         $::disp{AusweisList}            => 'C::Ausweis::list',

@@ -161,6 +161,7 @@ sub show {
     $self->view_select->subtemplate("command_$type.tt");
     
     $d->{href_set} = $self->href($::disp{CommandSet}, $cmdid);
+    $d->{href_logo}= $self->href($::disp{CommandLogo}, $cmdid);
     
     $d->{sort}->{href_template} = sub {
         my $sort = shift;
@@ -362,6 +363,46 @@ sub set {
     # Статус с редиректом
     return $self->state($is_new ? 980100 : 980200,  $self->href($::disp{CommandShow}, $id, 'info') );
 }
+
+
+sub logo {
+    my ($self, $id) = @_;
+    
+    my $dirUpload = Func::SetTmpDir($self)
+        || return !$self->state(-900101, '');
+    
+    return unless $self->rights_exists_event($::rCommandLogo);
+    if (!$id || !$self->user->{cmdid} || ($self->user->{cmdid} != $id)) {
+        return unless $self->rights_check_event($::rCommandLogo, $::rAll);
+    }
+    
+    # Кэшируем заранее данные
+    my ($rec) = (($self->d->{rec}) = $self->model('Command')->search({ id => $id }));
+    if (!$rec || !$rec->{id}) {
+        return $self->state(-000105, '');
+    }
+    
+    # Загрузка логотипа
+    my $file = $self->req->param("photo") 
+        || return $self->state(-000101, '');
+        
+        Func::MakeCachDir('command', $id)
+            || return $self->state(-900102, '');
+        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('command', $id), 'logo')
+            || return $self->state(-900102, '');
+        $self->model('Command')->update(
+            { 
+                regen   => (1<<($::regen{logo}-1)),
+                photo   => $photo,
+            },
+            { id => $id }
+        ) || return $self->state(-000104, '');
+        unlink("$dirUpload/$file");
+    
+    # Статус с редиректом
+    return $self->state(980200, $self->href($::disp{CommandShow}, $id, 'info'));
+}
+
 
 sub del {
     my ($self, $id) = @_;

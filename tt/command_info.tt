@@ -17,6 +17,16 @@
     </tr>
 [% END %]
     <tr>
+        <td class="ltitle">Перезагрузить логотип:</td>
+        <td>
+            <form action="[% href_set %]" method="POST" enctype="multipart/form-data"></td>
+            <input type="file" name="photo" class="stdin" />
+            <input type="submit" value=" Загрузить " />
+            </form>
+            <small>Логотип буден виден через несколько минут после загрузки</small>
+        </td>
+    </tr>
+    <tr>
         <td class="submit" colspan="2">
             <a href="[% rec.href_edit %]">изменить</a>
         </td>
