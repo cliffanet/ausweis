@@ -21,7 +21,7 @@
         <td class="ltitle">Перезагрузить логотип:</td>
         <td>
             <input type="file" name="photo" class="stdin" />
-            <input type="submit" value=" Загрузить " />
+            <input type="submit" value=" Загрузить " /><br />
             <small>Логотип буден виден через несколько минут после загрузки</small>
         </td>
     </tr>
