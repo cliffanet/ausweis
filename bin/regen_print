@@ -151,10 +151,10 @@ while (my ($prn) = $self->model('Print')->search(
         
         my $zip = Archive::Zip->new();
         chdir $dir;
-        $zip->addTree( 'photo', '');
-        $zip->addTree( 'code', '');
-        $zip->addTree( 'logo', '');
-        $zip->addFile( 'print.csv' );
+        $zip->addTree('photo', 'photo');
+        $zip->addTree('code', 'code');
+        $zip->addTree('logo', 'logo');
+        $zip->addFile('print.csv');
         if ($zip->writeToFileNamed('print.zip') != AZ_OK) {
             $self->error("Can't create ZIP 'print.zip': $!");
             last;
