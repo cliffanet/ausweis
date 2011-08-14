@@ -345,7 +345,11 @@ sub set {
         $fdata->{numid} = $self->model('Ausweis')->gen_numid;
     }
     
+    my %files;
     if ($preedit) {
+        if (my $file = $self->req->param("photo")) {
+            %files = (files => { photo => $file });
+        }
     } else {
         # Сохраняем данные
         my $ret = $self->ParamSave(
@@ -362,7 +366,7 @@ sub set {
             return $is_new ? adding($self) : edit($self, $id);
         }
     
-        # Загрузка логотипа
+        # Загрузка фото
         if (my $file = $self->req->param("photo")) {
             Func::MakeCachDir('ausweis', $id)
                 || return $self->state(-900102, '');
@@ -387,6 +391,7 @@ sub set {
         modered => $preedit ? 0 : 1,
         fields  => $fdata,
         old     => $rec,
+        %files
     ) || return $self->state(-000104, '');
     return $self->state(-000106, '') if $ret == 0;
     

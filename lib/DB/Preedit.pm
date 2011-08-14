@@ -40,6 +40,7 @@ sub add {
     my $op      = $args{op} || return;
     my $fields  = delete($args{fields}) || delete($args{field});
     my $old     = delete($args{old}) || delete($args{fields_old}) || delete($args{field_old});
+    my $files   = delete($args{files}) || delete($args{file});
     
     # Проверка списка изменяемых полей
     if (($op eq 'C') || ($op eq 'D')) {
@@ -58,7 +59,7 @@ sub add {
             next if defined($o) && ($o eq $value);
             push @fields, $f;
         }
-        return '0E0' if !@fields;
+        return '0E0' if !@fields && !$files && !%$files;
     }
     
     # Создание точки изменения
@@ -71,6 +72,25 @@ sub add {
     if ($fields) {
         my $ret = $self->schema->model('PreeditField')->add($id, $fields, $old) || return;
         $count = $ret;
+    }
+    
+    # загрузка файлов
+    if ($files && (my $dirUpload = Func::SetTmpDir($self->r))) {
+        my %f;
+        foreach my $f (keys %$files) {
+            my $file = $files->{$f};
+            Func::MakeCachDir('preedit', $id) || next;
+            my $name = lc $1 if $file =~ /^(.+)\.([a-zA-Z0-9]{1,5})$/;
+            $name || next;
+            my $file1 = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('preedit', $id), 'photo')
+                || next;
+            unlink("$dirUpload/$file");
+            $f{$f} = $file1;
+        }
+        if (%f) {
+            my $ret = $self->schema->model('PreeditField')->add($id, \%f) || return;
+            $count =+ $ret;
+        }
     }
     
     # Удаяем предыдущие неотмодерированные одноименные поля
