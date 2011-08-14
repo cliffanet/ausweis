@@ -110,7 +110,10 @@ while (my ($prn) = $self->model('Print')->search(
         }
         
         if (!open(FHC, ">$dir/print.csv")) {
-            
+            print FHC join(';', map { "\"$_\"" }
+                qw/id КОД Партия Заблокирован ФИО Позывной Команда
+                    ГруппаКрови Аллергия Непереносимость Полис Медик
+                    Блок Комментарии Фото ШК Лого/)."\n";
         }
         foreach my $aus ($self->model('Ausweis')->search(
                 { 'print.prnid' => $prn->{id} },
@@ -134,6 +137,12 @@ while (my ($prn) = $self->model('Print')->search(
                     || ($logo='');
             }
             
+            print FHC join(';', map { "\"$_\"" }
+                    $aus->{id}, $aus->{numid}, $prn->{id}, $aus->{blocked},
+                    $aus->{fio}, $aus->{nick}, $aus->{command}->{name},
+                    $aus->{krov}, $aus->{allerg}, $aus->{neperenos}, $aus->{polis}, $aus->{medik},
+                    $aus->{block}->{name}, $aus->{comment}, $photo, $code, $logo
+                )."\n";
         }
         close FHC;
 
