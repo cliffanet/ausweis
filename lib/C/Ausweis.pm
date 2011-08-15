@@ -222,10 +222,11 @@ sub edit {
     show($self, $id, 'edit');
     
     my $d = $self->d;    
-    my $rec = $d->{rec};
+    my $rec = $d->{rec} || return;
     $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
     if ($self->req->params()) {
         my $fdata = $self->ParamData;
+        $fdata || return;
         $d->{form}->{$_} = $self->ToHtml($fdata->{$_}) foreach keys %$fdata;
     }
 }

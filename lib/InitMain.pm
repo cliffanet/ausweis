@@ -61,6 +61,13 @@ __PACKAGE__->config(
         $::disp{PreeditShowItem}        => 'C::Preedit::showitem',
         $::disp{PreeditFile}            => 'C::Preedit::file',
         $::disp{PreeditOp}              => 'C::Preedit::op',
+        
+        $::disp{EventList}              => 'C::Event::list',
+        $::disp{EventShow}              => 'C::Event::show',
+        $::disp{EventAdding}            => 'C::Event::adding',
+        $::disp{EventAdd}               => 'C::Event::set',
+        $::disp{EventSet}               => 'C::Event::set',
+        $::disp{EventDel}               => 'C::Event::del',
     },
     
     plugins => [qw/ScriptTime
@@ -140,6 +147,10 @@ sub http_accept {
         },
         preedit     => {
             href_showitem=>$self->href($::disp{PreeditShowItem}),
+        },
+        event     => {
+            href_list   => $self->href($::disp{EventList}),
+            href_add    => $self->href($::disp{EventAdd}),
         },
     );
     
