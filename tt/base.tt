@@ -14,7 +14,7 @@
         function $(id) { return document.getElementById(id); }
         function pageOnLoad() {
         [% IF aus.allow_list %]
-            $(NumidNick).focus();
+            //$(NumidNick).focus();
             $(NumidNick).value="test";
         [% END %]    
         }
