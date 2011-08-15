@@ -133,30 +133,31 @@ while (my ($aus) = $self->model('Ausweis')->search(
     
     # Øòğèõêîä
     if ($::regen{code} && $regen[$::regen{code}] && $aus->{numid}) { {
-        my $file = "$dir/barcode.$aus->{numid}.orig.png";
-        if (!open(FH, ">$file")) {
-            $self->error("Can't create file '$file': $!");
-            last;
-        }
-        print FH GD::Barcode->new('COOP2of5', $aus->{numid})->plot->png;
-        close FH;
-        
-        my $img = Image::Magick->new();
-        if (!$img) {
-            $self->error("Image::Magick->new Error");
-            last;
-        }
-        if (my $error = $img->Read($file)) {
-            $self->error("Image::Magick->Read($file): $error");
-            last;
-        }
-        if (my $error = $img->Write(
-                filename => "$dir/barcode.$aus->{numid}.orig.jpg",
-                compression => 'JPEG',
-                quality => 100)) {
-            $self->error("Image::Magick->Write: $error");
-            last;
-        }
+        my $file = "$dir/barcode.$aus->{numid}.orig.jpg";
+        Pdf::GenNumId($self, $aus->{numid}, $file);
+        #if (!open(FH, ">$file")) {
+        #    $self->error("Can't create file '$file': $!");
+        #    last;
+        #}
+        #print FH GD::Barcode->new('COOP2of5', $aus->{numid})->plot->png;
+        #close FH;
+        #
+        #my $img = Image::Magick->new();
+        #if (!$img) {
+        #    $self->error("Image::Magick->new Error");
+        #    last;
+        #}
+        #if (my $error = $img->Read($file)) {
+        #    $self->error("Image::Magick->Read($file): $error");
+        #    last;
+        #}
+        #if (my $error = $img->Write(
+        #        filename => "$dir/barcode.$aus->{numid}.orig.jpg",
+        #        compression => 'JPEG',
+        #        quality => 100)) {
+        #    $self->error("Image::Magick->Write: $error");
+        #    last;
+        #}
         
         $self->model('Ausweis')->regen_off($aus->{id}, $::regen{code});
         $regen[$::regen{code}] = 0;

@@ -174,6 +174,69 @@ sub Ausweis {
 
 
 
+##################################################################
+######
+######  Генерация штрихкода - через PDF - в изображение через Image::Magick
+######
+
+sub GenNumId {
+    my ($self, $numid, $file) = @_;
+    
+    $file || return;
+    my ($dir, $filename) = ($1, $2) if $file =~ /^(.+\/)([^\\\/]+)$/;
+    
+    my $pdf_file = "$dir/tmp.$numid.pdf";
+    my $pdf = eval { PDF::API2->new(-file => $pdf_file) };
+    if (!$pdf) {
+        $self->error("Can't create PDF-file: $@");
+        return;
+    }
+    $pdf->mediabox(595,842);
+    my $page = $pdf->page;
+    
+    my $gfx = $page->gfx;
+    my $fnt = $pdf->ttfont("$::font_dir/arial.ttf", -encode=>'cp1251'); 
+    my $bc =  $pdf->xo_code128(
+        -font   => $fnt,    # the font to use for text
+        #-ean => 1,
+        -type   => 'b',    # the type of barcode
+        -code   => $numid, # the code of the barcode
+    #    -extn   => '012345',    # the extension of the barcode
+        -umzn   => 10,         # (u)pper (m)ending (z)o(n)e -  высота штриха
+    #    -lmzn   => 10,         # (l)ower (m)ending (z)o(n)e -  высота теста, если нужен текст
+        -zone   => 100,         # height (zone) of bars,
+    #    -quzn   => 10,         # (qu)iet (z)o(n)e - горизонтальные поля
+        -ofwt   => 0.001,       # (o)ver(f)low (w)id(t)h
+        #-fnsz   => 5,          # (f)o(n)t(s)i(z)e
+        #-text   => 'alternative text'
+    );
+    my $fi = $gfx->formimage($bc, 0, 0, 1);
+    
+    $pdf->save;
+    $pdf->end( );
+    undef $pdf;
+    $self->log("Gen NUMID[$numid]-pdf OK");
+    
+    my $img = Image::Magick->new();
+    my $error;
+    if ($error = $img->Read($pdf_file)) {
+        $self->error("Image::Magick->Read: $error");
+        return;
+    }
+    if ($error = $img->Crop(x=>0,y=>0, width=>500, height=>100)) {
+        $self->error("Image::Magick->Crop: $error");
+        return;
+    }
+    if ($error = $img->Write("$dir/$filename")) {
+        $self->error("Image::Magick->Write: $error");
+        return;
+    }
+    undef $img;
+    unlink $pdf_file;
+    $self->log("Gen NUMID[$numid]-jpg($file) OK");
+    return $numid;
+}
+
 
 ####################################################
 
