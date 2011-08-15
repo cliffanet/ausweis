@@ -126,6 +126,7 @@ sub dt_date {
     my ($dt) = @_;
     $dt ||= '';
     if ($dt =~ /^(\d{4})-(\d+)-(\d+)/) {
+        return '' if !$1 && !$2 && !$3;
         return sprintf("%d.%s.%s", $3, $2, $1);
     }
     $dt;
@@ -134,6 +135,8 @@ sub dt_datetime {
     my ($dt) = @_;
     $dt ||= '';
     if ($dt =~ /^(\d{4})-(\d+)-(\d+)\s+(\d+):(\d+)/) {
+        return '' if !$1 && !$2 && !$3 && !$4 && !$5;
+        return sprintf("%d:%s", $4, $5) if !$1 && !$2 && !$3;
         return sprintf("%d.%s.%s %d:%s", $3, $2, $1, $4, $5);
     }
     $dt;
