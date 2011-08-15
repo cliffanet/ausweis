@@ -121,7 +121,7 @@
     <script type="text/javascript"> 
     <!--
             //$(NumidNick).focus();
-            $(NumidNick).value="test";
+            $('NumidNick').value="test";
     //-->
     </script>
 [% END %]
