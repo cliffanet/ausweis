@@ -18,6 +18,6 @@
     </td></tr>
 [% END %]
     <tr><td colspan="4" class="submit">
-        <a href="[% event.href_add %]">добавить</a>
+        <a href="[% event.href_adding %]">добавить</a>
     </td></tr>
 </table>

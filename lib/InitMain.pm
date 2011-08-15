@@ -150,7 +150,7 @@ sub http_accept {
         },
         event     => {
             href_list   => $self->href($::disp{EventList}),
-            href_add    => $self->href($::disp{EventAdd}),
+            href_adding => $self->href($::disp{EventAdding}),
         },
     );
     
