@@ -7,12 +7,12 @@
 [% ELSE %]
 <span style="color:red; text-weight:bold;">[тнрн мер]</span>
 [% END %]
-    <br /><br />
+    <br /><!-- br />
 [% IF rec.command.photo %]
 <img width="200" alt="[% rec.command.name %]" title="[% rec.command.name %]" src="[% rec.command.href_file('logo.site.jpg') %]" />
 [% ELSE %]
 <span style="color:red; text-weight:bold;">[щлакелш мер]</span>
-[% END %]
+[% END %] -->
         </td>
         <td class="ltitle">ьРПХУйНД:</td>
         <td><b>[% rec.numid %]</b></td>

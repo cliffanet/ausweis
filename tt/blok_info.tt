@@ -1,6 +1,14 @@
 <h3>Блок</h3>
 <table class="tbl">
     <tr>
+        <td rowspan="3" style="border:0; width:200px">
+[% IF rec.photo %]
+<img width="300" alt="[% rec.name %]" title="[% rec.name %]" src="[% rec.href_file('logo.site.jpg') %]" />
+<br />
+[% ELSE %]
+<div style="color:red; text-weight:bold;">НЕТ</div>
+[% END %]
+        </td>
         <td class="ltitle">Название:</td>
         <td>[% rec.name %]</td>
     </tr>
@@ -43,13 +51,4 @@
 </table>
 
 
-<br />
-
-<h3>Эмблема</h3>
-[% IF rec.photo %]
-<img width="300" alt="[% rec.name %]" title="[% rec.name %]" src="[% rec.href_file('logo.site.jpg') %]" />
-<br />
-[% ELSE %]
-<div style="color:red; text-weight:bold;">НЕТ</div>
-[% END %]
 
