@@ -183,7 +183,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
         
         $img = Img::Ausweis($self, $aus, 'rear');
         if ($img) {
-            if (my $error = $img->Write("$dir/print.rear.jpg")) {
+            if (my $error = $img->Write(filename => "$dir/print.rear.jpg", quality => 100)) {
                 $self->error("ImageMagick::Write: $error");
             } else {
                 $self->log("Gen print_img OK");

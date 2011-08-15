@@ -227,7 +227,7 @@ sub GenNumId {
         $self->error("Image::Magick->Crop: $error");
         return;
     }
-    if ($error = $img->Write("$dir/$filename")) {
+    if ($error = $img->Write(filename => "$dir/$filename", quality => 100)) {
         $self->error("Image::Magick->Write: $error");
         return;
     }
