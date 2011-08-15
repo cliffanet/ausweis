@@ -8,7 +8,7 @@
     <tr>
         <td class="ltitle">Дата проведения:[% INCLUDE form_error_param.tt  p='date' %]</td>
         <td>
-            <input type="text" class="stdin" name="date" id="cal_date" value="[% rec.date %]" 
+            <input type="text" class="stdin" name="date" id="cal_date" value="[% form.date %]" 
                 onfocus="this.blur()" readonly style="width:160px;" />
             <a href="javascript:void(0)" 
                 onclick="if(self.gfPop)gfPop.fPopCalendar($('cal_date'));return false;" 
