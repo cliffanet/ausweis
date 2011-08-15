@@ -1,0 +1,41 @@
+<form action="[% href_add %]" method="POST">
+<h3>Мероприятие</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:    [% INCLUDE form_error_param.tt  p='name' %]</td>
+        <td><input type="text" name="name" class="stdin" value="[% form.name %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Дата проведения:[% INCLUDE form_error_param.tt  p='date' %]</td>
+        <td>
+            <input type="text" class="stdin" name="date" id="cal_date" value="[% rec.date %]" 
+                onfocus="this.blur()" readonly style="width:160px;" />
+            <a href="javascript:void(0)" 
+                onclick="if(self.gfPop)gfPop.fPopCalendar($('cal_date'));return false;" 
+                ><img class="PopcalTrigger" align="absmiddle" src="/cal_pop/DateRange/calbtn.gif" 
+                    width="34" height="22" border="0" alt="" 
+                    /></a>
+        </td>
+    </tr>
+    
+<tr>
+    <td class="submit" colspan="2">
+        <input type="submit" value="Добавить">
+        <input type="button" value="Отмена" onClick="history.go(-1)">
+    </td>
+</tr>
+</table>
+</form>
+
+
+
+    <!--  PopCalendar(tag name and id must match) Tags should not be enclosed in tags other than the html body tag. -->
+    <iframe 
+        width=132 height=142 
+        name="gToday:report_period:agenda.js" 
+        id="gToday:report_period:agenda.js" 
+        src="/cal_pop/DateRange/ipopeng.htm" 
+        scrolling="no" frameborder="0" 
+        style="visibility:visible; z-index:999; position:absolute; top:-500px; left:-500px;"
+        >
+    </iframe>

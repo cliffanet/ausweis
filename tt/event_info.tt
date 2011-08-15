@@ -1,0 +1,21 @@
+<h3>Мероприятие</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:</td>
+        <td><b><big>[% rec.name %]</big></b></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Дата проведения:</td>
+        <td>[% date(rec.date) %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Статус:</td>
+        <td>[% rec.status_name %]</td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+            <a href="[% rec.href_edit %]">изменить</a>
+        </td>
+    </tr>
+</table>
+

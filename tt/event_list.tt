@@ -1,0 +1,23 @@
+<table class="tbl">
+    <tr class="title">
+        <td width="100">Дата</td>
+        <td width="250">Статус</td>
+        <td>Название</td>
+    </tr>
+[% IF list.size > 0 %]
+[% FOREACH list %]
+    <tr>
+        <td align="right"><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% d.date(date) %]</a></td>
+        <td align="right"><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% status_name %]</a></td>
+        <td align="right"><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% name %]</a></td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+        ничего не найдено
+    </td></tr>
+[% END %]
+    <tr><td colspan="4" class="submit">
+        <a href="[% event.href_add %]">добавить</a>
+    </td></tr>
+</table>
