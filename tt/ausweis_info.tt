@@ -19,7 +19,7 @@
     </tr>
     <tr>
         <td class="ltitle">Ник:</td>
-        <td>[% rec.nick %][% INCLUDE preedit_field.tt field='nick' %]</td>
+        <td><b><big>[% rec.nick %]</big></b>[% INCLUDE preedit_field.tt field='nick' %]</td>
     </tr>
     <tr>
         <td class="ltitle">Команда:</td>

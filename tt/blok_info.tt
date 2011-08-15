@@ -10,7 +10,7 @@
 [% END %]
         </td>
         <td class="ltitle">Название:</td>
-        <td>[% rec.name %]</td>
+        <td><b><big>[% rec.name %]</big></b></td>
     </tr>
 [% IF rec.regen > 0 %]
     <tr>
