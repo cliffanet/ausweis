@@ -120,8 +120,7 @@
 </form>
     <script type="text/javascript"> 
     <!--
-            //$(NumidNick).focus();
-            $('NumidNick').value="test";
+            $('NumidNick').focus();
     //-->
     </script>
 [% END %]
