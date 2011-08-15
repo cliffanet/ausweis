@@ -213,6 +213,18 @@ sub show {
             })
         ];
     };
+    
+    $d->{allow_event} = $self->rights_exists($::rEvent);
+    $d->{event_list} = sub {
+        $d->{_event_list} ||= [
+            map { C::Event::_item($self, $_) }
+            $self->model('Event')->search({
+                status  => 'O',
+            }, {
+                order_by => [qw/date id/],
+            })
+        ];
+    };
 }
 
 sub show_my {

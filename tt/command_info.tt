@@ -119,4 +119,29 @@
 </form>
 [% END # print_open %]
 
+[% IF allow_event %]
+[% FOREACH event_list %]
+<br />
+<h3>Мероприятие: [% name %]</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Вносов сдано:</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Сумма с игрока:</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Комментарии:</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+            <a href="">изменить</a>
+        </td>
+    </tr>
+</table>
+[% END %]
+[% END # IF allow_event %]
 
