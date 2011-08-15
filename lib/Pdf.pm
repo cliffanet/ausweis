@@ -223,10 +223,10 @@ sub GenNumId {
         $self->error("Image::Magick->Read: $error");
         return;
     }
-    if ($error = $img->Crop(x=>0,y=>0, width=>500, height=>100)) {
-        $self->error("Image::Magick->Crop: $error");
-        return;
-    }
+    #if ($error = $img->Crop(x=>0,y=>0, width=>500, height=>100)) {
+    #    $self->error("Image::Magick->Crop: $error");
+    #    return;
+    #}
     if ($error = $img->Write("$dir/$filename")) {
         $self->error("Image::Magick->Write: $error");
         return;
