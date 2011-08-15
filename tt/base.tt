@@ -9,7 +9,17 @@
         <link rel="stylesheet" type="text/css" href="http://airsoftclub.ru/css/styles_ie.css" />
 <![endif]-->
     <title>Airsoftclub.ru страйкбол :: [% IF IS_DEVEL %] [DEVELOPER][% END %]: АУСВАЙСЫ :: [% TITLE %]</title>
-<body>
+    <script type="text/javascript"> 
+    <!--
+        function $(id) { return document.getElementById(id); }
+        function pageOnLoad() {
+        [% IF aus.allow_list %]
+            $(NumidNick).focus();
+        [% END %]    
+        }
+    //-->
+    </script> 
+<body onLoad="pageOnLoad();">
 
 
 <table width="100%" height="100%" cellspacing="0" cellpadding="0">
@@ -108,7 +118,7 @@
 <br />
 Поиск по номеру/нику: <br />
 <form action="[% aus.href_list %]" method="GET">
-    <input type="text" name="numidnick" value="[% aus.srch_num %]" style="width: 100px" tabindex="1" />
+    <input type="text" name="numidnick" value="[% aus.srch_num %]" style="width: 100px" tabindex="1" id="NumidNick" />
     <input type="submit" value="Искать" style="width: 70px" />
 </form>
 [% END %]
