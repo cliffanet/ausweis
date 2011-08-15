@@ -1,6 +1,19 @@
 <h3>Аусвайс</h3>
 <table class="tbl">
     <tr>
+        <td rowspan="15" style="border:0; width:200px">
+[% IF rec.photo %]
+<img width="200" alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_file('photo.site.jpg') %]" />
+[% ELSE %]
+<span style="color:red; text-weight:bold;">[ФОТО НЕТ]</span>
+[% END %]
+    <br /><br />
+[% IF rec.command.photo %]
+<img width="200" alt="[% rec.command.name %]" title="[% rec.command.name %]" src="[% rec.command.href_file('logo.site.jpg') %]" />
+[% ELSE %]
+<span style="color:red; text-weight:bold;">[ЭМБЛЕМЫ НЕТ]</span>
+[% END %]
+        </td>
         <td class="ltitle">ШтрихКод:</td>
         <td><b>[% rec.numid %]</b></td>
     </tr>
@@ -80,28 +93,6 @@
             <a href="[% rec.href_edit %]">изменить</a>
         </td>
     </tr>
-</table>
-
-<br />
-
-<h3>Фото / эмблема</h3>
-<table class="frame" width="100%">
-<tr>
-    <td width="50%" align="center">
-[% IF rec.photo %]
-<img width="200" alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_file('photo.site.jpg') %]" />
-[% ELSE %]
-<span style="color:red; text-weight:bold;">[ФОТО НЕТ]</span>
-[% END %]
-    </td>
-    <td width="50%" align="center">
-[% IF rec.command.photo %]
-<img width="200" alt="[% rec.command.name %]" title="[% rec.command.name %]" src="[% rec.command.href_file('logo.site.jpg') %]" />
-[% ELSE %]
-<span style="color:red; text-weight:bold;">[ЭМБЛЕМЫ НЕТ]</span>
-[% END %]
-    </td>
-</tr>
 </table>
 
 [% IF preedit_field('photo').exists %]
