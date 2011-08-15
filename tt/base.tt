@@ -108,7 +108,7 @@
 <br />
 Поиск по номеру/нику: <br />
 <form action="[% aus.href_list %]" method="GET">
-    <input type="text" name="numidnick" value="[% aus.srch_num %]" style="width: 100px" />
+    <input type="text" name="numidnick" value="[% aus.srch_num %]" style="width: 100px" tabindex="0" />
     <input type="submit" value="Искать" style="width: 70px" />
 </form>
 [% END %]
