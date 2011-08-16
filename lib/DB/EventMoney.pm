@@ -41,7 +41,7 @@ sub summ_add {
     
     my ($m) = $self->search({ evid => $evid, cmdid => $cmdid });
     return $m ?
-        $self->update({ summ = $m->{summ}+$summ }, { id => $m->{id} }) :
+        $self->update({ summ => $m->{summ}+$summ }, { id => $m->{id} }) :
         $self->create({ evid => $evid, cmdid => $cmdid, summ => $summ });
 }
 
