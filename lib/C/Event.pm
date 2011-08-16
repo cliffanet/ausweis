@@ -190,9 +190,9 @@ sub del {
     
     my $item;
     ($item) = $self->model('EventAusweis')->search({ evid => $id }, { limit => 1 });
-    return $self->state(-940301) if $item;
+    return $self->state(-940301, '') if $item;
     ($item) = $self->model('EventMoney')->search({ evid => $id }, { limit => 1 });
-    return $self->state(-940301) if $item;
+    return $self->state(-940301, '') if $item;
     
     $self->model('Event')->delete({ id => $id })
         || return $self->state(-000104, '');
