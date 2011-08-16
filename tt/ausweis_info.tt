@@ -190,6 +190,12 @@
     </td>
 </tr>
 </form>
+[% ELSE %]
+    <tr>
+        <tr><td colspan="2" style="text-align: center; color:red; font-weight:yellow;">
+            йоо ме опнундхк
+        </td></tr>
+    </tr>
 [% END %]
 </table>
 [% IF allow_event_write %]
