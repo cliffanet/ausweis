@@ -123,6 +123,7 @@
 [% FOREACH event_list %]
 <br />
 <h3>Мероприятие: [% name %]</h3>
+<div id="event_[% id %]_info">
 <table class="tbl">
     <tr>
         <td class="ltitle">Вносов сдано:</td>
@@ -138,10 +139,34 @@
     </tr>
     <tr>
         <td class="submit" colspan="2">
-            <a href="">изменить</a>
+            <a href="javascript:void();" 
+                onClick="$('event_[% id %]_info').style.display='none';$('event_[% id %]_edit').style.display='';"
+                >изменить</a>
         </td>
     </tr>
 </table>
+</div>
+<div id="event_[% id %]_edit" style="display: none">
+<form action="[% href_event_set %]" method="post">
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Вносов сдано:</td>
+        <td><input type="text" name="summ" class="stdin" value="" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Сумма с игрока:</td>
+        <td><input type="text" name="price" class="stdin" value="" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Комментарии:</td>
+        <td><input type="text" name="comment" class="stdin" value="" /></td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2"><input type="submit" value=" Сохранить " /></td>
+    </tr>
+</table>
+</form>
+</div>
 [% END %]
 [% END # IF allow_event %]
 
