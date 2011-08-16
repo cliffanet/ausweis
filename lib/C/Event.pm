@@ -192,7 +192,7 @@ sub money_set {
     my %m;
     $m{summ}    = $q->param_float('summ')       if defined $q->param('summ');
     $m{price}   = $q->param_float('price')      if defined $q->param('price');
-    $m{comment} = $q->param_float('comment')    if defined $q->param('comment');
+    $m{comment} = $q->param_str('comment')      if defined $q->param('comment');
     
     $self->model('EventMoney')->set($id, $cmdid, \%m)
         || return $self->state(-000104, '');
