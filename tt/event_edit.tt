@@ -26,6 +26,10 @@
             </select>
         </td>
     </tr>
+    <tr>
+        <td class="ltitle">Цена с участника:[% INCLUDE form_error_param.tt  p='price' %]</td>
+        <td><input type="text" name="price" class="stdin" value="[% form.price %]" /></td>
+    </tr>
 <tr>
     <td class="submit" colspan="2">
         <input type="submit" value="Сохранить">

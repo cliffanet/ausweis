@@ -12,6 +12,7 @@ __PACKAGE__->columns_hash(
     date        => { type => 's' },
     status      => { type => 's', pattern => '^[OZ]$' },
     name        => '!s',
+    price       => 'f',
 );
 
 sub create {

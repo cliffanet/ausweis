@@ -105,7 +105,7 @@ sub adding {
     
     # Автозаполнение полей, если данные из формы не приходили
     $d->{form} =
-        { map { ($_ => '') } qw/date status name/ };
+        { map { ($_ => '') } qw/date status name price/ };
     if ($self->req->params()) {
         # Данные из формы - либо после ParamParse, либо напрямую данные
         my $fdata = $self->ParamData(fillall => 1);

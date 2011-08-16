@@ -218,13 +218,19 @@ sub show {
     $d->{event_list} = sub {
         $d->{_event_list} ||= [
             map { 
-                $_ = C::Event::_item($self, $_);
-                $_->{money} = sub { 
-                    $_->{_money} ||= 
-                        $self->ToHtml($self->model('EventMoney')->get($cmdid));
+                my $ev = C::Event::_item($self, $_);
+                $ev->{money} = sub { 
+                    $ev->{_money} ||= 
+                        $self->ToHtml($self->model('EventMoney')->get($ev->{id}, $cmdid));
+                    if (!$ev->{_money}->{summ} && !$ev->{_money}->{price} &&
+                        !$ev->{_money}->{comment} && $ev->{price}) {
+                        # Цена по умолчанию
+                        $ev->{_money}->{price} = $ev->{price};
+                    }
+                    $ev;
                 };
-                $_->{href_money_set} = $self->href($::disp{EventMoneySet}, $_->{id}, $cmdid);
-                $_;
+                $ev->{href_money_set} = $self->href($::disp{EventMoneySet}, $ev->{id}, $cmdid);
+                $ev;
             }
             $self->model('Event')->search({
                 status  => 'O',
