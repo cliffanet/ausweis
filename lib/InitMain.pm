@@ -38,6 +38,7 @@ __PACKAGE__->config(
         $::disp{CommandSet}             => 'C::Command::set',
         $::disp{CommandLogo}            => 'C::Command::logo',
         $::disp{CommandDel}             => 'C::Command::del',
+        $::disp{CommandHistory}         => 'C::Command::history',
 
         $::disp{AusweisList}            => 'C::Ausweis::list',
         $::disp{AusweisShow}            => 'C::Ausweis::show',

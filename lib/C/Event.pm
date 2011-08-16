@@ -21,6 +21,8 @@ sub _item {
         $item->{href_info}      = $self->href($::disp{EventShow}, $item->{id}, 'info');
         $item->{href_edit}      = $self->href($::disp{EventShow}, $item->{id}, 'edit');
         $item->{href_set}       = $self->href($::disp{EventSet}, $item->{id});
+        $item->{href_del}       = $self->href($::disp{EventDel}, $item->{id});
+        $item->{href_delete}    = $self->href($::disp{EventDel}, $item->{id});
         
         $item->{href_set_status}= sub { $self->href($::disp{EventSet}."?status=%s", $item->{id}, shift) };
     }
