@@ -217,21 +217,7 @@ sub show {
     $d->{allow_event} = $self->rights_exists($::rEvent);
     $d->{event_list} = sub {
         $d->{_event_list} ||= [
-            map { 
-                my $ev = C::Event::_item($self, $_);
-                $ev->{money} = sub { 
-                    return $ev->{_money} if $ev->{_money};
-                    my $m = ($ev->{_money} = 
-                        $self->ToHtml($self->model('EventMoney')->get($ev->{id}, $cmdid)));
-                    if (($m->{summ}==0) && ($m->{price}==0) && !$m->{comment} && $ev->{price}) {
-                        # Цена по умолчанию
-                        $m->{price} = $ev->{price};
-                    }
-                    $m;
-                };
-                $ev->{href_money_set} = $self->href($::disp{EventMoneySet}, $ev->{id}, $cmdid);
-                $ev;
-            }
+            map { C::Event::_item($self, $_, $cmdid); }
             $self->model('Event')->search({
                 status  => 'O',
             }, {

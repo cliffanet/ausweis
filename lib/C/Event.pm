@@ -12,6 +12,7 @@ sub _item {
     my $self = shift;
     my $item = $self->ToHtml(shift, 1);
     my $id = $item->{id};
+    my $cmdid = shift;
     
     $item->{status_name} = $text::EventStatus{$item->{status}} || $item->{status};
     
@@ -22,6 +23,20 @@ sub _item {
         $item->{href_set}       = $self->href($::disp{EventSet}, $item->{id});
         
         $item->{href_set_status}= sub { $self->href($::disp{EventSet}."?status=%s", $item->{id}, shift) };
+    }
+    
+    if ($id && $cmdid) {
+        $item->{money} = sub { 
+            return $item->{_money} if $item->{_money};
+            my $m = ($item->{_money} = 
+                $self->ToHtml($self->model('EventMoney')->get($item->{id}, $cmdid)));
+            if (($m->{summ}==0) && ($m->{price}==0) && !$m->{comment} && $item->{price}) {
+                # Цена по умолчанию
+                $m->{price} = $item->{price};
+            }
+            $m;
+        };
+        $item->{href_money_set} = $self->href($::disp{EventMoneySet}, $item->{id}, $cmdid);
     }
     
     return $item;
