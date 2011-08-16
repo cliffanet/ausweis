@@ -1,7 +1,7 @@
 <h3>Команда</h3>
 <table class="tbl">
     <tr>
-        <td rowspan="4" style="border:0; width:200px">
+        <td rowspan="5" style="border:0; width:200px">
 [% IF rec.photo %]
 <img width="200" alt="[% rec.name %]" title="[% rec.name %]" src="[% rec.href_file('logo.site.jpg') %]" />
 [% ELSE %]
