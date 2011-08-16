@@ -464,8 +464,8 @@ sub history {
         my %eid_create = (
             map { ($_->{eid}=>1) } 
             $self->model('PreeditField')->search(
-                { param => 'cmdid', value => $cmdid, 'preedit.op' => 'C', 'preedit.tbl' => 'Ausweis' },
-                { join => 'preedit' }
+                { param => 'cmdid', value => $cmdid, 'edit.op' => 'C', 'edit.tbl' => 'Ausweis' },
+                { join => 'edit' }
             )
         );
         my %eid;
