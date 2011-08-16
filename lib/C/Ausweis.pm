@@ -238,7 +238,7 @@ sub show {
                     return sprintf('%0.2f', $ev->{money}->()->{summ}-$summ);
                 };
                 $ev->{allow_from_summ} = sub {
-                    return $ev->{summ_avail} >= $ev->{money}->()->{price};
+                    return $ev->{summ_avail}->() >= $ev->{money}->()->{price};
                 };
                 $ev;
             }
