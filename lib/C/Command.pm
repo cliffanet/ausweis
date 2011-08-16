@@ -223,7 +223,7 @@ sub show {
                     return $ev->{_money} if $ev->{_money};
                     my $m = ($ev->{_money} = 
                         $self->ToHtml($self->model('EventMoney')->get($ev->{id}, $cmdid)));
-                    if (!$m->{summ} && !$m->{price} && !$m->{comment} && $ev->{price}) {
+                    if (($m->{summ}==0) && ($m->{price}==0) && !$m->{comment} && $ev->{price}) {
                         # Цена по умолчанию
                         $m->{price} = $ev->{price};
                     }
