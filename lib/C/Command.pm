@@ -221,14 +221,13 @@ sub show {
                 my $ev = C::Event::_item($self, $_);
                 $ev->{money} = sub { 
                     return $ev->{_money} if $ev->{_money};
-                    $ev->{_money} = 
-                        $self->ToHtml($self->model('EventMoney')->get($ev->{id}, $cmdid));
-                    if (!$ev->{_money}->{summ} && !$ev->{_money}->{price} &&
-                        !$ev->{_money}->{comment} && $ev->{price}) {
+                    my $m = ($ev->{_money} = 
+                        $self->ToHtml($self->model('EventMoney')->get($ev->{id}, $cmdid)));
+                    if (!$m->{summ} && !$m->{price} && !$m->{comment} && $ev->{price}) {
                         # Цена по умолчанию
-                        $ev->{_money}->{price} = $ev->{price};
+                        $m->{price} = $ev->{price};
                     }
-                    $ev->{_money};
+                    $m;
                 };
                 $ev->{href_money_set} = $self->href($::disp{EventMoneySet}, $ev->{id}, $cmdid);
                 $ev;
