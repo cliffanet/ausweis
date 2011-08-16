@@ -270,7 +270,7 @@ sub ausweis_commit {
         || return $self->state(-000104, '');
     if ($c{payonkpp}) {
         # Óâåëè÷èâàåì ñóììàğíûé âçíîñ êîìàíäû
-        $self->model('EvenMoney')->summ_add($rec->{id}, $aus->{cmdid}, $c{price})
+        $self->model('EventMoney')->summ_add($rec->{id}, $aus->{cmdid}, $c{price})
             || return $self->state(-000104, '');
     }
         

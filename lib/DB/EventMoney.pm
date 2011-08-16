@@ -36,5 +36,14 @@ sub set {
         $self->create({ %$rec, evid => $evid, cmdid => $cmdid });
 }
 
+sub summ_add {
+    my ($self, $evid, $cmdid, $summ) = @_;
+    
+    my ($m) = $self->search({ evid => $evid, cmdid => $cmdid });
+    return $m ?
+        $self->update({ summ = $m->{summ}+$summ }, { id => $m->{id} }) :
+        $self->create({ evid => $evid, cmdid => $cmdid, summ => $summ });
+}
+
 
 1;
