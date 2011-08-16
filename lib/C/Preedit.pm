@@ -93,16 +93,19 @@ sub op {
         $self->model('Preedit')->search({ id => $eid, modered => 0 });
     $pre || return $self->state(-000105, '');
     
-    my $modered = $self->req->param_dig('modered')
+    my %p;
+    $p{modered} = $self->req->param_dig('modered')
         || return $self->state(-000101, '');
+    $p{comment} = $self->req->param_str('comment');
         
     my $ret;
-    if ($modered > 0) {
+    if ($p{modered} > 0) {
         my $fields = $self->model('PreeditField')->get_value($pre->{id})
             if ($pre->{op} eq 'C') || ($pre->{op} eq 'E');
         if ($pre->{op} eq 'C') {
             $ret = $self->model($pre->{tbl})->create($fields);
             $pre->{recid} = $self->model($pre->{tbl})->insertid;
+            $p{recid} = $pre->{recid};
         } elsif ($pre->{op} eq 'E') {
             $ret = $self->model($pre->{tbl})->update($fields, { id => $pre->{recid} });
         } elsif ($pre->{op} eq 'D') {
@@ -133,10 +136,8 @@ sub op {
     $ret || return $self->state(-000104, '');
     
     # Обновляем статус Preedit
-    $self->model('Preedit')->update(
-        { modered => $modered, comment => $self->req->param_str('comment') },
-        { id => $eid }
-    ) || return $self->state(-000104, '');
+    $self->model('Preedit')->update(\%p, { id => $eid })
+        || return $self->state(-000104, '');
     
     return $self->state($ret > 0 ? 950100 : -000106, '');
 }

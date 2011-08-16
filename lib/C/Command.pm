@@ -456,7 +456,43 @@ sub history {
     $self->patt(TITLE => sprintf($text::titles{"command_history"}, $rec->{name}));
     $self->view_select->subtemplate("command_history.tt");
     
-    
+    $d->{list} = sub {
+        return $d->{_list} if $d->{_list};
+        # id затрагиваемых аусвайсов
+        my %ausid = (map { ($_->{id}=>1) } $self->model('Ausweis')->search({ cmdid=>$cmdid }));
+        # id preedit на создание аусвайса
+        my %eid_create = (
+            map { ($_->{eid}=>1) } 
+            $self->model('PreeditFields')->search(
+                { param => 'cmdid', value => $cmdid, 'preedit.op' => 'C', 'preedit.tbl' => 'Ausweis' },
+                { join => 'preedit' }
+            )
+        );
+        my %eid;
+        $d->{_list} = [
+            map {
+                my $p = C::Preedit::_item($self, $_);
+                $eid{$p->{id}}=$p;
+                $p->{field_list} = [];
+                $p;
+            }
+            $self->model('Preedit')->search([
+                    { id => [keys %eid_create] },
+                    { tbl=>'Ausweis', recid=>[keys %ausid] }
+                ], {
+                    prefetch    => ['user'],
+                    order_by    => 'id'
+                })
+        ];
+        push( @{ $eid{$_->{eid}}->{field_list} }, $_)
+            foreach 
+                map { $_->{enold} = defined $_->{enold}; $_ }
+                $self->model('PreeditField')->search(
+                    { eid => [keys %eid] }, 
+                    { order_by => 'field' }
+                );
+        $d->{_list};
+    };
 }
 
 

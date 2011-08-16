@@ -7,18 +7,43 @@
 
 <br />
 
-<script language="JavaScript">
-    function selectAll(val) {
-        var Set = document.getElementsByTagName("input");
-        for (var i=0; i<Set.length; i++) {
-            var e = Set[i];
-            if (e && e.name && (e.name == 'ausid'))
-                    e.checked = val
+    <script type="text/javascript">
+    <!--
+        function fld_show(id) {
+            var list = document.getElementsByTagName('div');
+            for (var i=0; i<list.length; i++) {
+                var e = list[i];
+                if (e.id.match('^fld_[0-9]+')) 
+                   e.style.display = 'none';
+            }
+            document.getElementById(id).style.display = 'inline';
         }
-    }
-</script>
+    //-->
+    </script>
 
 <h3>История</h3>
+<table class="tbl">
 [% FOREACH list %]
+<tr>
+    <td class="ltitle">
+        [% IF op=='C' %]Добавление[% ELSIF op=='E' %]Редактирование[% ELSIF op=='D' %]Удаление[% END %]
+        [% IF tbl=='Ausweis' %]аусвайса[% END %]:<br />
+        <small>[% datetime(dtadd) %]</small><br />
+        [% user.login %][% IF ip %] [[% ip %]][% END %]<br />
+    </td>
+    <td>
+    [% FOREACH field_list %]
+        <a href="javascript: fld_show('fld_[% id %]');">[% param %]</a>[% IF loop.next %], [% END %]
+    [% END %]
+        <br />
+    [% FOREACH field_list %]
+        <div id="fld_[% id %]" style="display:none; padding-left:20px;">
+            <b>[% param %]</b><br />
+            <small><u>Значение:</u> [% value %][% IF enold %]<br /><u>Старое:</u> [% old %][% END %]</small>
+        </div>
+    [% END %]
+    </td>
+</tr>
 [% END # FOREACH list %]
+</table>
 
