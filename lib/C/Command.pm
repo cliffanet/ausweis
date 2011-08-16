@@ -215,6 +215,7 @@ sub show {
     };
     
     $d->{allow_event} = $self->rights_exists($::rEvent);
+    $d->{allow_event_write} = $self->rights_check($::rEvent, $::rWrite);
     $d->{event_list} = sub {
         $d->{_event_list} ||= [
             map { C::Event::_item($self, $_, $cmdid); }

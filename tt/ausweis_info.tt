@@ -128,3 +128,27 @@
 </tr>
 [% END %]
 </table>
+
+
+[% IF allow_event %]
+[% FOREACH event_list %]
+<br />
+<h3>Мероприятие: [% name %]</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Вносов сдано:</td>
+        <td>[% money.summ %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Сумма с игрока:</td>
+        <td>[% money.price %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Комментарии:</td>
+        <td>[% money.comment %]</td>
+    </tr>
+</table>
+[% END # FOREACH event_list %]
+[% END # IF allow_event %]
+
+

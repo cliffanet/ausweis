@@ -177,6 +177,7 @@ sub show {
     
     $d->{href_set} = $self->href($::disp{AusweisSet}, $id);
     
+    # Партия на печать
     $d->{print_list} = sub {
         return $d->{_print_list} ||= [
             map { C::Print::_item($self, $_) }
@@ -186,7 +187,6 @@ sub show {
             )
         ];
     };
-    
     $d->{print_open} = sub {
         return $d->{_print_open} if defined $d->{_print_open};
         ($d->{_print_open}) = 
@@ -198,6 +198,7 @@ sub show {
         return $d->{_print_open} ||= 0;
     };
     
+    # Премодерация изменений
     $d->{preedit_field} = sub {
         my ($param) = @_;
         $d->{_preedit_field} ||= {
@@ -213,6 +214,23 @@ sub show {
             href_file   => sub { $self->href($::disp{PreeditFile}, 
                 $d->{_preedit_field}->{$param}->{eid}, $param) },
         };
+    };
+    
+    # Мероприятия
+    $d->{allow_event} = $self->rights_exists($::rEvent);
+    $d->{allow_event_write} = $self->rights_check($::rEvent, $::rWrite);
+    $d->{event_list} = sub {
+        $d->{_event_list} ||= [
+            map { 
+                my $ev = C::Event::_item($self, $_, $rec->{cmdid});
+                $ev;
+            }
+            $self->model('Event')->search({
+                status  => 'O',
+            }, {
+                order_by => [qw/date id/],
+            })
+        ];
     };
 }
 

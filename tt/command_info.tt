@@ -137,6 +137,7 @@
         <td class="ltitle">Комментарии:</td>
         <td>[% money.comment %]</td>
     </tr>
+[% IF allow_event_write %]
     <tr>
         <td class="submit" colspan="2">
             <a href="javascript:void();" 
@@ -144,8 +145,10 @@
                 >изменить</a>
         </td>
     </tr>
+[% END %]
 </table>
 </div>
+[% IF allow_event_write %]
 <div id="event_[% id %]_edit" style="display: none">
 <form action="[% href_money_set %]" method="post">
 <table class="tbl">
@@ -167,6 +170,7 @@
 </table>
 </form>
 </div>
-[% END %]
+[% END # IF allow_event_write %]
+[% END # FOREACH event_list %]
 [% END # IF allow_event %]
 
