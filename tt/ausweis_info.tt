@@ -66,6 +66,25 @@
         <td>[% rec.comment %][% INCLUDE preedit_field.tt field='comment' %]</td>
     </tr>
     <tr>
+        <td class="ltitle">Печать:</td>
+        <td>
+            <a href="[% rec.href_regen %]">Пересобрать</a>
+            [% IF rec.regen > 0 %](в процессе: [% rec.regens %])[% END %]
+            <br />
+[% IF rec.file_size('print.front.jpg') || rec.file_size('print.rear.jpg')  %]
+        [% IF rec.file_size('print.front.jpg')  %]
+        <a target="_blank" href="[% rec.href_file('print.front.jpg') %]">JPG (лицевая сторона)</a><br />
+        [% END %]
+        [% IF rec.file_size('print.rear.jpg')  %]
+        | <a target="_blank" href="[% rec.href_file('print.rear.jpg') %]">JPG (тыльная сторона)</a><br />
+        [% END %]
+[% END %]
+[% IF rec.file_size('print.pdf') %]
+        | <a target="_blank" href="[% rec.href_file('print.pdf') %]">PDF</a><br />
+[% END %]
+        </td>
+    </tr>
+    <tr>
         <td class="ltitle">Печать массовая:</td>
         <td>
         [% d.in_open_party = 0 %]
@@ -78,14 +97,6 @@
                 <a href="[% print_open.href_info %]">Партия № [% print_open.id %]</a>:
                 <a href="[% print_open.href_ausweis_add(rec.id) %]">отправить в партию</a>
         [% END %]
-        </td>
-    </tr>
-    
-    <tr>
-        <td class="ltitle">Пересборка:</td>
-        <td>
-            <a href="[% rec.href_regen %]">Пересобрать</a>
-            [% IF rec.regen > 0 %](в процессе: [% rec.regens %])[% END %]
         </td>
     </tr>
     <tr>
@@ -103,31 +114,6 @@
 <br />
 
 [% END %]
-
-<br />
-
-<h3>На печать</h3>
-<table class="tbl">
-[% IF rec.file_size('print.front.jpg') || rec.file_size('print.rear.jpg')  %]
-<tr>
-    <td>
-        [% IF rec.file_size('print.front.jpg')  %]
-        <a target="_blank" href="[% rec.href_file('print.front.jpg') %]">JPG (лицевая сторона)</a><br />
-        [% END %]
-        [% IF rec.file_size('print.rear.jpg')  %]
-        <a target="_blank" href="[% rec.href_file('print.rear.jpg') %]">JPG (тыльная сторона)</a><br />
-        [% END %]
-    </td>
-</tr>
-[% END %]
-[% IF rec.file_size('print.pdf') %]
-<tr>
-    <td>        
-        <a target="_blank" href="[% rec.href_file('print.pdf') %]">PDF</a><br />
-    </td>
-</tr>
-[% END %]
-</table>
 
 
 [% IF allow_event %]
