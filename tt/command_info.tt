@@ -34,6 +34,12 @@
     </tr>
             </form>
     <tr>
+        <td class="ltitle">Дополнительно:</td>
+        <td>
+            <a href="[% rec.href_history %]">История изменений</a>
+        </td>
+    </tr>
+    <tr>
         <td class="submit" colspan="2">
             <a href="[% rec.href_edit %]">изменить</a>
         </td>
