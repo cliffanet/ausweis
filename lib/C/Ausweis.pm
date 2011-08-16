@@ -223,6 +223,31 @@ sub show {
         $d->{_event_list} ||= [
             map { 
                 my $ev = C::Event::_item($self, $_, $rec->{cmdid});
+                $ev->{commit} = sub {
+                    if (!defined($ev->{_commit})) {
+                        ($ev->{_commit}) = $self->model('EventAusweis')->search({ evid => $ev->{id}, ausid => $rec->{id} });
+                        $ev->{_commit} ||= 0;
+                    }
+                    $ev->{_commit};
+                };
+                $ev->{href_ausweis_commit} = $self->href($::disp{EventAusweisCommit}, $ev->{id}, $rec->{id});
+                $ev->{ausweis_list} = sub {
+                    $ev->{_ausweis_list} ||= [
+                        $self->model('Ausweis')->search(
+                            { cmdid => $rec->{cmdid}, 'event.evid' => $ev->{id} },
+                            { prefetch => ['event'] }
+                        )
+                    ];
+                };
+                $ev->{summ_avail} = sub {
+                    my $list = $ev->{ausweis_list}->();
+                    my $summ = 0;
+                    $summ += $_->{event}->{price} foreach @$list;
+                    return sprintf('%0.2f', $ev->{summ}-$summ);
+                };
+                $ev->{allow_from_summ} = sub {
+                    return $ev->{summ_avail} >= $ev->{money}->()->{price};
+                };
                 $ev;
             }
             $self->model('Event')->search({

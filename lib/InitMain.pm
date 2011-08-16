@@ -69,6 +69,7 @@ __PACKAGE__->config(
         $::disp{EventSet}               => 'C::Event::set',
         $::disp{EventDel}               => 'C::Event::del',
         $::disp{EventMoneySet}          => 'C::Event::money_set',
+        $::disp{EventAusweisCommit}     => 'C::Event::ausweis_commit',
     },
     
     plugins => [qw/ScriptTime

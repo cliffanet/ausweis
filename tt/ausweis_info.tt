@@ -147,6 +147,71 @@
         <td class="ltitle">Комментарии:</td>
         <td>[% money.comment %]</td>
     </tr>
+[% IF rec.blocked %]
+    <tr>
+        <tr><td colspan="2" style="text-align: center; color:red">
+            ЗАБЛОКИРОВАН! ([% rec.comment %])
+        </td></tr>
+    </tr>
+[% ELSIF commit %]
+    <tr>
+        <tr><td colspan="2" style="text-align: center; color:blue">
+            Уже проходил КПП!
+        </td></tr>
+        <tr>
+            <td class="ltitle">Время прохода:</td>
+            <td>[% datetime(commit.dtadd) %]</td>
+        </tr>
+        <tr>
+            <td class="ltitle">Оплата:</td>
+            <td>[% IF commit.payonkpp %]На КПП[% ELSE %]Заранее[% END %] ([% commit.price %])</td>
+        </tr>
+    </tr>
+[% ELSE %]
+<form action="[% href_ausweis_commit %]" method="post" >
+        <tr><td colspan="2" style="text-align: center; color:green">
+            Прохождение КПП
+        </td></tr>
+        <tr>
+            <td class="ltitle">Осталось от взносов:</td>
+            <td>[% summ_avail %]</td>
+        </tr>
+        <tr>
+            <td class="ltitle">Оплата:</td>
+            <td>
+                <label><input type="radio" name="payonkpp" value="0" [% IF allow_from_summ %]checked[% ELSE %]disabled[% END %] /> Заранее</label>
+                <label><input type="radio" name="payonkpp" value="0" [% IF !allow_from_summ %]checkedd[% END %] /> На КПП.
+                    Сумма: <input type="text" size="10" name="price" value="[% money.price %]" /></label>
+            </td>
+        </tr>
+<tr>
+    <td class="submit" colspan="2">
+        <input type="submit" value="ЗАРЕГИСТРИРОВАТЬ">
+    </td>
+</tr>
+</form>
+[% END %]
+</table>
+<h3>Уже прошли КПП из этой команды:</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="100">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
+        <td width="200">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
+        <td></td>
+    </tr>
+[% IF ausweis_list.size > 0 %]
+[% FOREACH ausweis_list %]
+    <tr>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td>&nbsp;</td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
+        из этой команды еще никто не проходил КПП
+    </td></tr>
+[% END %]
 </table>
 [% END # FOREACH event_list %]
 [% END # IF allow_event %]

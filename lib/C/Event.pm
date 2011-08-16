@@ -30,7 +30,7 @@ sub _item {
             return $item->{_money} if $item->{_money};
             my $m = ($item->{_money} = 
                 $self->ToHtml($self->model('EventMoney')->get($item->{id}, $cmdid)));
-            if (($m->{summ}==0) && ($m->{price}==0) && !$m->{comment} && $item->{price}) {
+            if (($m->{summ}==0) && ($m->{price}==0) && !$m->{comment} && ($item->{price} > 0)) {
                 # Цена по умолчанию
                 $m->{price} = $item->{price};
             }
@@ -193,13 +193,13 @@ sub del {
 
 
 sub money_set {
-    my ($self, $id, $cmdid) = @_;
+    my ($self, $evid, $cmdid) = @_;
     my $d = $self->d;
     my $q = $self->req;
     
     return unless $self->rights_check_event($::rEvent, $::rWrite);
     
-    my ($rec) = $self->model('Event')->search({ id => $id });
+    my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
     $rec || return $self->state(-000105);
     my ($cmd) = $self->model('Command')->search({ id => $cmdid });
     $cmd || return $self->state(-000105);
@@ -209,11 +209,65 @@ sub money_set {
     $m{price}   = $q->param_float('price')      if defined $q->param('price');
     $m{comment} = $q->param_str('comment')      if defined $q->param('comment');
     
-    $self->model('EventMoney')->set($id, $cmdid, \%m)
+    $self->model('EventMoney')->set($evid, $cmdid, \%m)
         || return $self->state(-000104, '');
         
     # статус с редиректом
     $self->state(940400, '');
+}
+
+
+sub ausweis_commit {
+    my ($self, $evid, $ausid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEvent, $::rWrite);
+    
+    my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
+    $rec || return $self->state(-000105);
+    my ($aus) = $self->model('Ausweis')->search({ id => $ausid, blocked => 0 });
+    $aus || return $self->state(-000105);
+    
+    my ($c) = $self->model('EventAusweis')->search({ evid => $evid, ausid => $ausid });
+    $c && return $self->state(-940501, '');
+    
+    my %c = ( evid => $evid, ausid => $ausid );
+    
+    $c{payonkpp} = $q->param_bool('payonkpp');
+    # Сумма взноса
+    if ($c{payonkpp}) {
+        $c{price} = $q->param_float('price') if $q->param_float('price') > 0;
+    }
+    else {
+        my $m = $self->model('EventMoney')->get($rec->{id}, $aus->{cmdid});
+        if (($m->{summ} > 0) || ($m->{price} > 0) || $m->{comment}) {
+            $c{price} = $m->{price};
+        }
+        elsif ($rec->{price} > 0) {
+            $c{price} = $rec->{price};
+        }
+        my @aus = $self->model('Ausweis')->search(
+            { cmdid => $aus->{cmdid}, 'event.evid' => $rec->{id} },
+            { prefetch => ['event'] }
+        );
+        my $summ = 0;
+        $summ += $_->{event}->{price} foreach @aus;
+        return $self->state(-940503, '')
+            if ($m->{summ}-$summ) < $c{price};
+    }
+    defined($c{price}) || return $self->state(-940502, '');
+    
+    $self->model('EventAusweis')->create(\%c)
+        || return $self->state(-000104, '');
+    if ($c{payonkpp}) {
+        # Увеличиваем суммарный взнос команды
+        $self->model('EvenMoney')->summ_add($rec->{id}, $aus->{cmdid}, $c{price})
+            || return $self->state(-000104, '');
+    }
+        
+    # статус с редиректом
+    $self->state(940500, '');
 }
 
 
