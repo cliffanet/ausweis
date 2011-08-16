@@ -155,7 +155,7 @@
     </tr>
 [% ELSIF commit %]
     <tr>
-        <tr><td colspan="2" style="text-align: center; color:blue; text-decoration:underline;">
+        <tr><td colspan="2" style="text-align: center; font-weight:bold; text-decoration:underline;">
             Уже проходил КПП!
         </td></tr>
         <tr>
