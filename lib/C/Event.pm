@@ -36,6 +36,14 @@ sub _item {
             }
             $m;
         };
+        $item->{ausweis_list} = sub {
+            $item->{_ausweis_list} ||= [
+                $self->model('Ausweis')->search(
+                    { cmdid => $cmdid, 'event.evid' => $item->{id} },
+                    { prefetch => ['event'] }
+                )
+            ];
+        };
         $item->{href_money_set} = $self->href($::disp{EventMoneySet}, $item->{id}, $cmdid);
     }
     

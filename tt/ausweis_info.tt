@@ -167,7 +167,7 @@
             <td>[% IF commit.payonkpp %]На КПП[% ELSE %]Заранее[% END %] ([% commit.price %])</td>
         </tr>
     </tr>
-[% ELSE %]
+[% ELSIF allow_event_write %]
 <form action="[% href_ausweis_commit %]" method="post" >
         <tr><td colspan="2" style="text-align: center; color:green; font-weight:bold;">
             Прохождение КПП
@@ -192,9 +192,11 @@
 </form>
 [% END %]
 </table>
+[% IF allow_event_write %]
 <h3>Уже прошли КПП из этой команды:</h3>
 <table class="tbl">
     <tr class="title">
+        <td width="100">[% INCLUDE 'sort.tt' field='dtadd', name='Время' %]</td>
         <td width="100">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
         <td width="200">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
         <td></td>
@@ -202,6 +204,7 @@
 [% IF ausweis_list.size > 0 %]
 [% FOREACH ausweis_list %]
     <tr>
+        <td align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% datetime(dtadd) %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
         <td>&nbsp;</td>
@@ -213,6 +216,7 @@
     </td></tr>
 [% END %]
 </table>
+[% END # IF allow_event_write %]
 [% END # FOREACH event_list %]
 [% END # IF allow_event %]
 

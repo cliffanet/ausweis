@@ -231,14 +231,6 @@ sub show {
                     $ev->{_commit};
                 };
                 $ev->{href_ausweis_commit} = $self->href($::disp{EventAusweisCommit}, $ev->{id}, $rec->{id});
-                $ev->{ausweis_list} = sub {
-                    $ev->{_ausweis_list} ||= [
-                        $self->model('Ausweis')->search(
-                            { cmdid => $rec->{cmdid}, 'event.evid' => $ev->{id} },
-                            { prefetch => ['event'] }
-                        )
-                    ];
-                };
                 $ev->{summ_avail} = sub {
                     my $list = $ev->{ausweis_list}->();
                     my $summ = 0;

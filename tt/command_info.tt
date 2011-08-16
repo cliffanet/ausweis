@@ -171,6 +171,29 @@
 </form>
 </div>
 [% END # IF allow_event_write %]
+<h3>Уже прошли КПП из этой команды:</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="100">[% INCLUDE 'sort.tt' field='dtadd', name='Время' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
+        <td width="200">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
+        <td></td>
+    </tr>
+[% IF ausweis_list.size > 0 %]
+[% FOREACH ausweis_list %]
+    <tr>
+        <td align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% datetime(dtadd) %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td>&nbsp;</td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
+        из этой команды еще никто не проходил КПП
+    </td></tr>
+[% END %]
+</table>
 [% END # FOREACH event_list %]
 [% END # IF allow_event %]
 
