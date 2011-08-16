@@ -477,20 +477,22 @@ sub history {
                 $p;
             }
             $self->model('Preedit')->search([
-                    { id => [keys %eid_create] },
-                    { tbl=>'Ausweis', recid=>[keys %ausid] }
+                    %eid_create ? { id => [keys %eid_create] } : (),
+                    %ausid ? { tbl=>'Ausweis', recid=>[keys %ausid] } : ()
                 ], {
                     prefetch    => ['user'],
                     order_by    => 'id'
                 })
-        ];
-        push( @{ $eid{$_->{eid}}->{field_list} }, $_)
-            foreach 
-                map { $_->{enold} = defined $_->{old}; $_ }
-                $self->model('PreeditField')->search(
-                    { eid => [keys %eid] }, 
-                    { order_by => 'field' }
-                );
+        ] if %eid_create || %ausid;
+        if (%eid) {
+            push( @{ $eid{$_->{eid}}->{field_list} }, $_)
+                foreach 
+                    map { $_->{enold} = defined $_->{old}; $_ }
+                    $self->model('PreeditField')->search(
+                        { eid => [keys %eid] }, 
+                        { order_by => 'field' }
+                    );
+        }
         $d->{_list};
     };
 }
