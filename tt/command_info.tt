@@ -182,7 +182,7 @@
 [% IF ausweis_list.size > 0 %]
 [% FOREACH ausweis_list %]
     <tr>
-        <td align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% datetime(dtadd) %]</a></td>
+        <td align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% datetime(event.dtadd) %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
         <td>&nbsp;</td>
