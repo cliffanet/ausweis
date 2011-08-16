@@ -163,7 +163,10 @@ sub del {
     my ($rec) = $self->model('Event')->search({ id => $id });
     $rec || return $self->state(-000105);
     
-    my ($item) = $self->model('EventAusweis')->search({ evid => $id }, { limit => 1 });
+    my $item;
+    ($item) = $self->model('EventAusweis')->search({ evid => $id }, { limit => 1 });
+    return $self->state(-940301) if $item;
+    ($item) = $self->model('EventMoney')->search({ evid => $id }, { limit => 1 });
     return $self->state(-940301) if $item;
     
     $self->model('Event')->delete({ id => $id })
@@ -174,6 +177,29 @@ sub del {
 }
 
 
+sub money_set {
+    my ($self, $id, $cmdid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEvent, $::rWrite);
+    
+    my ($rec) = $self->model('Event')->search({ id => $id });
+    $rec || return $self->state(-000105);
+    my ($cmd) = $self->model('Command')->search({ id => $cmdid });
+    $cmd || return $self->state(-000105);
+    
+    my %m;
+    $m{summ}    = $q->param_float('summ')       if defined $q->param('summ');
+    $m{price}   = $q->param_float('price')      if defined $q->param('price');
+    $m{comment} = $q->param_float('comment')    if defined $q->param('comment');
+    
+    $self->model('EventMoney')->set($id, $cmdid, \%m)
+        || return $self->state(-000104, '');
+        
+    # статус с редиректом
+    $self->state(940400, '');
+}
 
 
 1;

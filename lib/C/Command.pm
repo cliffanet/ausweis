@@ -217,7 +217,15 @@ sub show {
     $d->{allow_event} = $self->rights_exists($::rEvent);
     $d->{event_list} = sub {
         $d->{_event_list} ||= [
-            map { C::Event::_item($self, $_) }
+            map { 
+                $_ = C::Event::_item($self, $_);
+                $_->{money} = sub { 
+                    $_->{_money} ||= 
+                        $self->ToHtml($self->model('EventMoney')->get($cmdid));
+                };
+                $_->{href_money_set} = $self->href($::disp{EventMoneySet}, $_->{id}, $cmdid);
+                $_;
+            }
             $self->model('Event')->search({
                 status  => 'O',
             }, {

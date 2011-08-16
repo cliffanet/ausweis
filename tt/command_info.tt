@@ -127,15 +127,15 @@
 <table class="tbl">
     <tr>
         <td class="ltitle">Вносов сдано:</td>
-        <td></td>
+        <td>[% money.summ %]</td>
     </tr>
     <tr>
         <td class="ltitle">Сумма с игрока:</td>
-        <td></td>
+        <td>[% money.price %]</td>
     </tr>
     <tr>
         <td class="ltitle">Комментарии:</td>
-        <td></td>
+        <td>[% money.comment %]</td>
     </tr>
     <tr>
         <td class="submit" colspan="2">
@@ -147,19 +147,19 @@
 </table>
 </div>
 <div id="event_[% id %]_edit" style="display: none">
-<form action="[% href_event_set %]" method="post">
+<form action="[% href_money_set %]" method="post">
 <table class="tbl">
     <tr>
         <td class="ltitle">Вносов сдано:</td>
-        <td><input type="text" name="summ" class="stdin" value="" /></td>
+        <td><input type="text" name="summ" class="stdin" value="[% money.summ %]" /></td>
     </tr>
     <tr>
         <td class="ltitle">Сумма с игрока:</td>
-        <td><input type="text" name="price" class="stdin" value="" /></td>
+        <td><input type="text" name="price" class="stdin" value="[% money.price %]" /></td>
     </tr>
     <tr>
         <td class="ltitle">Комментарии:</td>
-        <td><input type="text" name="comment" class="stdin" value="" /></td>
+        <td><input type="text" name="comment" class="stdin" value="[% money.comment %]" /></td>
     </tr>
     <tr>
         <td class="submit" colspan="2"><input type="submit" value=" Сохранить " /></td>
