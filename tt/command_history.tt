@@ -1,7 +1,6 @@
-<h3>Команда</h3>
 <table class="tbl">
     <tr>
-        <td class="ltitle">Название:</td>
+        <td class="ltitle">Команда:</td>
         <td><a href="[% rec.href_info %]"<b><big>[% rec.name %]</big></b></a></td>
     </tr>
 </table>
