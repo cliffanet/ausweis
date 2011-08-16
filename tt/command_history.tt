@@ -25,11 +25,14 @@
 <table class="tbl">
 [% FOREACH list %]
 <tr>
-    <td class="ltitle">
+    <td class="ltitle" style="width:250px">
         [% IF op=='C' %]Добавление[% ELSIF op=='E' %]Редактирование[% ELSIF op=='D' %]Удаление[% END %]
         [% IF tbl=='Ausweis' %]аусвайса[% END %]:<br />
-        <small>[% datetime(dtadd) %]</small><br />
-        [% user.login %][% IF ip %] [[% ip %]][% END %]<br />
+        <small>[% datetime(dtadd) %]<br />
+        [% user.login %][% IF ip %] [[% ip %]][% END %]<br /></small>
+        [% IF modered > 0 %]<div style="color: green">+ [% comment %]</div>
+        [% ELSIF modered < 0 %]<div style="color: red">Отклонено: [% comment %]</div>
+        [% ELSE %]<div style="color: yellow"><i>ожидает модерации</i></div>[% END %]
     </td>
     <td>
     [% FOREACH field_list %]

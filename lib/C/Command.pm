@@ -486,7 +486,7 @@ sub history {
         ];
         push( @{ $eid{$_->{eid}}->{field_list} }, $_)
             foreach 
-                map { $_->{enold} = defined $_->{enold}; $_ }
+                map { $_->{enold} = defined $_->{old}; $_ }
                 $self->model('PreeditField')->search(
                     { eid => [keys %eid] }, 
                     { order_by => 'field' }
