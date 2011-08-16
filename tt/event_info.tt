@@ -13,6 +13,10 @@
         <td>[% rec.status_name %]</td>
     </tr>
     <tr>
+        <td class="ltitle">Цена с участника:</td>
+        <td>[% rec.price %]</td>
+    </tr>
+    <tr>
         <td class="submit" colspan="2">
             <a href="[% rec.href_edit %]">изменить</a>
         </td>
