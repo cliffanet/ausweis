@@ -243,7 +243,7 @@ sub show {
                     my $list = $ev->{ausweis_list}->();
                     my $summ = 0;
                     $summ += $_->{event}->{price} foreach @$list;
-                    return sprintf('%0.2f', $ev->{summ}-$summ);
+                    return sprintf('%0.2f', $ev->{money}->()->{summ}-$summ);
                 };
                 $ev->{allow_from_summ} = sub {
                     return $ev->{summ_avail} >= $ev->{money}->()->{price};

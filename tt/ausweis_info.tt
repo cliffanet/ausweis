@@ -149,13 +149,13 @@
     </tr>
 [% IF rec.blocked %]
     <tr>
-        <tr><td colspan="2" style="text-align: center; color:red">
+        <tr><td colspan="2" style="text-align: center; color:red; font-weight:bold;">
             ЗАБЛОКИРОВАН! ([% rec.comment %])
         </td></tr>
     </tr>
 [% ELSIF commit %]
     <tr>
-        <tr><td colspan="2" style="text-align: center; color:blue">
+        <tr><td colspan="2" style="text-align: center; color:blue; font-weight:bold;">
             Уже проходил КПП!
         </td></tr>
         <tr>
@@ -169,7 +169,7 @@
     </tr>
 [% ELSE %]
 <form action="[% href_ausweis_commit %]" method="post" >
-        <tr><td colspan="2" style="text-align: center; color:green">
+        <tr><td colspan="2" style="text-align: center; color:green; font-weight:bold;">
             Прохождение КПП
         </td></tr>
         <tr>
@@ -179,7 +179,7 @@
         <tr>
             <td class="ltitle">Оплата:</td>
             <td>
-                <label><input type="radio" name="payonkpp" value="0" [% IF allow_from_summ %]checked[% ELSE %]disabled[% END %] /> Заранее</label>
+                <label><input type="radio" name="payonkpp" value="0" [% IF allow_from_summ %]checked[% ELSE %]disabled[% END %] /> Заранее</label><br />
                 <label><input type="radio" name="payonkpp" value="0" [% IF !allow_from_summ %]checkedd[% END %] /> На КПП.
                     Сумма: <input type="text" size="10" name="price" value="[% money.price %]" /></label>
             </td>
