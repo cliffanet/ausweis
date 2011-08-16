@@ -180,7 +180,7 @@
             <td class="ltitle">Оплата:</td>
             <td>
                 <label><input type="radio" name="payonkpp" value="0" [% IF allow_from_summ %]checked[% ELSE %]disabled[% END %] /> Заранее</label><br />
-                <label><input type="radio" name="payonkpp" value="0" [% IF !allow_from_summ %]checked[% END %] /> На КПП.
+                <label><input type="radio" name="payonkpp" value="1" [% IF !allow_from_summ %]checked[% END %] /> На КПП.
                     Сумма: <input type="text" size="10" name="price" value="[% money.price %]" /></label>
             </td>
         </tr>
