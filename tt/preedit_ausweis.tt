@@ -24,7 +24,7 @@
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
         <td>
             [% IF field_exists('cmdid') %]
-            <a title="Просмотр команды" alt="Просмотр команды" href="[% cmd.hash.${field.cmdid}.href_info %]">[% cmd.hash.${field.cmdid}.href_name %]</a>
+            <a title="Просмотр команды" alt="Просмотр команды" href="[% cmd.hash.${field.cmdid}.href_info %]">[% cmd.hash.${field.cmdid}.name %]</a>
             [% END %]
         </td>
         [% END %]
