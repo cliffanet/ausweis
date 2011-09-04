@@ -59,7 +59,7 @@ sub add {
             next if defined($o) && ($o eq $value);
             push @fields, $f;
         }
-        return '0E0' if !@fields && !$files && !%$files;
+        return '0E0' if !@fields && (!$files || !%$files);
     }
     
     # Создание точки изменения
