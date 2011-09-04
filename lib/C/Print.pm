@@ -167,7 +167,7 @@ sub regen {
         $self->model('Print')->search({ id => $id }));
     $rec || return $self->state(-000105, '');
     
-    if ($rec->{status} ne 'A') { 
+    if (($rec->{status} ne 'A') && ($rec->{status} ne 'C')) { 
         $self->state(-960401, '');
         return;
     }
