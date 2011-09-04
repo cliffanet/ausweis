@@ -349,17 +349,22 @@ sub set {
     
     # Кэшируем заранее данные
     my ($rec) = (($self->d->{rec}) = $self->model('Ausweis')->search({ id => $id })) if $id;
-    if (!$is_new) {
-        if (!$rec || !$rec->{id}) {
-            return $self->state(-000105, '');
-        }
-        $d->{cmdid} = $rec->{cmdid};
-    }
-    else {
+    if ($is_new) {
         $d->{cmdid} = $q->param_dig('cmdid');
         $d->{cmdid} ||= $self->user->{cmdid}
             if !$self->rights_check($::rAusweisEdit, $::rAll);
         $q->param('cmdid', $d->{cmdid});
+        
+        $d->{is_blocked} = $q->param_bool('blocked');
+    }
+    else {
+        if (!$rec || !$rec->{id}) {
+            return $self->state(-000105, '');
+        }
+        $d->{cmdid} = $rec->{cmdid};
+        
+        $d->{is_blocked} = defined $q->param('blocked') ?
+            $q->param_bool('blocked') : $rec->{blocked};
     }
     if (!$d->{cmdid} || !$self->user->{cmdid} || ($self->user->{cmdid} != $d->{cmdid})) {
         $preedit = 1 if !$preedit && !$self->rights_check($::rAusweisEdit, $::rAll);
