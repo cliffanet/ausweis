@@ -81,8 +81,9 @@
         все
     [% END %]
         </td>
-        <td width="100">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
-        <td width="200">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
+        <td width="150">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
+        <td width="150">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
+        <td width="250">[% INCLUDE 'sort.tt' field='fio', name='ФИО' %]</td>
         <td width="100">[% INCLUDE 'sort.tt' field='blocked', name='Блокировка' %]</td>
         <td></td>
     </tr>
@@ -97,6 +98,7 @@
         </td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% fio %]</a></td>
         <td>[% IF blocked %]ЗАБЛОКИРОВАН[% END %]</td>
         <td>&nbsp;</td>
     </tr>
