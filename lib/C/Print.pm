@@ -62,6 +62,9 @@ sub list {
         $self->model('Print')->search(
             {},
             {
+                join            => 'ausweis',
+                group_by        => 'id',
+                '+columns'      => ['COUNT(`ausweis`.`id`) as `ausweis_count`'],
                 order_by        => 'id',
             },
         )

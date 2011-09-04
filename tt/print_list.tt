@@ -3,6 +3,7 @@
         <td width="100">Дата</td>
         <td width="100">Номер</td>
         <td width="250">Статус</td>
+        <td width="100">Кол-во аусвайсов</td>
         <td></td>
     </tr>
 [% IF list.size > 0 %]
@@ -11,6 +12,7 @@
         <td align="right"><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% date(dtadd) %]</a></td>
         <td align="right"><a title="Просмотр" alt="Просмотр" href="[% href_info %]">[% id %]</a></td>
         <td>[% status_name %]</td>
+        <td>[% ausweis_count %]</td>
         <td></td>
     </tr>
 [% END %]
