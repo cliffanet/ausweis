@@ -93,7 +93,7 @@ sub op {
         $self->model('Preedit')->search({ id => $eid, modered => 0 });
     $pre || return $self->state(-000105, '');
     
-    my %p;
+    my %p = (visibled => 1);
     $p{modered} = $self->req->param_dig('modered')
         || return $self->state(-000101, '');
     $p{comment} = $self->req->param_str('comment');
