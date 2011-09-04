@@ -5,6 +5,12 @@
 </h3>
 
 <table class="tbl">
+    <tr>
+        <td class="ltitle">Изменивший пользователь:</td>
+        <td colspan="2">
+            [[% pre.ip %]] [% pre.user.login %]
+        </td>
+    </tr>
     <tr class="title">
         <td></td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
