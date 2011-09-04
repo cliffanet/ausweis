@@ -34,7 +34,7 @@
 [% IF rec.file_size('print.zip') %]
             <a href="[% rec.href_file('print.zip') %]">ZIP</a><br />
 [% END %]
-[% IF (rec.status == 'A') && (rec.regen == 0) %]
+[% IF ((rec.status == 'A') || (rec.status == 'C')) && (rec.regen == 0) %]
             <a href="[% rec.href_regen %]">Пересобрать</a>
 [% END %]
 [% IF rec.status == 'D' %]

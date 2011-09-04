@@ -19,6 +19,7 @@ use Func;
 use Img;
 use Pdf;
 
+use Cwd;
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 
 require "$::pathRoot/conf/defines.conf";
@@ -115,6 +116,7 @@ while (my ($prn) = $self->model('Print')->search(
         close FHC;
         
         my $zip = Archive::Zip->new();
+        my $cwd = cwd;
         chdir $dir;
         $zip->addTree('photo', 'photo');
         $zip->addTree('code', 'code');
@@ -124,6 +126,8 @@ while (my ($prn) = $self->model('Print')->search(
             $self->error("Can't create ZIP 'print.zip': $!");
             last;
         }
+        
+        chdir $cwd;
     
         $self->log_prefix(sprintf("[party=%d]", $prn->{id}));
 
