@@ -50,7 +50,7 @@
         </td>
     </tr>
     <tr>
-        <td class="submit" colspan="2">
+        <td class="submit" colspan="3">
             <a href="[% rec.href_edit %]">изменить</a>
         </td>
     </tr>
@@ -75,6 +75,7 @@
             [% IF op=='C' %]Добавление[% ELSIF op=='E' %]Редактирование[% ELSIF op=='D' %]Удаление[% END %]
             [% IF tbl=='Ausweis' %]аусвайса[% END %]
         </td>
+        <td>[% nick %]</td>
         <td>
             [% IF modered > 0 %]<div style="color: green">+ [% comment %]</div>
             [% ELSIF modered < 0 %]<div style="color: red">Отклонено: [% comment %]</div>
