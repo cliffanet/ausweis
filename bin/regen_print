@@ -55,41 +55,6 @@ while (my ($prn) = $self->model('Print')->search(
     my @regen = (0, reverse split(//, sprintf("%08b", $prn->{regen})));
     my $dir = Func::CachDir('print', $prn->{id});
     
-    # Печатная форма PDF
-    if ($::regen{print_pdf} && $regen[$::regen{print_pdf}]) { {
-        my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
-        if ($pdf) {
-            $pdf->mediabox(595,842);
-            my $count = 0;
-            foreach my $aus ($self->model('Ausweis')->search(
-                    { 'print.prnid' => $prn->{id} },
-                    { prefetch => [qw/command blok print/], order_by => 'numid' },
-                )) {
-                $self->log_prefix(sprintf("[party=%d ausweis=%d/%d] nick \"%s\"", 
-                    $prn->{id}, $aus->{id}, $aus->{numid}, $aus->{nick}));
-                my $page = Pdf::Ausweis($self, $pdf, $aus);
-                if ($page) {
-                    $self->log("Gen print_pdf OK");
-                    $count ++;
-                }
-                $self->model('Print')->update({ complete => $count }, { id => $prn->{id} })
-                    || last;
-                ($prn) = $self->model('Print')->search({ id => $prn->{id} });
-                last if !$prn || $prn->{status} eq 'A';
-            }
-            $self->log_prefix(sprintf("[party=%d]", $prn->{id}));
-            $pdf->save;
-            $pdf->end( );
-        } else {
-            $self->error("Can't create PDF-file: $@");
-        }
-
-        #$self->model('Print')->regen_off($prn->{id}, $::regen{print_pdf});
-        $regen[$::regen{print_pdf}] = 0;
-    } }
-    
-    $self->log_prefix(sprintf("[party=%d]", $prn->{id}));
-    
     # ZIP -архив с фото, штрих-кодами и списком с данными
     if ($::regen{print_zip} && $regen[$::regen{print_zip}]) { {
         if (!(-d "$dir/photo")) {
@@ -159,9 +124,44 @@ while (my ($prn) = $self->model('Print')->search(
             $self->error("Can't create ZIP 'print.zip': $!");
             last;
         }
+    
+        $self->log_prefix(sprintf("[party=%d]", $prn->{id}));
 
         #$self->model('Print')->regen_off($prn->{id}, $::regen{print_zip});
         $regen[$::regen{print_zip}] = 0;
+    } }
+    
+    # Печатная форма PDF
+    if ($::regen{print_pdf} && $regen[$::regen{print_pdf}]) { {
+        my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
+        if ($pdf) {
+            $pdf->mediabox(595,842);
+            my $count = 0;
+            foreach my $aus ($self->model('Ausweis')->search(
+                    { 'print.prnid' => $prn->{id} },
+                    { prefetch => [qw/command blok print/], order_by => 'numid' },
+                )) {
+                $self->log_prefix(sprintf("[party=%d ausweis=%d/%d] nick \"%s\"", 
+                    $prn->{id}, $aus->{id}, $aus->{numid}, $aus->{nick}));
+                my $page = Pdf::Ausweis($self, $pdf, $aus);
+                if ($page) {
+                    $self->log("Gen print_pdf OK");
+                    $count ++;
+                }
+                $self->model('Print')->update({ complete => $count }, { id => $prn->{id} })
+                    || last;
+                ($prn) = $self->model('Print')->search({ id => $prn->{id} });
+                last if !$prn || $prn->{status} eq 'A';
+            }
+            $self->log_prefix(sprintf("[party=%d]", $prn->{id}));
+            $pdf->save;
+            $pdf->end( );
+        } else {
+            $self->error("Can't create PDF-file: $@");
+        }
+
+        #$self->model('Print')->regen_off($prn->{id}, $::regen{print_pdf});
+        $regen[$::regen{print_pdf}] = 0;
     } }
     
     # Убиваем непроверяемые флаги
