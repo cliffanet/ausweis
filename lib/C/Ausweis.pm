@@ -442,7 +442,8 @@ sub set {
         old     => $rec,
         %files
     ) || return $self->state(-000104, '');
-    return $self->state(-000106, '') if $ret == 0;
+    return $self->state(-000106, $self->href($::disp{AusweisShow}, $id, 'info'))
+        if $ret == 0;
     
     # Статус с редиректом
     if ($preedit && $is_new && $fdata->{cmdid}) {
