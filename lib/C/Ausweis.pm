@@ -428,6 +428,9 @@ sub set {
             ) || return $self->state(-000104, '');
             unlink("$dirUpload/$file");
         }
+        elsif (!$self->d->{form_saves}) {
+            return $self->state(-000106, $self->href($::disp{AusweisShow}, $id, 'info'));
+        }
     }
     
     my $ret = $self->model('Preedit')->add(
