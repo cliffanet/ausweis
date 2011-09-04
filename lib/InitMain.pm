@@ -97,7 +97,7 @@ __PACKAGE__->config(
         view_select             => 'Main',
         href_adminedit_redirect => 'admin/list',
         href_groupedit_redirect => 'admin/group_list',
-        list_prefetch           => 'command',
+        list_prefetch           => [qw/command group/],
     },
 );
 
