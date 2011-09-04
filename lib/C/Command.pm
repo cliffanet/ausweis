@@ -227,6 +227,17 @@ sub show {
             })
         ];
     };
+    
+    $d->{cmd_account_list} = sub {
+        return $d->{_cmd_account_list} ||= [
+            $self->model('UserList')->search({
+                cmdid   => $rec->{id},
+            }, {
+                prefetch => 'group',
+                order_by => 'login',
+            })
+        ];
+    };
 }
 
 sub show_my {

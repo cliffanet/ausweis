@@ -455,8 +455,9 @@ sub regen {
     $rec || return $self->state(-000105, '');
 
     my $r_all = 0;
-    $r_all |= 1 << ($::regen{$_}-1) 
-        foreach grep { $::regen{$_} } qw/photo print_img print_pdf/;    
+    my @l = qw/photo print_img print_pdf/;
+    push(@l, 'code') unless -s Func::CachDir('ausweis', $rec->{id})."/barcode.$rec->{numid}.orig.jpg";
+    $r_all |= 1 << ($::regen{$_}-1) foreach grep { $::regen{$_} } @l;
     $self->model('Ausweis')->update(
         { regen => int($rec->{regen})|int($r_all) },
         { id => $rec->{id} }

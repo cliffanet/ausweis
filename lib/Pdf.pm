@@ -183,7 +183,7 @@ sub GenNumId {
     my ($self, $numid, $file) = @_;
     
     $file || return;
-    my ($dir, $filename) = ($1, $2) if $file =~ /^(.+\/)([^\\\/]+)$/;
+    my ($dir, $filename) = ($1, $2) if $file =~ /^(.+)\/([^\\\/]+)$/;
     
     my $pdf_file = "$dir/tmp.$numid.pdf";
     my $pdf = eval { PDF::API2->new(-file => $pdf_file) };

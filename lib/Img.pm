@@ -34,10 +34,10 @@ sub Save {
             $self->error("Image::Magick->Read($src_file): $error");
             return;
         }
-        if (my $error = $img->AutoOrient()) {
-            $self->error("Image::Magick->AutoOrient: $error");
-            #next;
-        }
+        #if (my $error = $img->AutoOrient()) {
+        #    $self->error("Image::Magick->AutoOrient: $error");
+        #    #next;
+        #}
         my ($width, $height) = ($img->Get('width'), $img->Get('height'));
         if (!$width || !$height) {
             $self->error("Image::Magick: Geometry error");
@@ -61,7 +61,7 @@ sub Save {
             next;
         }
         
-        #$self->debug("Resized($width x $height) \-> $dst_dir/$prefix.$ikey.jpg");
+        $self->debug("Resized($width x $height) \-> $dst_dir/$prefix.$ikey.jpg");
     }
     
     1;
