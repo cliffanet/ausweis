@@ -238,6 +238,26 @@ sub show {
             })
         ];
     };
+    
+    $d->{ausweis_history_my} = sub {
+        return $d->{_ausweis_history_my} = [
+            map {
+                $_->{nick} = $_->{ausweis}->{nick} || $_->{field_nick}->{value} || '';
+                $_->{href_hide} = $self->href($::disp{CommandHistoryHide}, $_->{id});
+                $_;
+            }
+            $self->model('Preedit')->search({
+                uid     => $self->user->{id},
+                tbl     => 'Ausweis',
+                modered => { '!=' => 0 },
+                visible => 1,
+                -or     => { 'field_cmdid.value' => $rec->{id}, 'ausweis.cmdid' => $rec->{id} },
+            }, {
+                prefetch => [qw/field_cmdid field_nick ausweis/],
+                order_by => 'id',
+            })
+        ];
+    };
 }
 
 sub show_my {
@@ -509,5 +529,21 @@ sub history {
 }
 
 
+sub history_hide {
+    my ($self, $hisid) = @_;
+    my $d = $self->d;
+    
+    return unless $self->rights_exists_event($::rCommandInfo);
+    
+    my ($rec) = (($self->d->{rec}) = 
+        $self->model('Preedit')->search({ id => $hisid }));
+    $rec || return $self->state(-000105);
+    return $self->rights_denied() if $rec->{uid} != $self->user->{id};
+    
+    $self->model('Preedit')->update({ visibled => 0 }, { id => $hisid })
+        || return $self->state(-000104);
+    
+    return $self->state(980400, '');
+}
 
 1;

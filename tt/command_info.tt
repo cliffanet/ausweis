@@ -69,6 +69,36 @@
     }
 </script>
 
+[% IF ausweis_history_my.size > 0 %]
+<h3>Премодерация</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="120">Дата/время</td>
+        <td width="150">Действие</td>
+        <td width="200">Ник</td>
+        <td>Комментарии модерации</td>
+        <td width="100"></td>
+    </tr>
+[% FOREACH ausweis_history_my %]
+    <tr>
+        <td>[% datetime(dtadd) %]</td>
+        <td>
+            [% IF op=='C' %]Добавление[% ELSIF op=='E' %]Редактирование[% ELSIF op=='D' %]Удаление[% END %]
+            [% IF tbl=='Ausweis' %]аусвайса[% END %]
+        </td>
+        <td>
+            [% IF modered > 0 %]<div style="color: green">+ [% comment %]</div>
+            [% ELSIF modered < 0 %]<div style="color: red">Отклонено: [% comment %]</div>
+            [% ELSE %]<div style="color: yellow"><i>ожидает модерации</i></div>[% END %]
+        </td>
+        <td><a href="[% href_hide %]">скрыть</a></td>
+    </tr>
+[% END %]
+</table>
+<br />
+[% END %]
+
+
 <h3>Аусвайсы</h3>
 [% IF print_open %]
 <form action="#" method="POST" id="formList">

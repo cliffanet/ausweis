@@ -134,8 +134,8 @@ sub Ausweis {
                 my $img1 = Image::Magick->new();
                 $error = $img1->Read($file);
                 $error && last;
-                $error = $img1->AutoOrient();
-                $error && last;
+                #$error = $img1->AutoOrient();
+                #$error && last;
                 my ($w, $h) = ($img1->Get('width'), $img1->Get('height'));
                 my $k = $o->{width} && ($o->{width} < $w) ? $o->{width}/$w : 1;
                 $k = $o->{height}/$h if $o->{height} && (($o->{height}/$h) < $k);
