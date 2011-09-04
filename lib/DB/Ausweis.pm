@@ -89,7 +89,7 @@ sub hnd_fio {
     my $rec = $self->d->{rec};
     my %id = $rec ? (id => { '!=' => $rec->{id}}) : ();
     
-    if ($self->d->{is_blocked}) {
+    if (!$self->d->{is_blocked}) {
         my $item = $self->model('Ausweis')->search({ fio => $value, blocked => 0, cmdid => $self->d->{cmdid}, %id });
         return 23 if $item;
     }
