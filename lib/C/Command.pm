@@ -250,7 +250,7 @@ sub show {
                 uid     => $self->user->{id},
                 tbl     => 'Ausweis',
                 modered => { '!=' => 0 },
-                visible => 1,
+                visibled=> 1,
                 -or     => { 'field_cmdid.value' => $rec->{id}, 'ausweis.cmdid' => $rec->{id} },
             }, {
                 prefetch => [qw/field_cmdid field_nick ausweis/],

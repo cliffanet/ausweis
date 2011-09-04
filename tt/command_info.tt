@@ -58,17 +58,6 @@
 
 <br />
 
-<script language="JavaScript">
-    function selectAll(val) {
-        var Set = document.getElementsByTagName("input");
-        for (var i=0; i<Set.length; i++) {
-            var e = Set[i];
-            if (e && e.name && (e.name == 'ausid'))
-                    e.checked = val
-        }
-    }
-</script>
-
 [% IF ausweis_history_my.size > 0 %]
 <h3>Премодерация</h3>
 <table class="tbl">
@@ -98,6 +87,17 @@
 <br />
 [% END %]
 
+
+<script language="JavaScript">
+    function selectAll(val) {
+        var Set = document.getElementsByTagName("input");
+        for (var i=0; i<Set.length; i++) {
+            var e = Set[i];
+            if (e && e.name && (e.name == 'ausid'))
+                    e.checked = val
+        }
+    }
+</script>
 
 <h3>Аусвайсы</h3>
 [% IF print_open %]
