@@ -16,11 +16,11 @@
         <td>[% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% ELSE %]-[% END %]</td>
     </tr>
     <tr>
-        <td class="ltitle">Привязанные аккаунты:</td>
+        <td class="ltitle">Аккаунты:</td>
         <td>
         [% IF cmd_account_list.size > 0 %]
         [% FOREACH cmd_account_list %]
-            [% login %][% IF grpid %] ([% group.name %])[% END %]<br />
+            [% login %][% IF gid %] ([% group.name %])[% END %]<br />
         [% END %]
         [% ELSE %]-[% END %]
         </td>
