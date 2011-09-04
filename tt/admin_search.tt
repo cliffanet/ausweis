@@ -30,8 +30,8 @@
     <tr class="title">
         <td width="50">[% INCLUDE 'sort.tt' field='id', name='ID' %]</td>
         <td width="100">[% INCLUDE 'sort.tt' field='login', name='Логин' %]</td>
-        <td width="100">[% INCLUDE 'sort.tt' field='gid', name='Группа' %]</td>
-        <td>[% INCLUDE 'sort.tt' field='cmdid', name='Команда' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='group.name', name='Группа' %]</td>
+        <td>[% INCLUDE 'sort.tt' field='command.name', name='Команда' %]</td>
     </tr>
     <tr><td colspan="7">
 [% INCLUDE 'pager.tt' %]
