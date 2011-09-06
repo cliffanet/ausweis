@@ -63,10 +63,10 @@
 <table class="tbl">
     <tr class="title">
         <td width="120">Дата/время</td>
-        <td width="150">Действие</td>
-        <td width="200">Ник</td>
+        <td width="200">Действие</td>
+        <td width="150">Ник</td>
         <td>Комментарии модерации</td>
-        <td width="100"></td>
+        <td width="70"></td>
     </tr>
 [% FOREACH ausweis_history_my %]
     <tr>
@@ -77,7 +77,7 @@
         </td>
         <td>[% nick %]</td>
         <td>
-            [% IF modered > 0 %]<div style="color: green">+ [% comment %]</div>
+            [% IF modered > 0 %]<div style="color: green">Выполнено [% comment %]</div>
             [% ELSIF modered < 0 %]<div style="color: red">Отклонено: [% comment %]</div>
             [% ELSE %]<div style="color: yellow"><i>ожидает модерации</i></div>[% END %]
         </td>
@@ -115,8 +115,7 @@
         <td width="150">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
         <td width="150">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
         <td width="250">[% INCLUDE 'sort.tt' field='fio', name='ФИО' %]</td>
-        <td width="100">[% INCLUDE 'sort.tt' field='blocked', name='Блокировка' %]</td>
-        <td></td>
+        <td>[% INCLUDE 'sort.tt' field='blocked', name='Блокировка' %]</td>
     </tr>
 [% IF ausweis_list.size > 0 %]
 [% FOREACH ausweis_list %]
@@ -131,7 +130,6 @@
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% fio %]</a></td>
         <td>[% IF blocked %]ЗАБЛОКИРОВАН[% END %]</td>
-        <td>&nbsp;</td>
     </tr>
 [% END %]
 [% ELSE %]
