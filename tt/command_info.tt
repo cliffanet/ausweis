@@ -63,7 +63,7 @@
 <table class="tbl">
     <tr class="title">
         <td width="120">Дата/время</td>
-        <td width="200">Действие</td>
+        <td width="180">Действие</td>
         <td width="150">Ник</td>
         <td>Комментарии модерации</td>
         <td width="70"></td>
