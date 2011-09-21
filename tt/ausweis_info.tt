@@ -178,6 +178,7 @@
                                 pr=[% money.price2 %];
                                 pr1=[% money.price1 %];
                             }
+                            alert("check: "+pr+" / "+pr1);
                             if (pr<=0) return;
                             if (($('inPrice').value=='') || ($('inPrice').value<=0) || ($('inPrice').value==pr1))
                                 $('inPrice').value=pr;
