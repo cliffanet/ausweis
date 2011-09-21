@@ -185,8 +185,8 @@
                         }
                     //-->
                 </script>
-                <label><input type="radio" name="payonkpp" value="0" onClick="checkPrice" onChange="checkPrice" id="cbNoKpp" /> Заранее</label><br />
-                <label><input type="radio" name="payonkpp" value="1" onClick="checkPrice" onChange="checkPrice" id="cbOnKpp" /> На КПП. <br />
+                <label><input type="radio" name="payonkpp" value="0" onClick="checkPrice()" id="cbNoKpp" /> Заранее</label><br />
+                <label><input type="radio" name="payonkpp" value="1" onClick="checkPrice()" id="cbOnKpp" /> На КПП. <br />
                 Сумма: <input type="text" size="10" name="price" id="inPrice" value="" /></label>
             </td>
         </tr>
