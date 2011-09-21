@@ -32,9 +32,12 @@ sub _item {
             return $item->{_money} if $item->{_money};
             my $m = ($item->{_money} = 
                 $self->ToHtml($self->model('EventMoney')->get($item->{id}, $cmdid)));
-            if (($m->{summ}==0) && ($m->{price}==0) && !$m->{comment} && ($item->{price} > 0)) {
                 # ÷ена по умолчанию
-                $m->{price} = $item->{price};
+            if (($m->{summ}==0) && ($m->{price1}==0) && ($m->{price2}==0) && 
+                !$m->{comment} && 
+                ($item->{price1} > 0) && ($item->{price2} > 0)) {
+                $m->{price1} = $item->{price1};
+                $m->{price2} = $item->{price2};
             }
             $m;
         };
@@ -130,7 +133,7 @@ sub adding {
     
     # јвтозаполнение полей, если данные из формы не приходили
     $d->{form} =
-        { map { ($_ => '') } qw/date status name price/ };
+        { map { ($_ => '') } qw/date status name price1 price2/ };
     if ($self->req->params()) {
         # ƒанные из формы - либо после ParamParse, либо напр€мую данные
         my $fdata = $self->ParamData(fillall => 1);
@@ -216,7 +219,8 @@ sub money_set {
     
     my %m;
     $m{summ}    = $q->param_float('summ')       if defined $q->param('summ');
-    $m{price}   = $q->param_float('price')      if defined $q->param('price');
+    $m{price1}  = $q->param_float('price1')     if defined $q->param('price1');
+    $m{price2}  = $q->param_float('price2')     if defined $q->param('price2');
     $m{comment} = $q->param_str('comment')      if defined $q->param('comment');
     
     $self->model('EventMoney')->set($evid, $cmdid, \%m)
@@ -242,6 +246,8 @@ sub ausweis_commit {
     my ($c) = $self->model('EventAusweis')->search({ evid => $evid, ausid => $ausid });
     $c && return $self->state(-940501, '');
     
+    my $m = $self->model('EventMoney')->get($rec->{id}, $aus->{cmdid});
+    
     my %c = ( evid => $evid, ausid => $ausid );
     
     $c{payonkpp} = $q->param_bool('payonkpp');
@@ -249,24 +255,32 @@ sub ausweis_commit {
     if ($c{payonkpp}) {
         $c{price} = $q->param_float('price') if $q->param_float('price') > 0;
     }
+    elsif (defined $q->param('price')) {
+        $c{price} = $q->param_float('price');
+    }
     else {
-        my $m = $self->model('EventMoney')->get($rec->{id}, $aus->{cmdid});
-        if (($m->{summ} > 0) || ($m->{price} > 0) || $m->{comment}) {
-            $c{price} = $m->{price};
+        if (($m->{summ} > 0) || ($m->{price1} > 0) || $m->{comment}) {
+            $c{price} = $m->{price1};
         }
-        elsif ($rec->{price} > 0) {
-            $c{price} = $rec->{price};
+        elsif ($rec->{price1} > 0) {
+            $c{price} = $rec->{price1};
         }
+    }
+    
+    defined($c{price}) || return $self->state(-940502, '');
+    
+    if (($c{price} > 0) && !$c{payonkpp}) {
+        # ѕровер€ем, можем ли мы из сданных заранее оплатить
         my @aus = $self->model('Ausweis')->search(
             { cmdid => $aus->{cmdid}, 'event.evid' => $rec->{id} },
             { prefetch => ['event'] }
         );
         my $summ = 0;
         $summ += $_->{event}->{price} foreach @aus;
+        
         return $self->state(-940503, '')
             if ($m->{summ}-$summ) < $c{price};
     }
-    defined($c{price}) || return $self->state(-940502, '');
     
     $self->model('EventAusweis')->create(\%c)
         || return $self->state(-000104, '');

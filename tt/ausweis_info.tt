@@ -127,7 +127,7 @@
     </tr>
     <tr>
         <td class="ltitle">Сумма с игрока:</td>
-        <td>[% money.price %]</td>
+        <td>[% money.price1 %] / [% money.price2 %]</td>
     </tr>
     <tr>
         <td class="ltitle">Комментарии:</td>
@@ -165,9 +165,28 @@
         <tr>
             <td class="ltitle">Оплата:</td>
             <td>
-                <label><input type="radio" name="payonkpp" value="0" [% IF allow_from_summ %]checked[% ELSE %]disabled[% END %] /> Заранее</label><br />
-                <label><input type="radio" name="payonkpp" value="1" [% IF !allow_from_summ %]checked[% END %] /> На КПП.
-                    Сумма: <input type="text" size="10" name="price" value="[% money.price %]" /></label>
+                <script type="text/javascript">
+                    <!--
+                        function checkPrice() {
+                            var pr=0;
+                            var pr1=0;
+                            if ($('cbNoKpp').checked) {
+                                pr=[% money.price1 %];
+                                pr1=[% money.price2 %];
+                            }
+                            if ($('cbOnKpp').checked) {
+                                pr=[% money.price2 %];
+                                pr1=[% money.price1 %];
+                            }
+                            if (pr<=0) return;
+                            if (!$('inPrice').value || ($('inPrice').value<=0) || ($('inPrice').value==pr1))
+                                $('inPrice').value=pr;
+                        }
+                    //-->
+                </script>
+                <label><input type="radio" name="payonkpp" value="0" onClick="checkPrice" id="cbNoKpp" /> Заранее</label><br />
+                <label><input type="radio" name="payonkpp" value="1" onClick="checkPrice" id="cbOnKpp" /> На КПП. <br />
+                Сумма: <input type="text" size="10" name="price" id="inPrice" value="" /></label>
             </td>
         </tr>
 <tr>

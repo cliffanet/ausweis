@@ -14,7 +14,7 @@
     </tr>
     <tr>
         <td class="ltitle">Цена с участника:</td>
-        <td>[% rec.price %]</td>
+        <td>[% rec.price1 %] / [% rec.price2 %]</td>
     </tr>
     <tr>
         <td class="submit" colspan="2">

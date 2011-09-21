@@ -6,7 +6,7 @@ use warnings;
 use base 'Clib::DBIC';
 
 __PACKAGE__->table("event_money");
-__PACKAGE__->columns_array(qw/id evid cmdid summ price comment/);
+__PACKAGE__->columns_array(qw/id evid cmdid summ price1 price2 comment/);
 
 sub create {
     my ($self, $new) = @_;

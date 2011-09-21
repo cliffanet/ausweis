@@ -27,8 +27,12 @@
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Цена с участника:[% INCLUDE form_error_param.tt  p='price' %]</td>
-        <td><input type="text" name="price" class="stdin" value="[% form.price %]" /></td>
+        <td class="ltitle">Цена с участника заранее:[% INCLUDE form_error_param.tt  p='price1' %]</td>
+        <td><input type="text" name="price1" class="stdin" value="[% form.price1 %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Цена с участника на КПП:[% INCLUDE form_error_param.tt  p='price2' %]</td>
+        <td><input type="text" name="price2" class="stdin" value="[% form.price2 %]" /></td>
     </tr>
 <tr>
     <td class="submit" colspan="2">

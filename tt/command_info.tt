@@ -178,7 +178,7 @@
     </tr>
     <tr>
         <td class="ltitle">Сумма с игрока:</td>
-        <td>[% money.price %]</td>
+        <td>[% money.price1 %] / [% money.price2 %]</td>
     </tr>
     <tr>
         <td class="ltitle">Комментарии:</td>
@@ -204,8 +204,12 @@
         <td><input type="text" name="summ" class="stdin" value="[% money.summ %]" /></td>
     </tr>
     <tr>
-        <td class="ltitle">Сумма с игрока:</td>
-        <td><input type="text" name="price" class="stdin" value="[% money.price %]" /></td>
+        <td class="ltitle">Сумма с игрока заранее:</td>
+        <td><input type="text" name="price1" class="stdin" value="[% money.price1 %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Сумма с игрока на КПП:</td>
+        <td><input type="text" name="price2" class="stdin" value="[% money.price2 %]" /></td>
     </tr>
     <tr>
         <td class="ltitle">Комментарии:</td>

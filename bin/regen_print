@@ -41,7 +41,7 @@ my $self = __PACKAGE__->new(
 ###     Партии на печать
 
 while (my ($prn) = $self->model('Print')->search( 
-        { 'regen' => { '>' => 0 }, status => ['A', 'D'] },
+        { 'regen' => { '>' => 0 }, status => ['A', 'C', 'D'] },
     )) {
     $self->log_prefix(sprintf("[party=%d]", $prn->{id}));
     $self->log("Need regenerate: %08b", $prn->{regen});
@@ -179,7 +179,7 @@ while (my ($prn) = $self->model('Print')->search(
     #    $self->model('Print')->regen_off($aus->{id}, @regenl)
     #        || last;
     #}
-    $self->model('Print')->update({ status => 'A', regen => 0 }, { id => $prn->{id} })
+    $self->model('Print')->update({ status => 'C', regen => 0 }, { id => $prn->{id} })
         || last;
 }
 
