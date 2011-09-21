@@ -178,7 +178,6 @@
                                 pr=[% money.price2 %];
                                 pr1=[% money.price1 %];
                             }
-                            alert("check: "+pr+" / "+pr1);
                             if (pr<=0) return;
                             if (($('inPrice').value=='') || ($('inPrice').value<=0) || ($('inPrice').value==pr1))
                                 $('inPrice').value=pr;
@@ -186,9 +185,12 @@
                     //-->
                 </script>
                 <label><input type="radio" name="payonkpp" value="0" onClick="checkPrice()" id="cbNoKpp" /> Заранее</label><br />
-                <label><input type="radio" name="payonkpp" value="1" onClick="checkPrice()" id="cbOnKpp" /> На КПП. <br />
-                Сумма: <input type="text" size="10" name="price" id="inPrice" value="" /></label>
+                <label><input type="radio" name="payonkpp" value="1" onClick="checkPrice()" id="cbOnKpp" /> На КПП</label>
             </td>
+        </tr>
+        <tr>
+            <td class="ltitle">Сумма:</td>
+            <td><input type="text" size="10" name="price" id="inPrice" value="" /></td>
         </tr>
 <tr>
     <td class="submit" colspan="2">
