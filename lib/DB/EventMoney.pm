@@ -23,7 +23,7 @@ sub get {
     my ($self, $evid, $cmdid) = @_;
     
     my ($m) = $self->search({ evid => $evid, cmdid => $cmdid });
-    $m ||= { summ => '0.00', price => '0.00', comment => '' };
+    $m ||= { summ => '0.00', price1 => '0.00', price2 => '0.00', comment => '', is_null => 1 };
     return $m;
 }
 
@@ -40,9 +40,20 @@ sub summ_add {
     my ($self, $evid, $cmdid, $summ) = @_;
     
     my ($m) = $self->search({ evid => $evid, cmdid => $cmdid });
-    return $m ?
-        $self->update({ summ => $m->{summ}+$summ }, { id => $m->{id} }) :
-        $self->create({ evid => $evid, cmdid => $cmdid, summ => $summ });
+    if ($m) {
+        return $self->update({ summ => $m->{summ}+$summ }, { id => $m->{id} });
+    }
+    else {
+        my $new = { evid => $evid, cmdid => $cmdid, summ => $summ };
+        my ($ev) = $self->schema->model('Event')->search({ id => $evid });
+        if ($ev) {
+            $new->{price1} = $ev->{price1};
+            $new->{price2} = $ev->{price2};
+        }
+        return $self->create($new);
+    }
+    
+    undef;
 }
 
 
