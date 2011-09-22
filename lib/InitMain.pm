@@ -71,6 +71,7 @@ __PACKAGE__->config(
         $::disp{EventSet}               => 'C::Event::set',
         $::disp{EventDel}               => 'C::Event::del',
         $::disp{EventMoneySet}          => 'C::Event::money_set',
+        $::disp{EventMoneyListSet}      => 'C::Event::money_list_set',
         $::disp{EventAusweisCommit}     => 'C::Event::ausweis_commit',
     },
     

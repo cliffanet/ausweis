@@ -18,8 +18,41 @@
     </tr>
     <tr>
         <td class="submit" colspan="2">
-            <a href="[% rec.href_edit %]">изменить</a>
+            <a href="[% rec.href_edit %]">изменить мероприятие</a>
         </td>
     </tr>
+</table>
+
+<br />
+<h3>Команды</h3>
+<form action="" method="POST" id="formList">
+<table class="tbl">
+    <tr class="title">
+        <td width="200">Название</td>
+        <td width="50">Допуск</td>
+        <td width="80">Взносы</td>
+        <td width="80">Цена заранее</td>
+        <td width="80">Цена на КПП</td>
+        <td>Комментарии</td>
+    </tr>
+[% IF command_money(1).size > 0 %]
+[% FOREACH command_money(1) %]
+    <tr>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a></td>
+        <td align="center">[% IF allowed %]+[% END %]</td>
+        <td align="right">[% summ %]</td>
+        <td align="right">[% price1 %]</td>
+        <td align="right">[% price2 %]</td>
+        <td>[% comment %]</td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="6" style="height:50px;text-align:center;vertical-align:middle;">
+        нет допущенных команд
+    </td></tr>
+[% END %]
+    <tr><td colspan="6" class="submit">
+        <a href="[% href_money_set %]">изменить список</a>
+    </td></tr>
 </table>
 

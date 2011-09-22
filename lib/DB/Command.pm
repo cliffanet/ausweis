@@ -17,6 +17,7 @@ __PACKAGE__->columns_hash(
 
 __PACKAGE__->link(blok => 'Blok', blkid => 'id', {join_type => 'left'});
 __PACKAGE__->link(ausweis => 'Ausweis', id => 'cmdid');
+__PACKAGE__->link(money => 'EventMoney', id => 'cmdid', {join_type => 'left'});
 
 sub create {
     my ($self, $new) = @_;

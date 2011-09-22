@@ -127,7 +127,7 @@
             [% IF money.allowed %]
             <div style="text-align: center; color:green; font-weight:bold;">дносяй</div>
             [% ELSE %]
-            <div style="text-align: center; color:red; font-weight:bold;">мер дносяйю</div>
+            <div style="text-align: center; color:red; font-weight:bold;">мер дносяйю с йнлюмдш</div>
             [% END %]
         </td>
     </tr>

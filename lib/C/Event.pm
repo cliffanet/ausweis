@@ -20,6 +20,7 @@ sub _item {
         # —сылки
         $item->{href_info}      = $self->href($::disp{EventShow}, $item->{id}, 'info');
         $item->{href_edit}      = $self->href($::disp{EventShow}, $item->{id}, 'edit');
+        $item->{href_money}     = $self->href($::disp{EventShow}, $item->{id}, 'money');
         $item->{href_set}       = $self->href($::disp{EventSet}, $item->{id});
         $item->{href_del}       = $self->href($::disp{EventDel}, $item->{id});
         $item->{href_delete}    = $self->href($::disp{EventDel}, $item->{id});
@@ -85,7 +86,7 @@ sub show {
     my ($self, $evid, $type) = @_;
     my $d = $self->d;
     
-    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
+    $type = 'info' if !$type || ($type !~ /^(edit|info|money)$/);
 
     return unless $self->rights_exists_event($::rEvent);
     if ($type eq 'edit') {
@@ -102,7 +103,32 @@ sub show {
     $self->view_select->subtemplate("event_$type.tt");
     
     $d->{href_set} = $self->href($::disp{EventSet}, $evid);
+    $d->{href_money_set} = $self->href($::disp{EventMoneyListSet}, $evid);
     
+    $d->{command_money} = sub {
+        my $only_allowed = $_[0] ? 1:0;
+        return $d->{"_money_list_$only_allowed"} ||= [
+            map {
+                $_ = C::Command::_item($self, $_);
+                my $m = $_->{money};
+                if (!$m->{id}) {
+                    $m->{id} = 0;
+                    foreach my $k (keys %$m) { $m->{$k} = '' };
+                    $m->{price1} = $rec->{price1};
+                    $m->{price2} = $rec->{price2};
+                }
+                $_;
+            }
+            $self->model('Command')->search(
+                { $only_allowed ? ( allowed => 1 ) : () },
+                { 
+                    prefetch => 'money',
+                    join_cond => { money => { evid => $evid } },
+                    order_by => 'name'
+                }
+            )
+        ];
+    };
 }
 
 sub edit {
@@ -230,6 +256,21 @@ sub money_set {
     # статус с редиректом
     $self->state(940400, '');
 }
+
+sub money_list_set {
+    my ($self, $evid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEvent, $::rWrite);
+    
+    my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
+    $rec || return $self->state(-000105);
+        
+    # статус с редиректом
+    $self->state(940400, '');
+}
+
 
 
 sub ausweis_commit {
