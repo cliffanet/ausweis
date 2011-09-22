@@ -1,0 +1,53 @@
+<h3>Мероприятие</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:</td>
+        <td><a href="[% rec.href_info %]"><b><big>[% rec.name %]</big></b></a></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Дата проведения:</td>
+        <td>[% date(rec.date) %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Статус:</td>
+        <td>[% rec.status_name %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Цена с участника:</td>
+        <td>[% rec.price1 %] / [% rec.price2 %]</td>
+    </tr>
+</table>
+
+<br />
+<h3>Команды</h3>
+<form action="" method="POST" id="formList">
+<table class="tbl">
+    <tr class="title">
+        <td width="200">Название</td>
+        <td width="50">Допуск</td>
+        <td width="80">Взносы</td>
+        <td width="80">Цена заранее</td>
+        <td width="80">Цена на КПП</td>
+        <td>Комментарии</td>
+    </tr>
+[% IF command_money.size > 0 %]
+[% FOREACH command_money %]
+    <tr>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a></td>
+        <td align="center">[% IF money.allowed %]+[% END %]</td>
+        <td align="right">[% money.summ %]</td>
+        <td align="right">[% money.price1 %]</td>
+        <td align="right">[% money.price2 %]</td>
+        <td>[%  money.comment %]</td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="6" style="height:50px;text-align:center;vertical-align:middle;">
+        нет допущенных команд
+    </td></tr>
+[% END %]
+    <tr><td colspan="6" class="submit">
+        <a href="[% rec.href_money %]">изменить список</a>
+    </td></tr>
+</table>
+
