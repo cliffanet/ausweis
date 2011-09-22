@@ -28,11 +28,11 @@
 <form action="" method="POST" id="formList">
 <table class="tbl">
     <tr class="title">
-        <td width="200">Название</td>
+        <td width="280">Название</td>
         <td width="50">Допуск</td>
-        <td width="80">Взносы</td>
-        <td width="80">Цена заранее</td>
-        <td width="80">Цена на КПП</td>
+        <td width="70">Взносы</td>
+        <td width="70">Цена заранее</td>
+        <td width="70">Цена на КПП</td>
         <td>Комментарии</td>
     </tr>
 [% IF command_money(1).size > 0 %]
