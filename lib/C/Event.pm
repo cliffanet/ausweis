@@ -120,10 +120,10 @@ sub show {
                 $_;
             }
             $self->model('Command')->search(
-                { $only_allowed ? ( allowed => 1 ) : () },
+                { $only_allowed ? ( 'money.allowed' => 1 ) : () },
                 { 
                     prefetch => 'money',
-                    join_cond => { money => { evid => $evid } },
+                    join_cond => { money => { 'money.evid' => $evid } },
                     order_by => 'name'
                 }
             )

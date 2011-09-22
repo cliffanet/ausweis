@@ -39,11 +39,11 @@
 [% FOREACH command_money(1) %]
     <tr>
         <td><a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a></td>
-        <td align="center">[% IF allowed %]+[% END %]</td>
-        <td align="right">[% summ %]</td>
-        <td align="right">[% price1 %]</td>
-        <td align="right">[% price2 %]</td>
-        <td>[% comment %]</td>
+        <td align="center">[% IF money.allowed %]+[% END %]</td>
+        <td align="right">[% money.summ %]</td>
+        <td align="right">[% money.price1 %]</td>
+        <td align="right">[% money.price2 %]</td>
+        <td>[%  money.comment %]</td>
     </tr>
 [% END %]
 [% ELSE %]
