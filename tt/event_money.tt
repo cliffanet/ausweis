@@ -34,16 +34,16 @@
     <tr>
         <td width="250">
             <a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a>
-            <input type="hidden" name="id" value="[% money.id %]" />
+            <input type="hidden" name="cmdid" value="[% id %]" />
         </td>
         <td align="center">
-            <input type="checkbox" name="allowed.[% money.id %]" value="1"[% IF money.allowed %] checked[% END %] />
-            <input type="hidden" name="allowed.[% money.id %]" value="0" />
+            <input type="checkbox" name="allowed.[% id %]" value="1"[% IF money.allowed %] checked[% END %] />
+            <input type="hidden" name="allowed.[% id %]" value="0" />
         </td>
-        <td><input type="text" name="summ.[% money.id %]" value="[% money.summ %]" style="width:70px" /></td>
-        <td><input type="text" name="price1.[% money.id %]" value="[% money.price1 %]" style="width:70px" /></td>
-        <td><input type="text" name="price1.[% money.id %]" value="[% money.price2 %]" style="width:70px" /></td>
-        <td><input type="text" name="comment.[% money.id %]" value="[% money.comment %]" style="width:180px" /></td>
+        <td><input type="text" name="summ.[% id %]" value="[% money.summ %]" style="width:70px" /></td>
+        <td><input type="text" name="price1.[% id %]" value="[% money.price1 %]" style="width:70px" /></td>
+        <td><input type="text" name="price1.[% id %]" value="[% money.price2 %]" style="width:70px" /></td>
+        <td><input type="text" name="comment.[% id %]" value="[% money.comment %]" style="width:180px" /></td>
     </tr>
 [% END %]
     <tr><td colspan="6" class="submit">

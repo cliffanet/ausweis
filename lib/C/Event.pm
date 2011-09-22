@@ -268,8 +268,66 @@ sub money_list_set {
     
     return unless $self->rights_check_event($::rEvent, $::rWrite);
     
+    # Событие
     my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
     $rec || return $self->state(-000105);
+    $evid = $rec->{id};
+    
+    # Команды
+    my %cmd = (
+        map { ($_->{id} => $_) }
+        $self->model('Command')->search({})
+    );
+    
+    # Привязка команд к событию
+    my %money = (
+        map { ($_->{cmdid} => $_) }
+        $self->model('EventMoney')->search({ evid => $evid })
+    );
+    
+    # Парсим входные данные
+    foreach my $cmdid ($q->param_dig('cmdid')) {
+        $cmd{$cmdid} || next;
+        
+        # Данные с формы
+        my %d = (
+            allowed     => $q->param_bool('allowed'),
+            summ        => sprintf('%0.2f', $q->param_float('summ')),
+            price1      => sprintf('%0.2f', $q->param_float('price1')),
+            price2      => sprintf('%0.2f', $q->param_float('price2')),
+            comment     => $q->param_str('comment'),
+        );
+        
+        # Данные все стандартные или особенные
+        my $isnull = !$d{allowed} && !$d{summ} && !$d{comment} &&
+            ($d{price1} == $rec->{price1}) && ($d{price2} == $rec->{price2}) ?
+            1 : 0;
+            
+        # Если уже прописаны особенные данные
+        if (my $m = $money{$cmdid}) {
+            if ($isnull) { # Но введенные не уникальны
+                $self->model('EventMoney')->delete({ id => $m->{id} })
+                    || return $self->state(-000104);
+            }
+            else { # Проверяем, изменилось ли какое-то поле
+                foreach my $k (qw/allowed summ price1 price2 comment/) {
+                    delete $d{$k} if $d{$k} eq $m->{$k};
+                }
+                if (%d) { # Меняем, если есть, что менять
+                    $self->model('EventMoney')->update(\%d, { id => $m->{id} })
+                        || return $self->state(-000104);
+                }
+            }
+        }
+        # Создаем новую привязку, если данные уникальны
+        elsif (!$isnull) { 
+            $self->model('EventMoney')->create({
+                evid    => $evid,
+                cmdid   => $cmdid,
+                %d,
+            }) || return $self->state(-000104);
+        }
+    }
         
     # статус с редиректом
     $self->state(940400, '');
