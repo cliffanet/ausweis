@@ -291,13 +291,12 @@ sub money_list_set {
         $cmd{$cmdid} || next;
         
         # Данные с формы
-        my %d = (
-            allowed     => $q->param_bool('allowed.'.$cmdid),
-            summ        => sprintf('%0.2f', $q->param_float('summ.'.$cmdid)),
-            price1      => sprintf('%0.2f', $q->param_float('price1.'.$cmdid)),
-            price2      => sprintf('%0.2f', $q->param_float('price2.'.$cmdid)),
-            comment     => $q->param_str('comment.'.$cmdid),
-        );
+        my %d;
+        $d{allowed}     = $q->param_bool('allowed.'.$cmdid);
+        $d{summ}        = sprintf('%0.2f', $q->param_float('summ.'.$cmdid));
+        $d{price1}      = sprintf('%0.2f', $q->param_float('price1.'.$cmdid));
+        $d{price2}      = sprintf('%0.2f', $q->param_float('price2.'.$cmdid));
+        $d{comment}     = $q->param_str('comment.'.$cmdid);
         
         # Данные все стандартные или особенные
         my $isnull = !$d{allowed} && ($d{summ}<=0) && !$d{comment} &&
