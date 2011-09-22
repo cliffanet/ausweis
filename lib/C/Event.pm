@@ -128,7 +128,8 @@ sub show {
                 { 
                     prefetch => 'money',
                     join_cond => { money => { 'money.evid' => $evid } },
-                    order_by => 'name'
+                    order_by => 'name',
+                    limit => 5,
                 }
             )
         ];
@@ -330,7 +331,7 @@ sub money_list_set {
     }
         
     # статус с редиректом
-    $self->state(940400, '');
+    $self->state(940400, $self->href($::disp{EventShow}, $id, 'info'));
 }
 
 
