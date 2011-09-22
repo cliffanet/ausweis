@@ -23,7 +23,7 @@
 <form action="" method="POST" id="formList">
 <table class="tbl">
     <tr class="title">
-        <td width="280">Название</td>
+        <td width="200">Название</td>
         <td width="50">Допуск</td>
         <td width="70">Взносы</td>
         <td width="70">Цена заранее</td>
@@ -33,7 +33,7 @@
 [% IF command_money.size > 0 %]
 [% FOREACH command_money %]
     <tr>
-        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a></td>
+        <td width="200"><a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a></td>
         <td align="center">[% IF money.allowed %]+[% END %]</td>
         <td align="right">[% money.summ %]</td>
         <td align="right">[% money.price1 %]</td>
