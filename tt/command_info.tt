@@ -212,8 +212,8 @@
     <tr>
         <td class="ltitle">Допуск:</td>
         <td>
-            <input type="hidden" name="allowed" value="0" />
             <input type="checkbox" name="allowed" value="1"[% IF money.allowed %] checked[% END %] />
+            <input type="hidden" name="allowed" value="0" />
         </td>
     </tr>
     <tr>
