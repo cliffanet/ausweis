@@ -50,8 +50,10 @@
         нет допущенных команд
     </td></tr>
 [% END %]
+[% IF rec.status == 'O' %]
     <tr><td colspan="6" class="submit">
         <a href="[% rec.href_money %]">изменить список</a>
     </td></tr>
+[% END %]
 </table>
 

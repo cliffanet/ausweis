@@ -97,6 +97,10 @@ sub show {
         map { _item($self, $_) }
         $self->model('Event')->search({ id => $evid }));
     $rec || return $self->state(-000105);
+    
+    return $self->state(-000105)
+        if ($type eq 'money') && ($rec->{status} ne 'O');
+    
     $d->{form} = $rec || {};
     
     $self->patt(TITLE => sprintf($text::titles{"event_$type"}, $rec->{name}));
