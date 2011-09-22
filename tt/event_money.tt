@@ -43,7 +43,7 @@
         <td><input type="text" name="summ.[% money.id %]" value="[% money.summ %]" style="width:70px" /></td>
         <td><input type="text" name="price1.[% money.id %]" value="[% money.price1 %]" style="width:70px" /></td>
         <td><input type="text" name="price1.[% money.id %]" value="[% money.price2 %]" style="width:70px" /></td>
-        <td><input type="text" name="comment.[% money.id %]" value="[% money.comment %]" style="width:150px" /></td>
+        <td><input type="text" name="comment.[% money.id %]" value="[% money.comment %]" style="width:180px" /></td>
     </tr>
 [% END %]
     <tr><td colspan="6" class="submit">
