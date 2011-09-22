@@ -129,7 +129,6 @@ sub show {
                     prefetch => 'money',
                     join_cond => { money => { 'money.evid' => $evid } },
                     order_by => 'name',
-                    limit => 5,
                 }
             )
         ];
