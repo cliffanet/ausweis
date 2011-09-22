@@ -52,7 +52,7 @@
     </td></tr>
 [% END %]
     <tr><td colspan="6" class="submit">
-        <a href="[% href_money_set %]">изменить список</a>
+        <a href="[% rec.href_money %]">изменить список</a>
     </td></tr>
 </table>
 
