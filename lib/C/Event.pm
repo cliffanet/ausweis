@@ -331,7 +331,7 @@ sub money_list_set {
     }
         
     # статус с редиректом
-    $self->state(940400, $self->href($::disp{EventShow}, $id, 'info'));
+    $self->state(940400, $self->href($::disp{EventShow}, $evid, 'info'));
 }
 
 
