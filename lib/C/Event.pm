@@ -300,7 +300,7 @@ sub money_list_set {
         );
         
         # ƒанные все стандартные или особенные
-        my $isnull = !$d{allowed} && !$d{summ} && !$d{comment} &&
+        my $isnull = !$d{allowed} && ($d{summ}<=0) && !$d{comment} &&
             ($d{price1} == $rec->{price1}) && ($d{price2} == $rec->{price2}) ?
             1 : 0;
             
