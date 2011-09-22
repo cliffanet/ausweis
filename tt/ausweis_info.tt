@@ -122,6 +122,16 @@
 <h3>Мероприятие: [% name %]</h3>
 <table class="tbl">
     <tr>
+        <td class="ltitle">Допуск:</td>
+        <td>
+            [% IF money.allowed %]
+            <div style="text-align: center; color:green; font-weight:bold;">ДОПУСК</div>
+            [% ELSE %]
+            <div style="text-align: center; color:red; font-weight:bold;">НЕТ ДОПУСКА</div>
+            [% END %]
+        </td>
+    </tr>
+    <tr>
         <td class="ltitle">Вносов сдано:</td>
         <td>[% money.summ %]</td>
     </tr>
@@ -133,7 +143,8 @@
         <td class="ltitle">Комментарии:</td>
         <td>[% money.comment %]</td>
     </tr>
-[% IF rec.blocked %]
+[% IF !money.allowed %]
+[% ELSIF rec.blocked %]
     <tr>
         <tr><td colspan="2" style="text-align: center; color:red; font-weight:bold;">
             ЗАБЛОКИРОВАН![% IF rec.comment %] ([% rec.comment %])[% END %]

@@ -173,6 +173,16 @@
 <div id="event_[% id %]_info">
 <table class="tbl">
     <tr>
+        <td class="ltitle">Допуск:</td>
+        <td>
+            [% IF money.allowed %]
+            <div style="text-align: center; color:green; font-weight:bold;">ДОПУСК</div>
+            [% ELSE %]
+            <div style="text-align: center; color:red; font-weight:bold;">НЕТ ДОПУСКА</div>
+            [% END %]
+        </td>
+    </tr>
+    <tr>
         <td class="ltitle">Вносов сдано:</td>
         <td>[% money.summ %]</td>
     </tr>
@@ -199,6 +209,13 @@
 <div id="event_[% id %]_edit" style="display: none">
 <form action="[% href_money_set %]" method="post">
 <table class="tbl">
+    <tr>
+        <td class="ltitle">Допуск:</td>
+        <td>
+            <input type="hidden" name="allowed" value="0" />
+            <input type="text" name="allowed" value="1"[% IF money.allowed %] checked[% END %] />
+        </td>
+    </tr>
     <tr>
         <td class="ltitle">Вносов сдано:</td>
         <td><input type="text" name="summ" class="stdin" value="[% money.summ %]" /></td>

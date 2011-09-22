@@ -218,6 +218,7 @@ sub money_set {
     $cmd || return $self->state(-000105);
     
     my %m;
+    $m{allowed} = $q->param_bool('allowed')     if defined $q->param('allowed');
     $m{summ}    = $q->param_float('summ')       if defined $q->param('summ');
     $m{price1}  = $q->param_float('price1')     if defined $q->param('price1');
     $m{price2}  = $q->param_float('price2')     if defined $q->param('price2');
