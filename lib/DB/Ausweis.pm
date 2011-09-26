@@ -36,7 +36,13 @@ sub create {
     if (ref($new) eq 'HASH') {
         $new->{dtadd} ||= \ 'NOW()';
         $new->{numid} ||= $self->gen_numid || return;
-        $new->{regen} ||= (1<<($::regen{code}-1)) if $::regen{code};
+        if (!$new->{regen}) {
+            $new->{regen} = 0;
+            $new->{regen} = $new->{regen} | (1<<($::regen{code}-1)) if $::regen{code};
+            $new->{regen} = $new->{regen} | (1<<($::regen{photo}-1)) if $::regen{photo} && $new->{photo};
+            $new->{regen} = $new->{regen} | (1<<($::regen{print_img}-1)) if $::regen{print_img};
+            $new->{regen} = $new->{regen} | (1<<($::regen{print_pdf}-1)) if $::regen{print_pdf};
+        }
     }
     
     return $self->SUPER::create($new);
