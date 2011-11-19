@@ -130,7 +130,7 @@
 <br />
 <h3>[% name %]</h3>
 <table class="tbl">
-    <tr><td><b>Прошло КПП:</b></td>    <td>[% count %]</td></tr>
+    <tr><td width="100"><b>Прошло КПП:</b></td>    <td>[% count %]</td></tr>
 </table>
 [% END %]
 [% END %]
