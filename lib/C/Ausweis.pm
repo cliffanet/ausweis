@@ -151,6 +151,8 @@ sub show {
     
     $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
     
+    $type = 'event' if ($type eq 'info') && $d->{event}->{view};
+    
     my ($rec) = (($self->d->{rec}) = 
         map { _item($self, $_) }
         $self->model('Ausweis')->search({ id => $id }, { prefetch => [qw/command blok/] }));

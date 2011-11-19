@@ -1,0 +1,259 @@
+<table class="tbl">
+    <tr height="22">
+        <td rowspan="7" style="border:0; width:200px">
+[% IF rec.photo %]
+<img width="200" alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_file('photo.site.jpg') %]" />
+[% ELSE %]
+<span style="color:red; text-weight:bold;">[ФОТО НЕТ]</span>
+[% END %]
+    <br /><!-- br />
+[% IF rec.command.photo %]
+<img width="200" alt="[% rec.command.name %]" title="[% rec.command.name %]" src="[% rec.command.href_file('logo.site.jpg') %]" />
+[% ELSE %]
+<span style="color:red; text-weight:bold;">[ЭМБЛЕМЫ НЕТ]</span>
+[% END %] -->
+        </td>
+        <!-- td class="ltitle">ШтрихКод:</td>
+        <td><b>[% rec.numid %]</b></td -->
+        <td class="ltitle">Ник:</td>
+        <td><b><big>[% rec.nick %]</big></b>[% INCLUDE preedit_field.tt field='nick' %]</td>
+    </tr>
+    <!-- tr>
+        <td class="ltitle">Ник:</td>
+        <td><b><big>[% rec.nick %]</big></b>[% INCLUDE preedit_field.tt field='nick' %]</td>
+    </tr -->
+    <tr height="22">
+        <td class="ltitle">ФИО:</td>
+        <td>[% rec.fio %][% INCLUDE preedit_field.tt field='fio' %]</td>
+    </tr>
+    <tr height="22">
+        <td class="ltitle">Команда / Блок:</td>
+        <td>
+            <a title="Просмотр команды" alt="Просмотр команды" href="[% rec.command.href_info %]">[% rec.command.name %]</a>
+            /
+            [% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% ELSE %]-[% END %]
+        </td>
+    </tr>
+    <!-- tr>
+        <td class="ltitle">Блок:</td>
+            [% IF rec.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% rec.blok.href_info %]">[% rec.blok.name %]</a>[% ELSE %]-[% END %]
+        <td>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блокировка:</td>
+        <td>[% IF rec.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %][% INCLUDE preedit_field.tt field='blocked' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Группа крови:</td>
+        <td>[% rec.krov %][% INCLUDE preedit_field.tt field='krov' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Аллергия:</td>
+        <td>[% rec.allerg %][% INCLUDE preedit_field.tt field='allerg' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Непереносимость:</td>
+        <td>[% rec.neperenos %][% INCLUDE preedit_field.tt field='neperenos' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Полис:</td>
+        <td>[% rec.polis %][% INCLUDE preedit_field.tt field='polis' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Медик:</td>
+        <td>[% rec.medik %][% INCLUDE preedit_field.tt field='medik' %]</td>
+    </tr -->
+    <tr height="22">
+        <td class="ltitle">Примечания:</td>
+        <td>[% rec.comment %][% INCLUDE preedit_field.tt field='comment' %]</td>
+    </tr>
+    <tr height="44">
+        <td class="ltitle">Печать самостоятельная:</td>
+        <td>
+            <a href="[% rec.href_regen %]">Пересобрать</a>
+            [% IF rec.regen > 0 %](в процессе: [% rec.regens %])[% END %]
+            <br />
+[% IF rec.file_size('print.front.jpg') || rec.file_size('print.rear.jpg')  %]
+        [% IF rec.file_size('print.front.jpg')  %]
+        <a target="_blank" href="[% rec.href_file('print.front.jpg') %]">JPG (лицевая сторона)</a>
+        [% END %]
+        [% IF rec.file_size('print.rear.jpg')  %]
+        | <a target="_blank" href="[% rec.href_file('print.rear.jpg') %]">JPG (тыльная сторона)</a>
+        [% END %]
+[% END %]
+[% IF rec.file_size('print.pdf') %]
+        | <a target="_blank" href="[% rec.href_file('print.pdf') %]">PDF</a>
+[% END %]
+        </td>
+    </tr>
+    <!--tr>
+        <td class="ltitle">Печать массовая:</td>
+        <td>
+        [% d.in_open_party = 0 %]
+        [% FOREACH print_list %]
+        - <a href="[% href_info %]">Партия № [% id %]</a>: [% status_name %]
+        [% IF status == 'A' %][% d.in_open_party = id %](<a href="[% href_ausweis_del(rec.id) %]">отменить</a>)[% END %]<br />
+        [% END %]
+        [% IF print_open && (print_open.id != d.in_open_party) %]
+            <b>Открыта партия на печать:</b>
+                <a href="[% print_open.href_info %]">Партия № [% print_open.id %]</a>:
+                <a href="[% print_open.href_ausweis_add(rec.id) %]">отправить в партию</a>
+        [% END %]
+        </td>
+    </tr -->
+    <tr>
+        <td colspan="2">
+        </td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+            <a href="[% rec.href_edit %]">изменить</a>
+        </td>
+    </tr>
+</table>
+
+[% IF preedit_field('photo').exists %]
+<br />
+
+<h3>Фото - Ожидание модерации</h3>
+<img width="200" src="[% preedit_field('photo').href_file %]" />
+<br />
+
+[% END %]
+
+
+[% IF allow_event %]
+[% FOREACH event_list %]
+<!--br />
+<h3>Мероприятие: [% name %]</h3 -->
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Допуск команды:</td>
+        <td colspan="3">
+            [% IF money.allowed %]
+            <div style="text-align: center; color:green; font-weight:bold;">ДОПУСК</div>
+            [% ELSE %]
+            <div style="text-align: center; color:red; font-weight:bold;">НЕТ ДОПУСКА У КОМАНДЫ</div>
+            [% END %]
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Вносов сдано:</td>
+        <td colspan="2">[% money.summ %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Сумма с игрока:</td>
+        <td colspan="2">[% money.price1 %] / [% money.price2 %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Комментарии:</td>
+        <td colspan="2">[% money.comment %]</td>
+    </tr>
+[% IF !money.allowed %]
+[% ELSIF rec.blocked %]
+    <tr>
+        <tr><td colspan="3" style="text-align: center; color:red; font-weight:bold;">
+            ЗАБЛОКИРОВАН![% IF rec.comment %] ([% rec.comment %])[% END %]
+        </td></tr>
+    </tr>
+[% ELSIF commit %]
+    <tr>
+        <tr><td colspan="3" style="text-align: center; font-weight:bold; text-decoration:underline;">
+            Уже прошел КПП!
+        </td></tr>
+        <tr>
+            <td class="ltitle">Время прохода:</td>
+            <td colspan="2">[% datetime(commit.dtadd) %]</td>
+        </tr>
+        <tr>
+            <td class="ltitle">Оплата:</td>
+            <td colspan="2">[% IF commit.payonkpp %]На КПП[% ELSE %]Заранее[% END %] ([% commit.price %])</td>
+        </tr>
+    </tr>
+[% ELSIF allow_event_write %]
+<form action="[% href_ausweis_commit %]" method="post" >
+        <tr><td colspan="3" style="text-align: center; color:green; font-weight:bold;">
+            Прохождение КПП
+        </td></tr>
+        <tr>
+            <td class="ltitle">Осталось от взносов:</td>
+            <td>[% summ_avail %]</td>
+            <td rowspan="3" width="300" style="text-align: center; vertical-align: middle;">
+        <input type="submit"
+            style="width:270px; height:90px; font-weight:bold; border-width:3px; border-color: black" 
+            value="ЗАРЕГИСТРИРОВАТЬ">
+            </td>
+        </tr>
+        <tr>
+            <td class="ltitle">Оплата:</td>
+            <td>
+                <script type="text/javascript">
+                    <!--
+                        function checkPrice() {
+                            var pr=0;
+                            var pr1=0;
+                            if ($('cbNoKpp').checked) {
+                                pr=[% money.price1 %];
+                                pr1=[% money.price2 %];
+                            }
+                            if ($('cbOnKpp').checked) {
+                                pr=[% money.price2 %];
+                                pr1=[% money.price1 %];
+                            }
+                            if (pr<=0) return;
+                            if (($('inPrice').value=='') || ($('inPrice').value<=0) || ($('inPrice').value==pr1))
+                                $('inPrice').value=pr;
+                        }
+                    //-->
+                </script>
+                <label><input type="radio" name="payonkpp" value="0" onClick="checkPrice()" id="cbNoKpp" /> Заранее</label><br />
+                <label><input type="radio" name="payonkpp" value="1" onClick="checkPrice()" id="cbOnKpp" /> На КПП</label>
+            </td>
+        </tr>
+        <tr>
+            <td class="ltitle">Сумма:</td>
+            <td><input type="text" size="10" name="price" id="inPrice" value="" /></td>
+        </tr>
+<!-- tr>
+    <td class="submit" colspan="3">
+        <input type="submit" value="ЗАРЕГИСТРИРОВАТЬ">
+    </td>
+</tr -->
+</form>
+[% ELSE %]
+    <tr>
+        <tr><td colspan="3" style="text-align: center; color:red; font-weight:yellow;">
+            КПП НЕ ПРОХОДИЛ
+        </td></tr>
+    </tr>
+[% END %]
+</table>
+[% IF allow_event_write %]
+<h3>Уже прошли КПП из этой команды:</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="120">[% INCLUDE 'sort.tt' field='dtadd', name='Время' %]</td>
+        <td width="100">[% INCLUDE 'sort.tt' field='numid', name='Номер' %]</td>
+        <td width="200">[% INCLUDE 'sort.tt' field='name', name='Ник' %]</td>
+        <td></td>
+    </tr>
+[% IF ausweis_list.size > 0 %]
+[% FOREACH ausweis_list %]
+    <tr>
+        <td align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% datetime(event.dtadd) %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td>&nbsp;</td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
+        из этой команды еще никто не проходил КПП
+    </td></tr>
+[% END %]
+</table>
+[% END # IF allow_event_write %]
+[% END # FOREACH event_list %]
+[% END # IF allow_event %]
+

@@ -155,6 +155,7 @@ sub http_accept {
             href_showitem=>$self->href($::disp{PreeditShowItem}),
         },
         event     => {
+            view        => $self->rights_check($::rEventView) ? 1 : 0,
             href_list   => $self->href($::disp{EventList}),
             href_adding => $self->href($::disp{EventAdding}),
         },
