@@ -131,6 +131,7 @@
 <h3>Мероприятие: [% name %]</h3><br />
 Прошло КПП: [% count %]
 [% END %]
+[% END %]
 
     </td>
     <td valign="top" class="content">
