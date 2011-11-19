@@ -125,6 +125,13 @@
     </script>
 [% END %]
 
+[% IF event.view %]
+[% FOREACH event.open_list %]
+<br />
+<h3>Мероприятие: [% name %]</h3><br />
+Прошло КПП: [% count %]
+[% END %]
+
     </td>
     <td valign="top" class="content">
                     <!-- Заголовок -->

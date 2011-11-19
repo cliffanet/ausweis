@@ -194,6 +194,29 @@ sub http_accept {
         $d->{aus}->{allow_list} = $self->rights_exists($::rAusweisList);
     }
     
+    if ($d->{event}->{view}) {
+        $d->{event}->{open_list} = sub {
+            $d->{event}->{_open_list} ||= [
+                map { 
+                    my $ev = C::Event::_item($self, $_, $rec->{cmdid});
+                    $ev->{count} = sub {
+                        if (!defined($ev->{_count})) {
+                            $ev->{_count} = $self->model('EventAusweis')->count({ evid => $ev->{id} });
+                            $ev->{_count} ||= 0;
+                        }
+                        $ev->{_count};
+                    };
+                    $ev;
+                }
+                $self->model('Event')->search({
+                    status  => 'O',
+                }, {
+                    order_by => [qw/date id/],
+                })
+            ];
+        };
+    }
+    
     ############################
     
     # Меню администратора
