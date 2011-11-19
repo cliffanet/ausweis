@@ -128,7 +128,7 @@
 [% IF event.view %]
 [% FOREACH event.open_list %]
 <br />
-<h3>Мероприятие: [% name %]</h3><br />
+<h3>[% name %]</h3>
 Прошло КПП: [% count %]
 [% END %]
 [% END %]
