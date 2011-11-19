@@ -198,7 +198,7 @@ sub http_accept {
         $d->{event}->{open_list} = sub {
             $d->{event}->{_open_list} ||= [
                 map { 
-                    my $ev = C::Event::_item($self, $_, $rec->{cmdid});
+                    my $ev = C::Event::_item($self, $_);
                     $ev->{count} = sub {
                         if (!defined($ev->{_count})) {
                             $ev->{_count} = $self->model('EventAusweis')->count({ evid => $ev->{id} });
