@@ -129,7 +129,9 @@
 [% FOREACH event.open_list %]
 <br />
 <h3>[% name %]</h3>
-Прошло КПП: [% count %]
+<table class="tbl">
+    <tr><td>Прошло КПП:</td>    <td>[% count %]</td></tr>
+</table>
 [% END %]
 [% END %]
 
