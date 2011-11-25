@@ -183,7 +183,7 @@
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Вносов сдано (заранее/кпп):</td>
+        <td class="ltitle">Сдано (заранее/кпп):</td>
         <td>[% money.summ %] / [% summ_onkpp %]</td>
     </tr>
     <tr>
