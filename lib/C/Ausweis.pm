@@ -233,7 +233,7 @@ sub show {
                     $ev->{_commit};
                 };
                 $ev->{href_ausweis_commit} = $self->href($::disp{EventAusweisCommit}, $ev->{id}, $rec->{id});
-                $ev->{href_ausweis_commit} = $self->href($::disp{EventAusweisDeCommit}, $ev->{id}, $rec->{id});
+                $ev->{href_ausweis_decommit} = $self->href($::disp{EventAusweisDeCommit}, $ev->{id}, $rec->{id});
                 $ev->{summ_avail} = sub {
                     my $list = $ev->{ausweis_list}->();
                     my $summ = 0;
