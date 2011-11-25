@@ -90,7 +90,7 @@ sub show {
     $type = 'info' if !$type || ($type !~ /^(edit|info|money)$/);
 
     return unless $self->rights_exists_event($::rEvent);
-    if ($type eq 'edit') {
+    if (($type eq 'edit') || ($type eq 'money')) {
         return unless $self->rights_check_event($::rEvent, $::rAdvanced);
     }
     
