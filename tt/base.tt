@@ -3,12 +3,12 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
     [% IF AUTOREFRESH %]<meta http-equiv=refresh content='[% AUTOREFRESH %]'>[% END %]
-    <link rel="stylesheet" type="text/css" href="http://airsoftclub.ru/css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="/airsoftclub/styles.css" />
     <link href="/style.css" rel="stylesheet" type="text/css">
 <!--[if IE]>
         <link rel="stylesheet" type="text/css" href="http://airsoftclub.ru/css/styles_ie.css" />
 <![endif]-->
-    <title>Airsoftclub.ru страйкбол :: [% IF IS_DEVEL %] [DEVELOPER][% END %]: АУСВАЙСЫ :: [% TITLE %]</title>
+    <title>[% IF IS_DEVEL %] [DEVELOPER][% END %]: АУСВАЙСЫ :: [% TITLE %] :: Airsoftclub.ru страйкбол</title>
     <script type="text/javascript"> 
     <!--
         function $(id) { return document.getElementById(id); }
