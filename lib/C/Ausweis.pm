@@ -418,10 +418,10 @@ sub set {
                     preselect => $rec
                 ),
         );
-        if (!$ret) {
-            $self->state(-000104);
-            return $is_new ? adding($self) : edit($self, $id);
-        }
+        #if (!$ret) {
+        #    $self->state(-000104);
+        #    return $is_new ? adding($self) : edit($self, $id);
+        #}
     
         # Загрузка фото
         if (my $file = $self->req->param("photo")) {

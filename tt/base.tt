@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="/airsoftclub/styles.css" />
     <link href="/style.css" rel="stylesheet" type="text/css">
 <!--[if IE]>
-        <link rel="stylesheet" type="text/css" href="http://airsoftclub.ru/css/styles_ie.css" />
+        <!-- link rel="stylesheet" type="text/css" href="http://airsoftclub.ru/css/styles_ie.css" / -->
 <![endif]-->
     <title>[% IF IS_DEVEL %] [DEVELOPER][% END %]: АУСВАЙСЫ :: [% TITLE %] :: Airsoftclub.ru страйкбол</title>
     <script type="text/javascript"> 
@@ -25,7 +25,7 @@
 
 <!--div id="outer"-->
     <!-- div id="header">
-    <div id="logo"><a href="http://airsoftclub.ru/"><img src="http://airsoftclub.ru/i2/logo.jpg" width="178" height="143" alt="#" border="0"></a></div>
+    <div id="logo"><a href="http://airsoftclub.ru/"><img src="/logo.jpg" width="178" height="143" alt="#" border="0"></a></div>
     </div>
 
     <div class="clear"></div>
@@ -121,6 +121,7 @@
     <script type="text/javascript"> 
     <!--
             $('NumidNick').focus();
+            $('NumidNick').select();
     //-->
     </script>
 [% END %]
@@ -137,12 +138,16 @@
 
     </td>
     <td valign="top" class="content">
+[% IF !event.view %]
                     <!-- Заголовок -->
     <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %][% TITLE %]</div>
+[% END # IF !event.view %]
                     <!-- Контент -->
 [% IF subtemplate %][% INCLUDE $subtemplate %][% END %]
                     <!-- Конец контента -->
+[% IF !event.view %]
     <br />
+[% END %]
     </td>
 </tr>
 [% ELSE # authenticate.uid %]

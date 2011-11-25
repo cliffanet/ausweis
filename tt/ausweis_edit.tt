@@ -1,5 +1,5 @@
 <form action="[% href_set %]" method="POST" enctype="multipart/form-data">
-<h3>Команда</h3>
+<h3>Аусвайс</h3>
 <table class="tbl">
     <tr>
         <td class="ltitle">Ник/позывной:[% INCLUDE form_error_param.tt  p='nick' %]</td>
