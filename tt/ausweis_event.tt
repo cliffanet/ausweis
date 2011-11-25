@@ -177,7 +177,7 @@
             </td>
         </tr>
     </tr>
-[% ELSIF allow_event_write %]
+[% ELSIF allow_event_commit %]
 <form action="[% href_ausweis_commit %]" method="post" >
         <tr><td colspan="3" style="text-align: center; color:green; font-weight:bold;">
             Прохождение КПП
@@ -235,7 +235,7 @@
     </tr>
 [% END %]
 </table>
-[% IF allow_event_write %]
+[% IF allow_event_commit %]
 <h3>Уже прошли КПП из этой команды:</h3>
 <table class="tbl">
     <tr class="title">
@@ -259,7 +259,7 @@
     </td></tr>
 [% END %]
 </table>
-[% END # IF allow_event_write %]
+[% END # IF allow_event_commit %]
 [% END # FOREACH event_list %]
 [% END # IF allow_event %]
 

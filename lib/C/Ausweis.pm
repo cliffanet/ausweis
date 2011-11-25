@@ -220,7 +220,7 @@ sub show {
     
     # Мероприятия
     $d->{allow_event} = $self->rights_exists($::rEvent);
-    $d->{allow_event_write} = $self->rights_check($::rEvent, $::rWrite);
+    $d->{allow_event_commit} = $self->rights_check($::rEventCommit, $::rYes, $::rAdvanced);
     $d->{event_list} = sub {
         $d->{_event_list} ||= [
             map { 

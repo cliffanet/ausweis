@@ -91,13 +91,17 @@ sub show {
 
     return unless $self->rights_exists_event($::rEvent);
     if ($type eq 'edit') {
-        return unless $self->rights_check_event($::rEvent, $::rWrite);
+        return unless $self->rights_check_event($::rEvent, $::rAdvanced);
     }
     
     my ($rec) = (($self->d->{rec}) = 
         map { _item($self, $_) }
         $self->model('Event')->search({ id => $evid }));
     $rec || return $self->state(-000105);
+    
+    if ($rec->{status} ne 'O') {
+        return unless $self->rights_check_event($::rEvent, $::rAdvanced);
+    }
     
     return $self->state(-000105)
         if ($type eq 'money') && ($rec->{status} ne 'O');
@@ -154,7 +158,7 @@ sub edit {
 sub adding {
     my ($self) = @_;
 
-    return unless $self->rights_check_event($::rEvent, $::rWrite);
+    return unless $self->rights_check_event($::rEvent, $::rAdvanced);
     
     $self->patt(TITLE => $text::titles{"event_add"});
     $self->view_select->subtemplate("event_add.tt");
@@ -180,7 +184,7 @@ sub set {
     my ($self, $id) = @_;
     my $is_new = !defined($id);
     
-    return unless $self->rights_check_event($::rEvent, $::rWrite);
+    return unless $self->rights_check_event($::rEvent, $::rAdvanced);
     
     # Кэшируем заранее данные
     my ($rec) = (($self->d->{rec}) = $self->model('Event')->search({ id => $id })) if $id;
@@ -218,7 +222,7 @@ sub set {
 sub del {
     my ($self, $id) = @_;
     
-    return unless $self->rights_check_event($::rEvent, $::rWrite);
+    return unless $self->rights_check_event($::rEvent, $::rAdvanced);
     my ($rec) = $self->model('Event')->search({ id => $id });
     $rec || return $self->state(-000105);
     
@@ -241,7 +245,7 @@ sub money_set {
     my $d = $self->d;
     my $q = $self->req;
     
-    return unless $self->rights_check_event($::rEvent, $::rWrite);
+    return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
     
     my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
     $rec || return $self->state(-000105);
@@ -267,7 +271,7 @@ sub money_list_set {
     my $d = $self->d;
     my $q = $self->req;
     
-    return unless $self->rights_check_event($::rEvent, $::rWrite);
+    return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
     
     # Событие
     my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
