@@ -3,7 +3,7 @@
 [% FOREACH ritem = rights_list %]
     [% IF ritem %]
     <tr>
-        <td class="ltitle">[% ritem.1 %]</td>
+        <td class="ltitle" style="width:200px">[% ritem.1 %]</td>
         <td>[% rights_types.${admin_rights_list.${ritem.0}} %]</td>
     </tr>
     [% ELSE %]

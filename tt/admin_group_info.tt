@@ -1,7 +1,7 @@
 <h3>Информация</h3>
 <table class="tbl">
 <tr>
-    <td class="ltitle">Название группы:</td>
+    <td class="ltitle" style="width:200px">Название группы:</td>
     <td width="200"><b>[% group.name %]</b></td>
 </tr>
 <tr>

@@ -2,7 +2,7 @@
 <h3>Информация</h3>
 <table class="tbl">
 <tr>
-    <td class="ltitle">Название группы:</td>
+    <td class="ltitle" style="width:200px">Название группы:</td>
     <td><input type="text" name="name" class="stdin" value="[% group.name %]"[% group.edit_readonly %]></td>
 </tr>
 <tr>

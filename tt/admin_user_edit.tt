@@ -2,7 +2,7 @@
 <h3>Инфо</h3>
 <table class="tbl">
 <tr>
-    <td class="ltitle">Логин:</td>
+    <td class="ltitle" style="width:200px">Логин:</td>
     <td><input type="text"  class="stdin" name="login" value="[% user.login %]"[% user.edit_readonly %]></td>
 </tr>
 <tr>
