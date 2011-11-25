@@ -3,7 +3,7 @@
 [% FOREACH ritem = rights_list %]
     [% IF ritem %]
     <tr>
-        <td class="ltitle" style="width:200px">[% ritem.1 %]</td>
+        <td class="ltitle" style="width:250px">[% ritem.1 %]</td>
         <td>
             <select name="rights.[% ritem.0 %]" class="stdin">
                 [% rno = '-' %]<option value="-">[% rights_types.$rno %]</option>

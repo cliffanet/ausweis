@@ -1,7 +1,7 @@
 <h3>Инфо</h3>
 <table class="tbl">
 <tr>
-    <td class="ltitle" style="width:200px">Логин:</td>
+    <td class="ltitle" style="width:250px">Логин:</td>
     <td>[% user.login %]</td>
 </tr>
 <tr>
