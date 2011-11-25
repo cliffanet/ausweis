@@ -44,6 +44,7 @@ sub _item {
         };
         $item->{ausweis_list} = sub {
             $item->{_ausweis_list} ||= [
+                map { C::Ausweis::_item($self, $_) }
                 $self->model('Ausweis')->search(
                     { cmdid => $cmdid, 'event.evid' => $item->{id} },
                     { prefetch => ['event'] }
@@ -339,7 +340,7 @@ sub ausweis_commit {
     my $d = $self->d;
     my $q = $self->req;
     
-    return unless $self->rights_check_event($::rEvent, $::rWrite);
+    return unless $self->rights_check_event($::rEventCommit, $::rYes, $::rAdvanced);
     
     my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
     $rec || return $self->state(-000105);
@@ -395,6 +396,23 @@ sub ausweis_commit {
         
     # статус с редиректом
     $self->state(940500, '');
+}
+
+sub ausweis_decommit {
+    my ($self, $evid, $ausid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEventCommit, $::rAdvanced);
+    
+    my ($c) = $self->model('EventAusweis')->search({ evid => $evid, ausid => $ausid });
+    $c || return $self->state(-000105);
+    
+    $self->model('EventAusweis')->delete({ id => $c->{id} })
+        || return $self->state(-000104, '');
+    
+    # статус с редиректом
+    $self->state(940600, '');
 }
 
 

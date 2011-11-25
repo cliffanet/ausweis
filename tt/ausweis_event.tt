@@ -170,6 +170,12 @@
             <td class="ltitle">Оплата:</td>
             <td colspan="2">[% IF commit.payonkpp %]На КПП[% ELSE %]Заранее[% END %] ([% commit.price %])</td>
         </tr>
+        <tr>
+            <td colspan="2" align="right">
+                <a href="[% href_ausweis_decommit %]"
+                    onClick="return confirm('Отмена прохождения: [% rec.nick %]\nПродолжать?');">отменить проход</a>
+            </td>
+        </tr>
     </tr>
 [% ELSIF allow_event_write %]
 <form action="[% href_ausweis_commit %]" method="post" >
