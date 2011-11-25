@@ -139,8 +139,8 @@
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Вносов сдано:</td>
-        <td colspan="2">[% money.summ %]</td>
+        <td class="ltitle">Вносов сдано (заранее/кпп):</td>
+        <td colspan="2">[% money.summ %] / [% summ_onkpp %]</td>
     </tr>
     <tr>
         <td class="ltitle">Сумма с игрока:</td>
