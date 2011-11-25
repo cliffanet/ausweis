@@ -383,7 +383,7 @@ sub ausweis_commit {
     if (($c{price} > 0) && !$c{payonkpp}) {
         # Проверяем, можем ли мы из сданных заранее оплатить
         my @aus = $self->model('Ausweis')->search(
-            { cmdid => $aus->{cmdid}, 'event.evid' => $rec->{id} },
+            { cmdid => $aus->{cmdid}, 'event.evid' => $rec->{id}, 'event.payonkpp' => 0 },
             { prefetch => ['event'] }
         );
         my $summ = 0;
@@ -395,11 +395,11 @@ sub ausweis_commit {
     
     $self->model('EventAusweis')->create(\%c)
         || return $self->state(-000104, '');
-    if ($c{payonkpp}) {
-        # Увеличиваем суммарный взнос команды
-        $self->model('EventMoney')->summ_add($rec->{id}, $aus->{cmdid}, $c{price})
-            || return $self->state(-000104, '');
-    }
+    #if ($c{payonkpp}) {
+    #    # Увеличиваем суммарный взнос команды
+    #    $self->model('EventMoney')->summ_add($rec->{id}, $aus->{cmdid}, $c{price})
+    #        || return $self->state(-000104, '');
+    #}
         
     # статус с редиректом
     $self->state(940500, '');

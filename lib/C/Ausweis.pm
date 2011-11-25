@@ -237,11 +237,19 @@ sub show {
                 $ev->{summ_avail} = sub {
                     my $list = $ev->{ausweis_list}->();
                     my $summ = 0;
-                    $summ += $_->{event}->{price} foreach @$list;
+                    $summ += $_->{event}->{price} 
+                        foreach grep { !$_->{event}->{payonkpp} } @$list;
                     return sprintf('%0.2f', $ev->{money}->()->{summ}-$summ);
                 };
                 $ev->{allow_from_summ} = sub {
                     return $ev->{summ_avail}->() >= $ev->{money}->()->{price};
+                };
+                $ev->{summ_onkpp} = sub {
+                    my $list = $ev->{ausweis_list}->();
+                    my $summ = 0;
+                    $summ += $_->{event}->{price} 
+                        foreach grep { $_->{event}->{payonkpp} } @$list;
+                    return sprintf('%0.2f', $summ);
                 };
                 $ev;
             }
