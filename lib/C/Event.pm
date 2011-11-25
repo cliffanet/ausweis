@@ -90,8 +90,11 @@ sub show {
     $type = 'info' if !$type || ($type !~ /^(edit|info|money)$/);
 
     return unless $self->rights_exists_event($::rEvent);
-    if (($type eq 'edit') || ($type eq 'money')) {
+    if ($type eq 'edit') {
         return unless $self->rights_check_event($::rEvent, $::rAdvanced);
+    }
+    if ($type eq 'money') {
+        return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
     }
     
     my ($rec) = (($self->d->{rec}) = 
