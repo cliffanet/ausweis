@@ -133,6 +133,7 @@ sub show {
     
     $d->{form} = $rec || {};
     
+    # Тип вывода
     if ($type =~ /^([a-z]+)_xls$/) {
         my $p = $1;
         $self->view_select('Excel', "event_$p", "event_${evid}_$p.xls");
@@ -142,9 +143,11 @@ sub show {
         $self->view_select->subtemplate("event_$type.tt");
     }
     
+    # Ссылки
     $d->{href_set} = $self->href($::disp{EventSet}, $evid);
     $d->{href_money_set} = $self->href($::disp{EventMoneyListSet}, $evid);
     
+    # Покомандные списки
     $d->{command_all_list} = sub {
         return $d->{"_command_all_list"} ||= [
             map {
@@ -185,6 +188,13 @@ sub show {
             )
         ];
     };
+    
+    # Поименные списки
+    my $cmdid;
+    if ($cmdid = $self->param_dig('cmdid')) {
+        $rec->{"href_$_"} .= "?cmdid=$cmdid"
+            foreach qw/ausweis ausweis_xls necombat necombat_xls/;
+    }
 }
 
 sub edit {
