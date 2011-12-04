@@ -17,43 +17,17 @@
         <td>[% rec.price1 %] / [% rec.price2 %]</td>
     </tr>
     <tr>
+        <td class="ltitle">Дополнительно:</td>
+        <td>
+            <a href="[% rec.href_command %]">Допущенные команды</a><br />
+            <a href="[% rec.href_ausweis %]">Прошедшие аусвайсы</a><br />
+            <a href="[% rec.href_necombat %]">Прошедшие некомбатанты</a>
+        </td>
+    </tr>
+    <tr>
         <td class="submit" colspan="2">
             <a href="[% rec.href_edit %]">изменить мероприятие</a>
         </td>
     </tr>
-</table>
-
-<br />
-<h3>Команды</h3>
-<table class="tbl">
-    <tr class="title">
-        <td width="250">Название</td>
-        <td width="50">Допуск</td>
-        <td width="70">Взносы</td>
-        <td width="70">Цена заранее</td>
-        <td width="70">Цена на КПП</td>
-        <td>Комментарии</td>
-    </tr>
-[% IF command_money(1).size > 0 %]
-[% FOREACH command_money(1) %]
-    <tr>
-        <td width="250"><a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a></td>
-        <td align="center">[% IF money.allowed %]+[% END %]</td>
-        <td align="right">[% money.summ %]</td>
-        <td align="right">[% money.price1 %]</td>
-        <td align="right">[% money.price2 %]</td>
-        <td>[%  money.comment %]</td>
-    </tr>
-[% END %]
-[% ELSE %]
-    <tr><td colspan="6" style="height:50px;text-align:center;vertical-align:middle;">
-        нет допущенных команд
-    </td></tr>
-[% END %]
-[% IF rec.status == 'O' %]
-    <tr><td colspan="6" class="submit">
-        <a href="[% rec.href_money %]">изменить список</a>
-    </td></tr>
-[% END %]
 </table>
 

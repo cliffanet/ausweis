@@ -20,7 +20,14 @@ sub _item {
         # —сылки
         $item->{href_info}      = $self->href($::disp{EventShow}, $item->{id}, 'info');
         $item->{href_edit}      = $self->href($::disp{EventShow}, $item->{id}, 'edit');
+        $item->{href_command}   = $self->href($::disp{EventShow}, $item->{id}, 'command');
+        $item->{href_command_xls}=$self->href($::disp{EventShow}, $item->{id}, 'command_xls');
         $item->{href_money}     = $self->href($::disp{EventShow}, $item->{id}, 'money');
+        $item->{href_ausweis}   = $self->href($::disp{EventShow}, $item->{id}, 'ausweis');
+        $item->{href_ausweis_xls}=$self->href($::disp{EventShow}, $item->{id}, 'ausweis_xls');
+        $item->{href_necombat}  = $self->href($::disp{EventShow}, $item->{id}, 'necombat');
+        $item->{href_necombat_xls}=$self->href($::disp{EventShow}, $item->{id}, 'necombat_xls');
+        
         $item->{href_set}       = $self->href($::disp{EventSet}, $item->{id});
         $item->{href_del}       = $self->href($::disp{EventDel}, $item->{id});
         $item->{href_delete}    = $self->href($::disp{EventDel}, $item->{id});
@@ -62,7 +69,8 @@ sub _item {
                     $n;
                 }
                 $self->model('EventNecombat')->search(
-                    { evid => $item->{id}, cmdid => $cmdid }
+                    { evid => $item->{id}, cmdid => $cmdid },
+                    { order_by => 'dtadd' }
                 )
             ];
         };
@@ -101,10 +109,10 @@ sub show {
     my ($self, $evid, $type) = @_;
     my $d = $self->d;
     
-    $type = 'info' if !$type || ($type !~ /^(edit|info|money)$/);
+    $type = 'info' if !$type || ($type !~ /^(edit|info|money|ausweis(_xls)?|necombat(_xls)|command(_xls)??)$/);
 
     return unless $self->rights_exists_event($::rEvent);
-    if ($type eq 'edit') {
+    if ($type =~ /^(edit|ausweis(_xls)?|necombat(_xls)?|command(_xls)?)$/) {
         return unless $self->rights_check_event($::rEvent, $::rAdvanced);
     }
     if ($type eq 'money') {
@@ -125,15 +133,20 @@ sub show {
     
     $d->{form} = $rec || {};
     
-    $self->patt(TITLE => sprintf($text::titles{"event_$type"}, $rec->{name}));
-    $self->view_select->subtemplate("event_$type.tt");
+    if ($type =~ /^([a-z]+)_xls$/) {
+        my $p = $1;
+        $self->view_select('Excel', "event_$p", "event_${evid}_$p.xls");
+    }
+    else {
+        $self->patt(TITLE => sprintf($text::titles{"event_$type"}, $rec->{name}));
+        $self->view_select->subtemplate("event_$type.tt");
+    }
     
     $d->{href_set} = $self->href($::disp{EventSet}, $evid);
     $d->{href_money_set} = $self->href($::disp{EventMoneyListSet}, $evid);
     
-    $d->{command_money} = sub {
-        my $only_allowed = $_[0] ? 1:0;
-        return $d->{"_money_list_$only_allowed"} ||= [
+    $d->{command_all_list} = sub {
+        return $d->{"_command_all_list"} ||= [
             map {
                 $_ = C::Command::_item($self, $_);
                 my $m = $_->{money};
@@ -146,7 +159,24 @@ sub show {
                 $_;
             }
             $self->model('Command')->search(
-                { $only_allowed ? ( 'money.allowed' => 1 ) : () },
+                {}, 
+                { 
+                    prefetch => 'money',
+                    join_cond => { money => { 'money.evid' => $evid } },
+                    order_by => 'name',
+                }
+            )
+        ];
+    };
+    
+    $d->{command_list} = sub {
+        return $d->{"_command_list"} ||= [
+            map {
+                $_ = C::Command::_item($self, $_);
+                $_;
+            }
+            $self->model('Command')->search(
+                { 'money.allowed' => 1 },
                 { 
                     prefetch => 'money',
                     join_cond => { money => { 'money.evid' => $evid } },

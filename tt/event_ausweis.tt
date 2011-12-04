@@ -1,0 +1,19 @@
+<h3>Мероприятие</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:</td>
+        <td><a href="[% rec.href_info %]"><b><big>[% rec.name %]</big></b></a></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Дополнительно:</td>
+        <td>
+            <a href="[% rec.href_info %]">Инфо</a><br />
+            <a href="[% rec.href_command %]">Допущенные команды</a><br />
+            <a href="[% rec.href_necombat %]">Прошедшие некомбатанты</a>
+        </td>
+    </tr>
+</table>
+
+<br />
+<h3>Прошедшие аусвайсы (<a href="[% rec.href_ausweis_xls %]">xls</a>)</h3>
+

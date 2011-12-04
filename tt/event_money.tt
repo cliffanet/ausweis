@@ -30,7 +30,7 @@
         <td width="70">Цена на КПП</td>
         <td>Комментарии</td>
     </tr>
-[% FOREACH command_money %]
+[% FOREACH command_all_list %]
     <tr>
         <td width="250">
             <a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a>
