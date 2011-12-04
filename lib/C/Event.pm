@@ -191,7 +191,7 @@ sub show {
     
     # Поименные списки
     my $cmdid;
-    if ($cmdid = $self->param_dig('cmdid')) {
+    if ($cmdid = $self->req->param_dig('cmdid')) {
         $rec->{"href_$_"} .= "?cmdid=$cmdid"
             foreach qw/ausweis ausweis_xls necombat necombat_xls/;
     }
