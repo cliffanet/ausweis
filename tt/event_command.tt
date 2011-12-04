@@ -29,7 +29,10 @@
 [% FOREACH command_list %]
     <tr>
         <td width="250"><a title="Просмотр команды" alt="Просмотр команды" href="[% href_info %]">[% name %]</a></td>
-        <td align="center">[% IF money.allowed %]+[% END %]</td>
+        <td>
+            [% IF count_ausweis > 0 %]<a href="[% href_event_ausweis %]">[% count_ausweis %]</a>[% ELSE %]0[% END %]
+            [% IF count_necombat > 0 %] / <a href="[% href_event_necombat %]">[% count_necombat %]</a>[% END %]
+        </td>
         <td align="right">[% money.summ %]</td>
         <td align="right">[% money.price1 %]</td>
         <td align="right">[% money.price2 %]</td>

@@ -175,8 +175,32 @@ sub show {
     $d->{command_list} = sub {
         return $d->{"_command_list"} ||= [
             map {
-                $_ = C::Command::_item($self, $_);
-                $_;
+                my $cmd = C::Command::_item($self, $_);
+                $cmd->{count_ausweis} = sub {
+                    $d->{_aus_count} ||= {
+                        map { ($_->{cmdid} => $_->{count}) }
+                        $self->model('Ausweis')->search(
+                            { 'event.evid' => $evid },
+                            { join => 'event', group_by => 'cmdid',
+                                columns => ['cmdid'], '+columns' => ['COUNT(*) as `count`'] }
+                        )
+                    };
+                    return $d->{_aus_count}->{$cmd->{id}} || 0;
+                };
+                $cmd->{count_necombat} = sub {
+                    $d->{_ncmb_count} ||= {
+                        map { ($_->{cmdid} => $_->{count}) }
+                        $self->model('EventNecombat')->search(
+                            { evid => $evid },
+                            { group_by => 'cmdid',
+                                columns => ['cmdid'], '+columns' => ['COUNT(*) as `count`'] }
+                        )
+                    };
+                    return $d->{_ncmb_count}->{$cmd->{id}} || 0;
+                };
+                $self->{href_event_ausweis} = $self->href($::disp{EventShow}, $evid, 'ausweis')."?cmdid=$cmd->{id}";
+                $self->{href_event_necombat}= $self->href($::disp{EventShow}, $evid, 'necombat')."?cmdid=$cmd->{id}";
+                $cmd;
             }
             $self->model('Command')->search(
                 { 'money.allowed' => 1 },
