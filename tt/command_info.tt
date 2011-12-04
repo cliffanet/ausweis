@@ -262,6 +262,18 @@
     </td></tr>
 [% END %]
 </table>
+<br />
+<h3>Некомбатанты:</h3>
+[% IF necombat_list.size > 0 %]
+<table class="tbl">
+[% FOREACH necombat_list %]
+    <tr>
+        <td align="right" width="120">[% datetime(dtadd) %]</td>
+        <td>[% name %]</td>
+        <td width="100"><a href="[% href_decommit %]" onClick="return confirm('Отмена прохождения: [% name %]\nПродолжать?');">отменить</a></td>
+    </tr>
+[% END %]
+
 [% END # FOREACH event_list %]
 [% END # IF allow_event %]
 

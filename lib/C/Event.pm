@@ -52,6 +52,20 @@ sub _item {
             ];
         };
         $item->{href_money_set} = $self->href($::disp{EventMoneySet}, $item->{id}, $cmdid);
+        
+        $item->{href_necombat_commit} = $self->href($::disp{EventNecombatCommit}, $item->{id}, $cmdid);
+        $item->{necombat_list} = sub {
+            $item->{_necombat_list} ||= [
+                map {
+                    my $n = $self->ToHtml($_);
+                    $n->{href_decommit} = $self->href($::disp{EventNecombatDecommit}, $n->{id});
+                    $n;
+                }
+                $self->model('EventNecombat')->search(
+                    { evid => $item->{id}, cmdid => $cmdid }
+                )
+            ];
+        };
     }
     
     return $item;
@@ -422,5 +436,48 @@ sub ausweis_decommit {
     $self->state(940600, '');
 }
 
+
+sub necombat_commit {
+    my ($self, $evid, $cmdid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEventCommit, $::rYes, $::rAdvanced);
+    
+    my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
+    $rec || return $self->state(-000105);
+    my ($cmd) = $self->model('Command')->search({ id => $cmdid });
+    $cmd || return $self->state(-000105);
+    
+    my $m = $self->model('EventMoney')->get($rec->{id}, $cmd->{id});
+    
+    my %c = ( evid => $rec->{id}, cmdid => $cmd->{id} );
+    
+    $c{name} = $q->param_str('name')
+        || return $self->state(-000101, '');
+    
+    $self->model('EventNecombat')->create(\%c)
+        || return $self->state(-000104, '');
+        
+    # статус с редиректом
+    $self->state(940700, '');
+}
+
+sub necombat_decommit {
+    my ($self, $ncmbid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEventCommit, $::rAdvanced);
+    
+    my ($c) = $self->model('EventNecombat')->search({ id => $ncmbid });
+    $c || return $self->state(-000105);
+    
+    $self->model('EventNecombat')->delete({ id => $c->{id} })
+        || return $self->state(-000104, '');
+    
+    # статус с редиректом
+    $self->state(940800, '');
+}
 
 1;
