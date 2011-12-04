@@ -275,7 +275,7 @@
 [% END %]
 </table>
 [% ELSE %]
-<div style="align:center">нет</div>
+<div style="text-align:center">нет</div>
 [% END %]
 [% IF event_allow_commit %]
 <table class="tbl">
