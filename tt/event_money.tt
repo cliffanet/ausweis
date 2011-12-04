@@ -5,16 +5,13 @@
         <td><a href="[% rec.href_info %]"><b><big>[% rec.name %]</big></b></a></td>
     </tr>
     <tr>
-        <td class="ltitle">Дата проведения:</td>
-        <td>[% date(rec.date) %]</td>
-    </tr>
-    <tr>
-        <td class="ltitle">Статус:</td>
-        <td>[% rec.status_name %]</td>
-    </tr>
-    <tr>
-        <td class="ltitle">Цена с участника:</td>
-        <td>[% rec.price1 %] / [% rec.price2 %]</td>
+        <td class="ltitle">Дополнительно:</td>
+        <td>
+            <a href="[% rec.href_info %]">Инфо</a><br />
+            <a href="[% rec.href_command %]">Допущенные команды</a><br />
+            <a href="[% rec.href_ausweis %]">Прошедшие аусвайсы</a><br />
+            <a href="[% rec.href_necombat %]">Прошедшие некомбатанты</a>
+        </td>
     </tr>
 </table>
 

@@ -109,7 +109,7 @@ sub show {
     my ($self, $evid, $type) = @_;
     my $d = $self->d;
     
-    $type = 'info' if !$type || ($type !~ /^(edit|info|money|ausweis(_xls)?|necombat(_xls)|command(_xls)??)$/);
+    $type = 'info' if !$type || ($type !~ /^(edit|info|money|ausweis(_xls)?|necombat(_xls)?|command(_xls)?)$/);
 
     return unless $self->rights_exists_event($::rEvent);
     if ($type =~ /^(edit|ausweis(_xls)?|necombat(_xls)?|command(_xls)?)$/) {
