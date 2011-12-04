@@ -273,6 +273,22 @@
         <td width="100"><a href="[% href_decommit %]" onClick="return confirm('Отмена прохождения: [% name %]\nПродолжать?');">отменить</a></td>
     </tr>
 [% END %]
+</table>
+[% END %]
+[% IF event_allow_commit %]
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:</td>
+        <td><input type="text" name="name" class="stdin" /></td>
+    </tr>
+<tr>
+    <td class="submit" colspan="2">
+        <input type="submit" value="Добавить">
+    </td>
+</tr>
+</table>
+</form>
+[% END %]
 
 [% END # FOREACH event_list %]
 [% END # IF allow_event %]
