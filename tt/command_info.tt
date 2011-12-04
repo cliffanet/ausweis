@@ -281,7 +281,7 @@
 <form action="[% href_necombat_commit %]" method="POST">
 <table class="tbl">
     <tr>
-        <td class="ltitle">Название:</td>
+        <td class="ltitle" style="width: 120px">Имя:</td>
         <td><input type="text" name="name" class="stdin" /></td>
     </tr>
 <tr>
