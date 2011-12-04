@@ -202,12 +202,19 @@ sub http_accept {
             $d->{event}->{_open_list} ||= [
                 map { 
                     my $ev = C::Event::_item($self, $_);
-                    $ev->{count} = sub {
-                        if (!defined($ev->{_count})) {
-                            $ev->{_count} = $self->model('EventAusweis')->count({ evid => $ev->{id} });
-                            $ev->{_count} ||= 0;
+                    $ev->{count_ausweis} = sub {
+                        if (!defined($ev->{_count_ausweis})) {
+                            $ev->{_count_ausweis} = $self->model('EventAusweis')->count({ evid => $ev->{id} });
+                            $ev->{_count_ausweis} ||= 0;
                         }
-                        $ev->{_count};
+                        $ev->{_count_ausweis};
+                    };
+                    $ev->{count_necombat} = sub {
+                        if (!defined($ev->{_count_necombat})) {
+                            $ev->{_count_necombat} = $self->model('EventNecombat')->count({ evid => $ev->{id} });
+                            $ev->{_count_necombat} ||= 0;
+                        }
+                        $ev->{_count_necombat};
                     };
                     $ev;
                 }
