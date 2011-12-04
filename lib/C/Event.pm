@@ -58,7 +58,7 @@ sub _item {
             $item->{_necombat_list} ||= [
                 map {
                     my $n = $self->ToHtml($_);
-                    $n->{href_decommit} = $self->href($::disp{EventNecombatDecommit}, $n->{id});
+                    $n->{href_decommit} = $self->href($::disp{EventNecombatDeCommit}, $n->{id});
                     $n;
                 }
                 $self->model('EventNecombat')->search(

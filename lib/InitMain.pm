@@ -74,6 +74,8 @@ __PACKAGE__->config(
         $::disp{EventMoneyListSet}      => 'C::Event::money_list_set',
         $::disp{EventAusweisCommit}     => 'C::Event::ausweis_commit',
         $::disp{EventAusweisDeCommit}   => 'C::Event::ausweis_decommit',
+        $::disp{EventNecombatCommit}    => 'C::Event::necombat_commit',
+        $::disp{EventNecombatDeCommit}  => 'C::Event::necombat_decommit',
     },
     
     plugins => [qw/ScriptTime
