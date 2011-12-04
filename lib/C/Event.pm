@@ -198,8 +198,8 @@ sub show {
                     };
                     return $d->{_ncmb_count}->{$cmd->{id}} || 0;
                 };
-                $self->{href_event_ausweis} = $self->href($::disp{EventShow}, $evid, 'ausweis')."?cmdid=$cmd->{id}";
-                $self->{href_event_necombat}= $self->href($::disp{EventShow}, $evid, 'necombat')."?cmdid=$cmd->{id}";
+                $cmd->{href_event_ausweis} = $self->href($::disp{EventShow}, $evid, 'ausweis')."?cmdid=$cmd->{id}";
+                $cmd->{href_event_necombat}= $self->href($::disp{EventShow}, $evid, 'necombat')."?cmdid=$cmd->{id}";
                 $cmd;
             }
             $self->model('Command')->search(
