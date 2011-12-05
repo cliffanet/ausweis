@@ -16,4 +16,29 @@
 
 <br />
 <h3>Прошедшие аусвайсы (<a href="[% rec.href_ausweis_xls %]">xls</a>)</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="120">Дата/Время</td>
+        <td width="250">Команда</td>
+        <td width="150">Номер</td>
+        <td width="150">Ник</td>
+        <td>ФИО</td>
+    </tr>
+[% IF ausweis_list.size > 0 %]
+[% FOREACH ausweis_list %]
+    <tr>
+        <td align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% datetime(event.dtadd) %]</a></td>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% fio %]</a></td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="3" style="height:50px;text-align:center;vertical-align:middle;">
+        нет прошедших аусвайсов
+    </td></tr>
+[% END %]
+</table>
+
 

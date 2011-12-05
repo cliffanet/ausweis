@@ -173,7 +173,7 @@ sub show {
     };
     
     $d->{command_list} = sub {
-        return $d->{"_command_list"} ||= [
+        return $d->{_command_list} ||= [
             map {
                 my $cmd = C::Command::_item($self, $_);
                 $cmd->{count_ausweis} = sub {
@@ -219,6 +219,19 @@ sub show {
         $rec->{"href_$_"} .= "?cmdid=$cmdid"
             foreach qw/ausweis ausweis_xls necombat necombat_xls/;
     }
+    
+    $d->{ausweis_list} = sub {
+        $d->{_ausweis_list} ||= [
+            map { C::Ausweis::_item($self, $_) }
+            $self->model('Ausweis')->search(
+                { 'event.id' => $evid, $cmdid ? (cmdid=>$cmdid) : () },
+                { 
+                    prefetch => [qw/event command/],
+                    order_by => [qw/command.name nick/],
+                }
+            )
+        ];
+    };
 }
 
 sub edit {
