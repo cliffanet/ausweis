@@ -232,6 +232,25 @@ sub show {
             )
         ];
     };
+    
+    $d->{necombat_list} = sub {
+        $d->{_necombat_list} ||= [
+            map { 
+                my $ncmb = $_;
+                my $cmd = C::Command::_item($self, delete $ncmb->{command});
+                $ncmb = $self->ToHtml($ncmb);
+                $ncmb->{command} = $cmd;
+                $ncmb;
+            }
+            $self->model('EventNecombat')->search(
+                { evid => $evid, $cmdid ? (cmdid=>$cmdid) : () },
+                { 
+                    prefetch => [qw/command/],
+                    order_by => [qw/command.name name/],
+                }
+            )
+        ];
+    };
 }
 
 sub edit {

@@ -16,4 +16,24 @@
 
 <br />
 <h3>Прошедшие некомбатанты (<a href="[% rec.href_necombat_xls %]">xls</a>)</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="120">Дата/Время</td>
+        <td width="250">Команда</td>
+        <td>Имя</td>
+    </tr>
+[% IF necombat_list.size > 0 %]
+[% FOREACH necombat_list %]
+    <tr>
+        <td align="right">[% datetime(dtadd) %]</td>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
+        <td>[% name %]</td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+        нет прошедших некомбатантов
+    </td></tr>
+[% END %]
+</table>
 
