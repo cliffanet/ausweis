@@ -21,8 +21,7 @@
         <td width="120">Дата/Время</td>
         <td width="250">Команда</td>
         <td width="150">Номер</td>
-        <td width="150">Ник</td>
-        <td>ФИО</td>
+        <td>Ник</td>
     </tr>
 [% IF ausweis_list.size > 0 %]
 [% FOREACH ausweis_list %]
@@ -31,11 +30,10 @@
         <td><a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
-        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% fio %]</a></td>
     </tr>
 [% END %]
 [% ELSE %]
-    <tr><td colspan="3" style="height:50px;text-align:center;vertical-align:middle;">
+    <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
         нет прошедших аусвайсов
     </td></tr>
 [% END %]
