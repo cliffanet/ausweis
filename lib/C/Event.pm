@@ -263,6 +263,12 @@ sub show {
             event       => $rec,
             list        => $d->{"${p}_list"}->(),
         };
+        if ($p eq 'command') {
+            map {
+                $_->{count_ausweis} = $_->{count_ausweis}->();
+                $_->{count_necombat} = $_->{count_necombat}->();
+            } @{ $d->{excel}->{list} }
+        }
     }
 }
 
