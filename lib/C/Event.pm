@@ -251,6 +251,15 @@ sub show {
             )
         ];
     };
+    
+    # Список для екселя
+    if ($type =~ /^([a-z]+)_xls$/) {
+        my $p = $1;
+        $d->{excel} = {
+            event       => $rec,
+            list        => $d->{"${p}_list"}->(),
+        };
+    }
 }
 
 sub edit {
