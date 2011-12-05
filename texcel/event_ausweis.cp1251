@@ -14,8 +14,8 @@
     
         <format border="1">
             <row>
-                <cell width="12">Время</cell>
-                <cell width="30">Команда</cell>
+                <cell width="15">Время</cell>
+                <cell width="25">Команда</cell>
                 <cell width="20">Ник</cell>
                 <cell width="30">ФИО</cell>
             </row>
