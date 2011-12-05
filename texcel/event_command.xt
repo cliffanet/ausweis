@@ -38,8 +38,8 @@
             <cell></cell>
             <cell>Итого:</cell>
             <format bottom="2">
-                <cell type="number">=SUM(<range ref="count_ausweis" />)</cell>
-                <cell type="number">=SUM(<range ref="count_necombat" />)</cell>
+                <cell>=SUM(<range ref="count_ausweis" />)</cell>
+                <cell>=SUM(<range ref="count_necombat" />)</cell>
             </format>
         </row>
     </worksheet>
