@@ -226,7 +226,10 @@ sub show {
     
     $d->{ausweis_list} = sub {
         $d->{_ausweis_list} ||= [
-            map { C::Ausweis::_item($self, $_) }
+            map { 
+                $_->{event}->{dtadd_format} = Func::dt_datetime($_->{event}->{dtadd});
+                C::Ausweis::_item($self, $_);
+            }
             $self->model('Ausweis')->search(
                 { 'event.evid' => $evid, $cmdid ? (cmdid=>$cmdid) : () },
                 { 
@@ -241,8 +244,9 @@ sub show {
         $d->{_necombat_list} ||= [
             map { 
                 my $ncmb = $_;
+                $ncmb->{dtadd_format} = Func::dt_datetime($ncmb->{dtadd});
                 my $cmd = C::Command::_item($self, delete $ncmb->{command});
-                $ncmb = $self->ToHtml($ncmb) if $d->{excel};
+                $ncmb = $self->ToHtml($ncmb) if !$d->{excel};
                 $ncmb->{command} = $cmd;
                 $ncmb;
             }

@@ -1,0 +1,35 @@
+<workbook>
+    <worksheet name="Прошедшие некомбатанты">
+        <row>
+            <format bold="on" font="Arial" size="12">
+                <cell><var name="event_name" /></cell>
+            </format>
+        </row>
+        <row>
+            <format bold="on" font="Arial" size="10">
+                <cell>Прошедшие некомбатанты</cell>
+            </format>
+        </row>
+        <row></row>
+    
+        <format border="1">
+            <row>
+                <cell width="12">Время</cell>
+                <cell width="30">Команда</cell>
+                <cell width="30">Имя</cell>
+            </row>
+            <loop name="list">
+                <format font="Arial">
+                <row>
+                    <format align="right">
+                    <cell type="string" text="$dtadd_format" />
+                    </format>
+                    <cell type="string" text="$command_name" />
+                    <cell type="string" text="$name" />
+                </row>
+                </format>
+            </loop>
+        </format>
+        
+    </worksheet>
+</workbook>
