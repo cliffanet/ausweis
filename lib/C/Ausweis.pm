@@ -17,7 +17,7 @@ sub _item {
     my $command = delete $_[0]->{command};
     my $blok    = delete $_[0]->{blok};
     
-    my $item = $self->ToHtml(shift, 1);
+    my $item = $self->d->{excel} ? shift : $self->ToHtml(shift, 1);
     my $id = $item->{id};
     
     $item->{command} = C::Command::_item($self, $command)

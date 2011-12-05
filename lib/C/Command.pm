@@ -13,7 +13,7 @@ sub _item {
 
     my $blok    = delete $_[0]->{blok};
     
-    my $item = $self->ToHtml(shift, 1);
+    my $item = $self->d->{excel} ? shift : $self->ToHtml(shift, 1);
     my $id = $item->{id};
     
     $item->{blok}    = C::Blok::_item($self, $blok)

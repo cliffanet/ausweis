@@ -10,7 +10,7 @@ use warnings;
 
 sub _item {
     my $self = shift;
-    my $item = $self->ToHtml(shift, 1);
+    my $item = $self->d->{excel} ? shift : $self->ToHtml(shift, 1);
     my $id = $item->{id};
     
     if ($id) {

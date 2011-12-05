@@ -10,7 +10,7 @@ use warnings;
 
 sub _item {
     my $self = shift;
-    my $item = $self->ToHtml(shift, 1);
+    my $item = $self->d->{excel} ? shift : $self->ToHtml(shift, 1);
     my $id = $item->{id};
     my $cmdid = shift;
     
@@ -38,9 +38,10 @@ sub _item {
     if ($id && $cmdid) {
         $item->{money} = sub { 
             return $item->{_money} if $item->{_money};
-            my $m = ($item->{_money} = 
-                $self->ToHtml($self->model('EventMoney')->get($item->{id}, $cmdid)));
-                # Цена по умолчанию
+            $item->{_money} = $self->model('EventMoney')->get($item->{id}, $cmdid);
+            $item->{_money} = $self->ToHtml($item->{_money}) if !$self->d->{excel};
+            my $m = $item->{_money};
+            # Цена по умолчанию
             if (($m->{summ}==0) && ($m->{price1}==0) && ($m->{price2}==0) && 
                 !$m->{comment} && 
                 ($item->{price1} > 0) && ($item->{price2} > 0)) {
@@ -64,7 +65,7 @@ sub _item {
         $item->{necombat_list} = sub {
             $item->{_necombat_list} ||= [
                 map {
-                    my $n = $self->ToHtml($_);
+                    my $n = $self->d->{excel} ? $_ : $self->ToHtml($_);
                     $n->{href_decommit} = $self->href($::disp{EventNecombatDeCommit}, $n->{id});
                     $n;
                 }
@@ -118,6 +119,9 @@ sub show {
     if ($type eq 'money') {
         return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
     }
+    
+    # Чтобы строки не конвертировались в html-вид
+    $d->{excel} = {} if $type =~ /_xls$/;
     
     my ($rec) = (($self->d->{rec}) = 
         map { _item($self, $_) }
@@ -238,7 +242,7 @@ sub show {
             map { 
                 my $ncmb = $_;
                 my $cmd = C::Command::_item($self, delete $ncmb->{command});
-                $ncmb = $self->ToHtml($ncmb);
+                $ncmb = $self->ToHtml($ncmb) if $d->{excel};
                 $ncmb->{command} = $cmd;
                 $ncmb;
             }
