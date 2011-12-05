@@ -131,8 +131,8 @@
 <br />
 <h3>[% name %]</h3>
 <table class="tbl">
-    <tr><td width="100"><b>Прошло КПП:</b></td>    <td>[% count_ausweis %]</td></tr>
-    <tr><td width="100"><b>Некомбатов:</b></td>    <td>[% count_necombat %]</td></tr>
+    <tr><td width="100"><b>Прошло КПП:</b></td>    <td><a href="[% href_ausweis %]">[% count_ausweis %]</a></td></tr>
+    <tr><td width="100"><b>Некомбатов:</b></td>    <td><a href="[% href_necombat %]">[% count_necombat %]</a></td></tr>
 </table>
 [% END %]
 [% END %]
