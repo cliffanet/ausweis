@@ -54,7 +54,9 @@
         <td><input type="text" name="comment" class="stdin" value="[% form.comment %]" /></td>
     </tr>
     <tr>
-        <td class="ltitle">Загрузка фото:<br /><small>Фото буден видно через несколько минут после загрузки</small></td>
+        <td class="ltitle">
+            Загрузка фото:              [% INCLUDE form_error_param.tt  p='photo' %]
+            <br /><small>Фото буден видно через несколько минут после загрузки</small></td>
         <td><input type="file" name="photo" class="stdin" /></td>
     </tr>
 <tr>
