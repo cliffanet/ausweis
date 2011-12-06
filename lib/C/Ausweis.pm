@@ -357,6 +357,7 @@ sub set {
     }
     my $d = $self->d;
     my $q = $self->req;
+    my %sub;
     
     # Êıøèğóåì çàğàíåå äàííûå
     my ($rec) = (($self->d->{rec}) = $self->model('Ausweis')->search({ id => $id })) if $id;
@@ -367,6 +368,7 @@ sub set {
         $q->param('cmdid', $d->{cmdid});
         
         $d->{is_blocked} = $q->param_bool('blocked');
+        $sub{photo} = { type => '!s' };
     }
     else {
         if (!$rec || !$rec->{id}) {
@@ -388,7 +390,7 @@ sub set {
     
     
     # Ïğîâåğÿåì äàííûå èç ôîğìû
-    if (!$self->ParamParse(model => 'Ausweis', is_create => $is_new)) {
+    if (!$self->ParamParse(model => 'Ausweis', subcheck => \%sub, is_create => $is_new)) {
         $self->state(-000101);
         return $is_new ? adding($self) : edit($self, $id);
     }
@@ -418,10 +420,7 @@ sub set {
                     preselect => $rec
                 ),
         );
-        #if (!$ret) {
-        #    $self->state(-000104);
-        #    return $is_new ? adding($self) : edit($self, $id);
-        #}
+        
     
         # Çàãğóçêà ôîòî
         if (my $file = $self->req->param("photo")) {
@@ -438,10 +437,17 @@ sub set {
                 { id => $id }
             ) || return $self->state(-000104, '');
             unlink("$dirUpload/$file");
+            
+            $self->d->{form_saves} ||= 1;
         }
-        #elsif (!$self->d->{form_saves}) {
-        #    return $self->state(-000106, $self->href($::disp{AusweisShow}, $id, 'info'));
-        #}
+        
+        if (!$ret) {
+            $self->state(-000104);
+            return $is_new ? adding($self) : edit($self, $id);
+        }
+        elsif (!$self->d->{form_saves}) {
+            return $self->state(-000106, $self->href($::disp{AusweisShow}, $id, 'info'));
+        }
     }
     
     my $ret = $self->model('Preedit')->add(
