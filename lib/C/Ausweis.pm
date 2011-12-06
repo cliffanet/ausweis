@@ -396,6 +396,7 @@ sub set {
     }
     
     my $fdata = $self->ParamData;
+    delete $fdata->{photo}; # Добавлено в проверку только для проверки обязательности ввода
     
     if ($d->{command} && ($is_new || ($d->{command}->{blkid} != $rec->{blkid}))) {
         $fdata->{blkid} = $d->{command}->{blkid};
