@@ -368,7 +368,7 @@ sub set {
         $q->param('cmdid', $d->{cmdid});
         
         $d->{is_blocked} = $q->param_bool('blocked');
-        $sub{photo} = { type => '!s' };
+        $sub{photo} = { type => '!s', skip => 0 };
     }
     else {
         if (!$rec || !$rec->{id}) {
