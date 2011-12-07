@@ -178,7 +178,10 @@ sub cancel {
     return $self->state(-950501, '') if $pre->{modered} != 0;
     
     $self->model('Preedit')->update(
-        { modered => $pre->{uid} == $self->user->{id} ? -2 : -1 }, 
+        { 
+            modered => $pre->{uid} == $self->user->{id} ? -2 : -1 
+            visibled=> 1,
+        }, 
         { id => $eid }
     ) || return $self->state(-000104);
     
