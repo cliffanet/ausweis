@@ -70,7 +70,11 @@ sub showitem {
             return $d->{_nick_exists} ||= [
                 map { C::Ausweis::_item($self, $_) }
                 $self->model('Ausweis')->search(
-                    { blocked => 0, nick => { LIKE => "\%$nick\%" } }, 
+                    { 
+                        blocked => 0, 
+                        nick => { LIKE => "\%$nick\%" },
+                        $d->{rec} ? (id => { '!=' => $d->{rec}->{id} }) : (),
+                    }, 
                     { prefetch => 'command' }
                 )
             ];
