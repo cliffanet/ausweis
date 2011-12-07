@@ -67,7 +67,7 @@
     </tr>
     [% IF ((pre.op == 'C') || (pre.op == 'E')) && field_exists('fio') && fio_exists && (fio_exists.size > 0) %]
     <tr>
-        <td class="ltitle"><font color="red">Ник уже используется:</font></td>
+        <td class="ltitle"><font color="red">ФИО используется:</font></td>
         <td>
         [% FOREACH fio_exists %]
         [<a href="[% command.href_info %]">[% command.name %]</a>] <a href="[% href_info %]">[[% nick %]] [% fio %]</a><br />
