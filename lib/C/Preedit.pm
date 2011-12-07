@@ -79,6 +79,21 @@ sub showitem {
                 )
             ];
         };
+        $d->{fio_exists} = sub {
+            my $fio = $d->{field}->()->{fio};
+            return [] unless defined $fio;
+            return $d->{_fio_exists} ||= [
+                map { C::Ausweis::_item($self, $_) }
+                $self->model('Ausweis')->search(
+                    { 
+                        blocked => 0, 
+                        fio => { LIKE => "\%$fio\%" },
+                        $d->{rec} ? (id => { '!=' => $d->{rec}->{id} }) : (),
+                    }, 
+                    { prefetch => 'command' }
+                )
+            ];
+        };
     }
 }
 
