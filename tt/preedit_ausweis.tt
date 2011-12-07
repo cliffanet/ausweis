@@ -28,7 +28,7 @@
         [% END %]
         </td>
         [% IF (pre.op == 'E') %]
-        <td>[% rec.nick %]</td>
+        <td></td>
         [% END %]
     </tr>
     [% END %]
@@ -65,6 +65,19 @@
         <td>[% rec.fio %]</td>
         [% END %]
     </tr>
+    [% IF ((pre.op == 'C') || (pre.op == 'E')) && field_exists('fio') && fio_exists && (fio_exists.size > 0) %]
+    <tr>
+        <td class="ltitle"><font color="red">Ник уже используется:</font></td>
+        <td>
+        [% FOREACH fio_exists %]
+        [<a href="[% command.href_info %]">[% command.name %]</a>] <a href="[% href_info %]">[[% nick %]] [% fio %]</a><br />
+        [% END %]
+        </td>
+        [% IF (pre.op == 'E') %]
+        <td></td>
+        [% END %]
+    </tr>
+    [% END %]
     <tr[% IF !field_exists('krov') %] class="grey"[% END %]>
         <td class="ltitle">Группа крови:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
