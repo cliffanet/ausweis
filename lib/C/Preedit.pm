@@ -179,7 +179,7 @@ sub cancel {
     
     $self->model('Preedit')->update(
         { 
-            modered => $pre->{uid} == $self->user->{id} ? -2 : -1 
+            modered => $pre->{uid} == $self->user->{id} ? -2 : -1,
             visibled=> 1,
         }, 
         { id => $eid }
