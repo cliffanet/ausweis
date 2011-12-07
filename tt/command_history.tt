@@ -32,7 +32,7 @@
         <small>[% datetime(dtadd) %]<br />
         [% user.login %][% IF ip %] [[% ip %]][% END %]<br /></small>
         [% IF modered > 0 %]<div style="color: green">+ [% comment %]</div>
-        [% ELSIF modered < 1 %]<div style="color: red">Отменено пользователем</div>
+        [% ELSIF modered < -1 %]<div style="color: red">Отменено пользователем</div>
         [% ELSIF modered < 0 %]<div style="color: red">Отклонено: [% comment %]</div>
         [% ELSE %]
             <div style="color: yellow"><i>ожидает модерации</i>
