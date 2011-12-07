@@ -203,7 +203,17 @@ sub show {
     
     $d->{ausweis_preedit_list} = sub {
         $d->{_ausweis_preedit_list} ||= [
-            map { $self->ToHtml($_) }
+            map { 
+                my $p = $self->ToHtml($_);
+                $p->{allow_cancel} = 
+                    $self->rights_check_event($::rPreeditCancel, $::rAll) ? 1 : (
+                        $self->rights_check_event($::rPreeditCancel, $::rMy) ?
+                            ($p->{uid} == $self->user->{id} ? 1 : 0) : 0
+                    );
+                $p->{href_show} = $self->href($::disp{CommandHistory}.'#pre%d', $rec->{id}, $p->{id});
+                $p->{href_cancel} = $self->href($::disp{PreeditCancel}, $p->{id});
+                $p;
+            }
             $self->model('Preedit')->search({
                 tbl     => 'Ausweis',
                 modered => 0,
@@ -244,7 +254,7 @@ sub show {
         return $d->{_ausweis_history_my} = [
             map {
                 $_->{nick} = $_->{ausweis}->{nick} || $_->{field_nick}->{value} || '';
-                $_->{href_hide} = $self->href($::disp{CommandHistoryHide}, $_->{id});
+                $_->{href_hide} = $self->href($::disp{PreeditHide}, $_->{id});
                 $_;
             }
             $self->model('Preedit')->search({
@@ -500,12 +510,19 @@ sub history {
                 { join => 'edit' }
             )
         );
+        
         my %eid;
         $d->{_list} = [
             map {
                 my $p = C::Preedit::_item($self, $_);
                 $eid{$p->{id}}=$p;
                 $p->{field_list} = [];
+                $p->{allow_cancel} = 
+                    $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
+                        $self->rights_check($::rPreeditCancel, $::rMy) ?
+                            ($p->{uid} == $self->user->{id} ? 1 : 0) : 0
+                    );
+                $p->{href_cancel} = $self->href($::disp{PreeditCancel}, $p->{id});
                 $p;
             }
             $self->model('Preedit')->search([
@@ -527,24 +544,6 @@ sub history {
         }
         $d->{_list};
     };
-}
-
-
-sub history_hide {
-    my ($self, $hisid) = @_;
-    my $d = $self->d;
-    
-    return unless $self->rights_exists_event($::rCommandInfo);
-    
-    my ($rec) = (($self->d->{rec}) = 
-        $self->model('Preedit')->search({ id => $hisid }));
-    $rec || return $self->state(-000105);
-    return $self->rights_denied() if $rec->{uid} != $self->user->{id};
-    
-    $self->model('Preedit')->update({ visibled => 0 }, { id => $hisid })
-        || return $self->state(-000104);
-    
-    return $self->state(980400, '');
 }
 
 1;

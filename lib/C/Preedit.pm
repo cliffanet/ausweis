@@ -143,4 +143,48 @@ sub op {
 }
 
 
+
+sub hide {
+    my ($self, $eid) = @_;
+    my $d = $self->d;
+    
+    return unless $self->rights_exists_event($::rCommandInfo);
+    
+    my ($pre) = 
+        $self->model('Preedit')->search({ id => $eid });
+    $pre || return $self->state(-000105);
+    return $self->rights_denied() if $pre->{uid} != $self->user->{id};
+    
+    $self->model('Preedit')->update({ visibled => 0 }, { id => $eid })
+        || return $self->state(-000104);
+    
+    return $self->state(950400, '');
+}
+
+sub cancel {
+    my ($self, $eid) = @_;
+    my $d = $self->d;
+    
+    return unless $self->rights_check_event($::rPreeditCancel, $::rMy, $::rAll);
+    
+    my ($pre) = 
+        $self->model('Preedit')->search({ id => $eid });
+    $pre || return $self->state(-000105);
+    
+    if ($pre->{uid} != $self->user->{id}) {
+        return unless $self->rights_check_event($::rPreeditCancel, $::rAll);
+    }
+    
+    return $self->state(-950501, '') if $pre->{modered} != 0;
+    
+    $self->model('Preedit')->update(
+        { modered => $pre->{uid} == $self->user->{id} ? -2 : -1 }, 
+        { id => $eid }
+    ) || return $self->state(-000104);
+    
+    return $self->state(950500, '');
+}
+
+
+
 1;

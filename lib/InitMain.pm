@@ -39,7 +39,6 @@ __PACKAGE__->config(
         $::disp{CommandLogo}            => 'C::Command::logo',
         $::disp{CommandDel}             => 'C::Command::del',
         $::disp{CommandHistory}         => 'C::Command::history',
-        $::disp{CommandHistoryHide}     => 'C::Command::history_hide',
 
         $::disp{AusweisList}            => 'C::Ausweis::list',
         $::disp{AusweisShow}            => 'C::Ausweis::show',
@@ -63,6 +62,8 @@ __PACKAGE__->config(
         $::disp{PreeditShowItem}        => 'C::Preedit::showitem',
         $::disp{PreeditFile}            => 'C::Preedit::file',
         $::disp{PreeditOp}              => 'C::Preedit::op',
+        $::disp{PreeditHide}            => 'C::Preedit::hide',
+        $::disp{PreeditCancel}          => 'C::Preedit::cancel',
         
         $::disp{EventList}              => 'C::Event::list',
         $::disp{EventShow}              => 'C::Event::show',
