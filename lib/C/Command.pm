@@ -206,8 +206,8 @@ sub show {
             map { 
                 my $p = $self->ToHtml($_);
                 $p->{allow_cancel} = 
-                    $self->rights_check_event($::rPreeditCancel, $::rAll) ? 1 : (
-                        $self->rights_check_event($::rPreeditCancel, $::rMy) ?
+                    $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
+                        $self->rights_check($::rPreeditCancel, $::rMy) ?
                             ($p->{uid} == $self->user->{id} ? 1 : 0) : 0
                     );
                 $p->{href_show} = $self->href($::disp{CommandHistory}.'#pre%d', $rec->{id}, $p->{id});
