@@ -64,6 +64,17 @@ sub showitem {
     if ($pre->{tbl} eq 'Ausweis') {
         ($d->{rec}) = map { C::Ausweis::_item($self, $_) }
             $self->model('Ausweis')->search({ id => $pre->{recid} }, { prefetch => [qw/command blok/] });
+        $d->{nick_exists} = sub {
+            my $nick = $d->{field}->()->{nick};
+            return [] unless defined $nick;
+            return $d->{_nick_exists} ||= [
+                map { C::Ausweis::_item($self, $_) }
+                $self->model('Ausweis')->search(
+                    { blocked => 0, nick => { LIKE => "\%$nick\%" } }, 
+                    { prefetch => 'command' }
+                )
+            ];
+        };
     }
 }
 

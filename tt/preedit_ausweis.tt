@@ -19,6 +19,19 @@
         <td>[% rec.nick %]</td>
         [% END %]
     </tr>
+    [% IF ((pre.op == 'C') || (pre.op == 'E')) && field_exists('nick') && nick_exists && (nick_exists.size > 0) %]
+    <tr>
+        <td class="ltitle"><font color="red">Ник уже используется:</font></td>
+        <td>
+        [% FOREACH nick_exists %]
+        [<a href="[% command.href_info %]">[% command.name %]</a>] <a href="[% href_info %]">[% nick %]</a><br />
+        [% END %]
+        </td>
+        [% IF (pre.op == 'E') %]
+        <td>[% rec.nick %]</td>
+        [% END %]
+    </tr>
+    [% END %]
     <tr[% IF !field_exists('cmdid') %] class="grey"[% END %]>
         <td class="ltitle">Команда:</td>
         [% IF (pre.op == 'C') || (pre.op == 'E') %]
