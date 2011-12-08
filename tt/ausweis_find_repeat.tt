@@ -1,18 +1,26 @@
 
 <table class="tbl">
-[% IF list %]
-[% IF list.size > 0 %]
-    [% FOREACH list %]
+[% IF list_nick %]
+    <tr class="title">
+        <td>Команда</td>
+        <td>Ник</td>
+        <td>ФИО</td>
+    </tr>
+[% IF list_nick.size > 0 %]
+    <tr class="title"><td colspan="3">Повторы <u>в никах</u></td></tr>
+    [% FOREACH list_nick %]
     <tr>
+        <td></td>
+        <td></td>
         <td></td>
     </tr>
     [% END %]
 [% ELSE %]
-    <tr><td align="center">повторов не обнаружено</td></tr>
+    <tr><td align="center" colspan="3">повторов <u>в никах</u> не обнаружено</td></tr>
 [% END %]
 [% END %]
     <tr>
-        <td class="submit">
+        <td class="submit" colspan="3">
 <form action="[% aus.href_find_repeat %]" method="POST">
 <input type="hidden" name="find" value="1" />
 <input type="submit" value="Искать">
