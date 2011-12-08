@@ -48,6 +48,7 @@ __PACKAGE__->config(
         $::disp{AusweisSet}             => 'C::Ausweis::set',
         $::disp{AusweisDel}             => 'C::Ausweis::del',
         $::disp{AusweisRegen}           => 'C::Ausweis::regen',
+        $::disp{AusweisFindRepeat}      => 'C::Ausweis::find_repeat',
         
         $::disp{PrintList}              => 'C::Print::list',
         $::disp{PrintInfo}              => 'C::Print::info',
@@ -146,10 +147,11 @@ sub http_accept {
             hash        => sub { C::Command::_hash($self); },
         },
         aus     => {
-            srch_num    => '',
-            href_list   => $self->href($::disp{AusweisList}),
-            href_adding => $self->href($::disp{AusweisAdding}),
-            allow_list  => 0,
+            srch_num            => '',
+            href_list           => $self->href($::disp{AusweisList}),
+            href_adding         => $self->href($::disp{AusweisAdding}),
+            href_find_repeat    => $self->href($::disp{AusweisFindRepeat}),
+            allow_list          => 0,
         },
         prn     => {
             href_list   => $self->href($::disp{PrintList}),

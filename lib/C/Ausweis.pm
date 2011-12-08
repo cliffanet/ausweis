@@ -493,5 +493,21 @@ sub regen {
     return $self->state(990400, '');
 }
 
+sub find_repeat {
+    my ($self, $id) = @_;
+
+    return unless $self->rights_exists_event($::rAusweisFindRepeat);
+    
+    my $d = $self->d;
+    my $q = $self->req;
+    $self->patt(TITLE => $text::titles{"ausweis_find_repeat"});
+    $self->view_select->subtemplate("ausweis_find_repeat.tt");
+    
+    $d->{list} = 0;
+    $q->param_bool('find') || return;
+    
+    $d->{list} = [];
+}
+
 
 1;
