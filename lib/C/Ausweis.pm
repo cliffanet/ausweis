@@ -503,10 +503,9 @@ sub find_repeat {
     $self->patt(TITLE => $text::titles{"ausweis_find_repeat"});
     $self->view_select->subtemplate("ausweis_find_repeat.tt");
     
-    $d->{list} = 0;
-    $q->param_bool('find') || return;
+    $d->{find} = $q->param_bool('find') || return;
     
-    $d->{list} = [];
+    $d->{list_nick} = [];
 }
 
 

@@ -1,6 +1,6 @@
 
 <table class="tbl">
-[% IF list_nick %]
+[% IF find %]
     <tr class="title">
         <td>Команда</td>
         <td>Ник</td>
