@@ -1,10 +1,6 @@
-<form action="[% href_add %]" method="POST" enctype="multipart/form-data">
-<input type="hidden" name="find" value="1" />
-<input type="submit" value="Искать">
-</form>
 
-[% IF list %]
 <table class="tbl">
+[% IF list %]
 [% IF list.size > 0 %]
     [% FOREACH list %]
     <tr>
@@ -14,5 +10,13 @@
 [% ELSE %]
     <tr><td align="center">повторов не обнаружено</td></tr>
 [% END %]
-</table>
 [% END %]
+    <tr>
+        <td class="submit">
+<form action="[% aus.href_find_repeat %]" method="POST">
+<input type="hidden" name="find" value="1" />
+<input type="submit" value="Искать">
+</form>
+        </td>
+    </tr>
+</table>
