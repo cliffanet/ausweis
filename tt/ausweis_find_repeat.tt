@@ -2,8 +2,8 @@
 <table class="tbl">
 [% IF find %]
     <tr class="title">
-        <td size="200">Команда</td>
-        <td size="200">Ник</td>
+        <td size="150">Команда</td>
+        <td size="150">Ник</td>
         <td>ФИО</td>
     </tr>
 [% IF list_nick.size > 0 %]
