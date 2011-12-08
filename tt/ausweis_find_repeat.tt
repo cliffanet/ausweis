@@ -10,9 +10,9 @@
     <tr class="title"><td colspan="3">Повторы <u>в никах</u></td></tr>
     [% FOREACH list_nick %]
     <tr>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% fio %]</a></td>
     </tr>
     [% END %]
 [% ELSE %]
