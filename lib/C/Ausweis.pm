@@ -506,6 +506,7 @@ sub find_repeat {
     $d->{find} = $q->param_bool('find') || return;
     
     # Общий список аусвайсов
+    my %byid;
     my @list = map {
         my ($nick, $fio) = (lc $_->{nick}, lc $_->{fio});
         $_ = _item($self, $_);
@@ -513,6 +514,7 @@ sub find_repeat {
         $_->{nick_len} = length $nick;
         $_->{fio_lc} = $fio;
         $_->{fio_len} = length $fio;
+        $byid{$_->{id}} = $_;
         $_;
     }
     $self->model('Ausweis')->search(
@@ -555,11 +557,11 @@ sub find_repeat {
     foreach my $aus1 (@list) {
         foreach my $aus2 (@list) {
             next if $aus1->{id} == $aus2->{id};
-            # Оба ника уже в группах
+            # Оба фиоа уже в группах
             next if $aus1->{fio_group} && $aus2->{fio_group};
-            # Вхождение ник2 в ник1
+            # Вхождение фио2 в фио1
             next if index($aus1->{fio_lc}, $aus2->{fio_lc}) < 0;
-            # Проверка, чтобы длина ник2 (более короткий) отличалась не более, чем на 30%
+            # Проверка, чтобы длина фио2 (более короткий) отличалась не более, чем на 30%
             next if (($aus1->{fio_len}-$aus2->{fio_len}) / $aus1->{fio_len}) > 0.3;
             
             if ($aus1->{fio_group}) {
@@ -579,6 +581,35 @@ sub find_repeat {
             
         }
     }
+    
+    # Похожие НИК-ФИО
+    $d->{list_comb} = [];
+    foreach my $aus1 (@list) {
+        my $text = "$aus1->{nick_lc} $aus1->{fio_lc}";
+        foreach my $aus ($self->model('Ausweis')->search_nick_comb_full($text)) {
+            my $aus2 = $byid{$aus->{id}} || next;
+            next if $aus1->{id} == $aus2->{id};
+            # Оба фиоа уже в группах
+            next if $aus1->{comb_group} && $aus2->{comb_group};
+            
+            if ($aus1->{comb_group}) {
+                push @{ $aus1->{comb_group} }, $aus2;
+                $aus2->{comb_group} = $aus1->{comb_group};
+            }
+            elsif ($aus2->{comb_group}) {
+                push @{ $aus2->{comb_group} }, $aus1;
+                $aus1->{comb_group} = $aus2->{comb_group};
+            }
+            else {
+                my $group = [ $aus1, $aus2 ];
+                push @{ $d->{list_comb} }, $group;
+                $aus1->{comb_group} = $group;
+                $aus2->{comb_group} = $group;
+            }
+            
+        }
+    }
+    
 }
 
 

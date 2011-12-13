@@ -73,6 +73,30 @@ sub regen_off {
     return $count;
 }
 
+sub search_nick_fio_full {
+    my ($self, $text, $prec, %args) = @_;
+    
+    $args{sql} = 
+        "SELECT `ausweis`.*, `command`.*".
+        " FROM `ausweis`".
+        " LEFT JOIN `command` ON `command`.`id`=`ausweis`.`cmdid`".
+        " WHERE `ausweis`.`blocked` = ?".
+        " AND MATCH(`ausweis`.`nick`, `ausweis`.`fio`) AGAINST(?)";
+    $args{params} = [$text];
+    
+#    if ($prec) {
+#        $args{sql} .= "";
+#    }
+    
+    if ($args{func}) {
+        return $self->select_func(%args);
+    } else {
+        my @list = ();
+        $self->select_func(%args, func => sub { push @list, {@_} });
+        return @list;
+    }
+}
+
 
 #######################################################################
 sub hnd_nick {
