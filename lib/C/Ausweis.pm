@@ -592,7 +592,7 @@ sub find_repeat {
             # Оба фиоа уже в группах
             next if $aus1->{comb_group} && $aus2->{comb_group};
             
-            $aus2->{prec} = $aus->{prec};
+            $aus1->{prec} = $aus->{prec};
             
             if ($aus1->{comb_group}) {
                 push @{ $aus1->{comb_group} }, $aus2;
