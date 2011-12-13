@@ -23,7 +23,6 @@
 [% ELSE %]
     <tr><td align="center" colspan="3">повторов <u>в Никах</u> не обнаружено</td></tr>
 [% END %]
-[% END %]
 
     <tr><td colspan="3"></td></tr>
 
@@ -44,7 +43,8 @@
 [% ELSE %]
     <tr><td align="center" colspan="3">повторов <u>в ФИО</u> не обнаружено</td></tr>
 [% END %]
-[% END %]
+
+[% END # IF find %]
 
     <tr>
         <td class="submit" colspan="3">
