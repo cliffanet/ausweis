@@ -588,6 +588,7 @@ sub find_repeat {
         my $text = "$aus1->{nick_lc} $aus1->{fio_lc}";
         foreach my $aus ($self->model('Ausweis')->search_nick_fio_full($text)) {
             my $aus2 = $byid{$aus->{id}} || next;
+            $aus2->{prec} = $aus->{prec};
             next if $aus1->{id} == $aus2->{id};
             # Оба фиоа уже в группах
             next if $aus1->{comb_group} && $aus2->{comb_group};
