@@ -586,7 +586,7 @@ sub find_repeat {
     $d->{list_comb} = [];
     foreach my $aus1 (@list) {
         my $text = "$aus1->{nick_lc} $aus1->{fio_lc}";
-        foreach my $aus ($self->model('Ausweis')->search_nick_fio_full($text, 0, nolog => 1)) {
+        foreach my $aus ($self->model('Ausweis')->search_nick_fio_full($text)){#, 0, nolog => 1)) {
             my $aus2 = $byid{$aus->{id}} || next;
             next if $aus1->{id} == $aus2->{id};
             # Оба фиоа уже в группах
