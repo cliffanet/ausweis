@@ -549,6 +549,36 @@ sub find_repeat {
             
         }
     }
+    
+    # Повторы в фио (Список списков - разбито по группам совпадений)
+    $d->{list_fio} = [];
+    foreach my $aus1 (@list) {
+        foreach my $aus2 (@list) {
+            next if $aus1->{id} == $aus2->{id};
+            # Оба ника уже в группах
+            next if $aus1->{fio_group} && $aus2->{fio_group};
+            # Вхождение ник2 в ник1
+            next if index($aus1->{fio_lc}, $aus2->{fio_lc}) < 0;
+            # Проверка, чтобы длина ник2 (более короткий) отличалась не более, чем на 20%
+            next if (($aus1->{fio_len}-$aus2->{fio_len}) / $aus1->{fio_len}) > 0.2;
+            
+            if ($aus1->{fio_group}) {
+                push @{ $aus1->{fio_group} }, $aus2;
+                $aus2->{fio_group} = $aus1->{fio_group};
+            }
+            elsif ($aus2->{fio_group}) {
+                push @{ $aus2->{fio_group} }, $aus1;
+                $aus1->{fio_group} = $aus2->{fio_group};
+            }
+            else {
+                my $group = [ $aus1, $aus2 ];
+                push @{ $d->{list_fio} }, $group;
+                $aus1->{fio_group} = $group;
+                $aus2->{fio_group} = $group;
+            }
+            
+        }
+    }
 }
 
 

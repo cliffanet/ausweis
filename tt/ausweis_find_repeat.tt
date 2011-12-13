@@ -7,7 +7,7 @@
         <td>ФИО</td>
     </tr>
 [% IF list_nick.size > 0 %]
-    <tr class="title"><td colspan="3">Повторы <u>в никах</u></td></tr>
+    <tr class="title"><td colspan="3">Повторы <u>в Никах</u></td></tr>
     [% FOREACH group = list_nick %]
         [% FOREACH group %]
     <tr>
@@ -21,9 +21,31 @@
         [% END %]
     [% END %]
 [% ELSE %]
-    <tr><td align="center" colspan="3">повторов <u>в никах</u> не обнаружено</td></tr>
+    <tr><td align="center" colspan="3">повторов <u>в Никах</u> не обнаружено</td></tr>
 [% END %]
 [% END %]
+
+    <tr><td colspan="3"></td></tr>
+
+[% IF list_fio.size > 0 %]
+    <tr class="title"><td colspan="3">Повторы <u>в ФИО</u></td></tr>
+    [% FOREACH group = list_fio %]
+        [% FOREACH group %]
+    <tr>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% fio %]</a></td>
+    </tr>
+        [% END %]
+        [% IF loop.next %]
+    <tr><td colspan="3"></td></tr>
+        [% END %]
+    [% END %]
+[% ELSE %]
+    <tr><td align="center" colspan="3">повторов <u>в ФИО</u> не обнаружено</td></tr>
+[% END %]
+[% END %]
+
     <tr>
         <td class="submit" colspan="3">
 <form action="[% aus.href_find_repeat %]" method="POST">
