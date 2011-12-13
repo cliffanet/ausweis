@@ -559,8 +559,8 @@ sub find_repeat {
             next if $aus1->{fio_group} && $aus2->{fio_group};
             # ¬хождение ник2 в ник1
             next if index($aus1->{fio_lc}, $aus2->{fio_lc}) < 0;
-            # ѕроверка, чтобы длина ник2 (более короткий) отличалась не более, чем на 20%
-            next if (($aus1->{fio_len}-$aus2->{fio_len}) / $aus1->{fio_len}) > 0.2;
+            # ѕроверка, чтобы длина ник2 (более короткий) отличалась не более, чем на 30%
+            next if (($aus1->{fio_len}-$aus2->{fio_len}) / $aus1->{fio_len}) > 0.3;
             
             if ($aus1->{fio_group}) {
                 push @{ $aus1->{fio_group} }, $aus2;
