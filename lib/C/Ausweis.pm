@@ -593,7 +593,7 @@ sub find_repeat {
             next if $aus1->{comb_group} && $aus2->{comb_group};
             
             $self->debug("[$text] - [$aus2->{nick_lc} $aus2->{fio_lc}] = $aus->{prec}");
-            $aus->{prec} || next;
+            #$aus->{prec} || next;
             $aus1->{prec} ||= $aus->{prec};
             
             if ($aus1->{comb_group}) {
