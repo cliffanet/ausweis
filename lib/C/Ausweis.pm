@@ -592,8 +592,8 @@ sub find_repeat {
             # Оба фиоа уже в группах
             next if $aus1->{comb_group} && $aus2->{comb_group};
             
-            $self->debug("[$text] - [$aus2->{nick_lc} $aus2->{fio_lc}] = $aus->{prec}");
-            next if $aus->{prec} < 3;
+            #$self->debug("[$text] - [$aus2->{nick_lc} $aus2->{fio_lc}] = $aus->{prec}");
+            next if $aus->{prec} < 5;
             $aus1->{prec} ||= $aus->{prec};
             
             if ($aus1->{comb_group}) {
