@@ -77,13 +77,11 @@ sub search_nick_fio_full {
     my ($self, $text, $prec, %args) = @_;
     
     $args{sql} = 
-        #"SELECT `ausweis`.*, `command`.*, MATCH(`ausweis`.`nick`, `ausweis`.`fio`) AGAINST(?) as `prec`".
-        "SELECT `ausweis`.*, MATCH(`ausweis`.`nick`, `ausweis`.`fio`) AGAINST(?) as `prec`".
+        "SELECT *, MATCH(`nick`, `fio`) AGAINST('$text') as `prec`".
         " FROM `ausweis`".
-        #" LEFT JOIN `command` ON `command`.`id`=`ausweis`.`cmdid`".
-        " WHERE `ausweis`.`blocked` = ?".
-        " AND MATCH(`ausweis`.`nick`, `ausweis`.`fio`) AGAINST(?)";
-    $args{params} = [0, $text, $text];
+        " WHERE `blocked` = ?".
+        " AND MATCH(`nick`, `fio`) AGAINST(?)";
+    $args{params} = [0, $text];
     
     if ($prec) {
         $args{sql} .= " > ?";
