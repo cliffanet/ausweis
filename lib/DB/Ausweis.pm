@@ -81,7 +81,7 @@ sub search_nick_fio_full {
         " FROM `ausweis`".
         " WHERE `blocked` = ?".
         " AND MATCH(`nick`, `fio`) AGAINST(?)";
-    $args{params} = [0, $text, $text];
+    $args{params} = [$text, 0, $text];
     
     if ($prec) {
         $args{sql} .= " > ?";
