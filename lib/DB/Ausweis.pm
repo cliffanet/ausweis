@@ -85,7 +85,7 @@ sub search_nick_fio_full {
     $args{params} = [0, $text, $text];
     
     if ($prec) {
-        $args{sql} .= " AND `prec` > ?";
+        $args{sql} .= " AND `ausweis.prec` > ?";
         push @{ $args{params} }, $prec;
     }
     
