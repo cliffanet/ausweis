@@ -81,13 +81,13 @@ sub search_nick_fio_full {
         " FROM `ausweis`".
         " LEFT JOIN `command` ON `command`.`id`=`ausweis`.`cmdid`".
         " WHERE `ausweis`.`blocked` = ?".
-        " AND MATCH(`ausweis`.`nick`, `ausweis`.`fio`) AGAINST(?) > 0.1";
+        " AND MATCH(`ausweis`.`nick`, `ausweis`.`fio`) AGAINST(?)";
     $args{params} = [0, $text, $text];
     
-#    if ($prec) {
-#        $args{sql} .= " AND `prec` > ?";
-#        push @{ $args{params} }, $prec;
-#    }
+    if ($prec) {
+        $args{sql} .= " > ?";
+        push @{ $args{params} }, $prec;
+    }
     
     if ($args{func}) {
         return $self->select_func(%args);
