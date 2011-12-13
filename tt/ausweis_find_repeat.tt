@@ -51,7 +51,7 @@
     [% FOREACH group = list_comb %]
         [% FOREACH group %]
     <tr>
-        <td>[[% prec %]] <a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
+        <td><!-- [% prec %] --><a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% fio %]</a></td>
     </tr>
