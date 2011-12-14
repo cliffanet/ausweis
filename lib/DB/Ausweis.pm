@@ -74,7 +74,7 @@ sub regen_off {
 }
 
 sub search_nick_fio_full {
-    my ($self, $text, $prec, %args) = @_;
+    my ($self, $text, $prec, $id, %args) = @_;
     
     $args{sql} = 
         "SELECT *, MATCH(`nick`, `fio`) AGAINST(?) as `prec`".
@@ -86,6 +86,14 @@ sub search_nick_fio_full {
     if ($prec) {
         $args{sql} .= " > ?";
         push @{ $args{params} }, $prec;
+    }
+    if ($id) {
+        $args{sql} .= " AND `id` != ?";
+        push @{ $args{params} }, $id;
+    }
+    if ($args{limit}) {
+        $args{sql} .= " LIMIT ?";
+        push @{ $args{params} }, $args{limit};
     }
     
     if ($args{func}) {

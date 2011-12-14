@@ -525,6 +525,7 @@ sub find_repeat {
     # Повторы в никах (Список списков - разбито по группам совпадений)
     $d->{list_nick} = [];
     foreach my $aus1 (@list) {
+        $aus1->{nick_len} || return;
         foreach my $aus2 (@list) {
             next if $aus1->{id} == $aus2->{id};
             # Оба ника уже в группах
@@ -555,6 +556,7 @@ sub find_repeat {
     # Повторы в фио (Список списков - разбито по группам совпадений)
     $d->{list_fio} = [];
     foreach my $aus1 (@list) {
+        $aus1->{fio_len} || next;
         foreach my $aus2 (@list) {
             next if $aus1->{id} == $aus2->{id};
             # Оба фиоа уже в группах
@@ -582,37 +584,37 @@ sub find_repeat {
         }
     }
     
-    # Похожие НИК-ФИО
+    # Похожие НИК-ФИО (временно отключено)
     $d->{list_comb} = [];
-    foreach my $aus1 (@list) {
-        my $text = "$aus1->{nick_lc} $aus1->{fio_lc}";
-        foreach my $aus ($self->model('Ausweis')->search_nick_fio_full($text, 0, nolog => 1)) {
-            my $aus2 = $byid{$aus->{id}} || next;
-            next if $aus1->{id} == $aus2->{id};
-            # Оба фиоа уже в группах
-            next if $aus1->{comb_group} && $aus2->{comb_group};
-            
-            #$self->debug("[$text] - [$aus2->{nick_lc} $aus2->{fio_lc}] = $aus->{prec}");
-            next if $aus->{prec} < 5;
-            $aus1->{prec} ||= $aus->{prec};
-            
-            if ($aus1->{comb_group}) {
-                push @{ $aus1->{comb_group} }, $aus2;
-                $aus2->{comb_group} = $aus1->{comb_group};
-            }
-            elsif ($aus2->{comb_group}) {
-                push @{ $aus2->{comb_group} }, $aus1;
-                $aus1->{comb_group} = $aus2->{comb_group};
-            }
-            else {
-                my $group = [ $aus1, $aus2 ];
-                push @{ $d->{list_comb} }, $group;
-                $aus1->{comb_group} = $group;
-                $aus2->{comb_group} = $group;
-            }
-            
-        }
-    }
+#    foreach my $aus1 (@list) {
+#        my $text = "$aus1->{nick_lc} $aus1->{fio_lc}";
+#        foreach my $aus ($self->model('Ausweis')->search_nick_fio_full($text, 0, $aus1->{id}, limit => 5, nolog => 1)) {
+#            my $aus2 = $byid{$aus->{id}} || next;
+#            next if $aus1->{id} == $aus2->{id};
+#            # Оба фиоа уже в группах
+#            next if $aus1->{comb_group} && $aus2->{comb_group};
+#            
+#            #$self->debug("[$text] - [$aus2->{nick_lc} $aus2->{fio_lc}] = $aus->{prec}");
+#            next if $aus->{prec} < 5;
+#            $aus1->{prec} ||= $aus->{prec};
+#            
+#            if ($aus1->{comb_group}) {
+#                push @{ $aus1->{comb_group} }, $aus2;
+#                $aus2->{comb_group} = $aus1->{comb_group};
+#            }
+#            elsif ($aus2->{comb_group}) {
+#                push @{ $aus2->{comb_group} }, $aus1;
+#                $aus1->{comb_group} = $aus2->{comb_group};
+#            }
+#            else {
+#                my $group = [ $aus1, $aus2 ];
+#                push @{ $d->{list_comb} }, $group;
+#                $aus1->{comb_group} = $group;
+#                $aus2->{comb_group} = $group;
+#            }
+#            
+#        }
+#    }
     
 }
 

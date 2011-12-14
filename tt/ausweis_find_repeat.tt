@@ -44,14 +44,14 @@
     <tr><td align="center" colspan="3">повторов <u>в ФИО</u> не обнаружено</td></tr>
 [% END %]
 
-    <tr><td colspan="3"></td></tr>
+    <!-- временно отключено tr><td colspan="3"></td></tr>
 
 [% IF list_comb.size > 0 %]
     <tr class="title"><td colspan="3">Схожие <u>комбинации Ник-ФИО</u></td></tr>
     [% FOREACH group = list_comb %]
         [% FOREACH group %]
     <tr>
-        <td><!-- [% prec %] --><a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
+        <td><!-- [% prec %] --><!-- a title="Просмотр команды" alt="Просмотр команды" href="[% command.href_info %]">[% command.name %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% fio %]</a></td>
     </tr>
@@ -63,6 +63,7 @@
 [% ELSE %]
     <tr><td align="center" colspan="3">схожих <u>комбинаций ФИО-ник</u> не обнаружено</td></tr>
 [% END %]
+    -->
 
 [% END # IF find %]
 
