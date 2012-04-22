@@ -189,6 +189,13 @@ sub http_accept {
     ############################
     
     my $d = $self->d;
+    
+    $d->{read_only} = $::db_Main{read_only} ? 1 : 0;
+    if ($d->{read_only}) {
+        $d->{read_only_date} = $::db_Main{read_only} =~ /\d+[\.\-]\d+[\.\-]\d+/ ?
+            $::db_Main{read_only} : '';
+    }
+    
     if ($self->user && $self->user->{id}) {
         ($d->{mycmd}) = map { C::Command::_item($self, $_) }
             $self->model('Command')->search({ id => $self->user->{cmdid} }, { prefetch => 'blok' })

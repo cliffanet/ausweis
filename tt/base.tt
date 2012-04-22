@@ -139,6 +139,9 @@
 
     </td>
     <td valign="top" class="content">
+[% IF read_only %]
+    <div class="title" style="color: red">База в режиме "только чтение"</div>
+[% END %]
 [% IF !event.view %]
                     <!-- Заголовок -->
     <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %][% TITLE %]</div>
