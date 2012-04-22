@@ -117,6 +117,9 @@ sub op {
     my ($self, $eid) = @_;
     
     return unless $self->rights_exists_event($::rPreedit);
+    
+    $self->can_edit() || return;
+    
     my $d = $self->d;
     
     my ($pre) = 
@@ -180,6 +183,8 @@ sub hide {
     
     return unless $self->rights_exists_event($::rCommandInfo);
     
+    $self->can_edit() || return;
+    
     my ($pre) = 
         $self->model('Preedit')->search({ id => $eid });
     $pre || return $self->state(-000105);
@@ -196,6 +201,8 @@ sub cancel {
     my $d = $self->d;
     
     return unless $self->rights_check_event($::rPreeditCancel, $::rMy, $::rAll);
+    
+    $self->can_edit() || return;
     
     my ($pre) = 
         $self->model('Preedit')->search({ id => $eid });

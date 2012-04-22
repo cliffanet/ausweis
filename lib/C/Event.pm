@@ -116,6 +116,9 @@ sub show {
     if ($type =~ /^(edit|ausweis(_xls)?|necombat(_xls)?|command(_xls)?)$/) {
         return unless $self->rights_check_event($::rEvent, $::rAdvanced);
     }
+    if ($type eq 'edit') {
+        $self->can_edit() || return;
+    }
     if ($type eq 'money') {
         return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
     }
@@ -281,6 +284,8 @@ sub edit {
     
     show($self, $id, 'edit');
     
+    $self->can_edit() || return;
+    
     my $d = $self->d;
     my $rec = $d->{rec} || return;
     $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
@@ -295,6 +300,8 @@ sub adding {
     my ($self) = @_;
 
     return unless $self->rights_check_event($::rEvent, $::rAdvanced);
+    
+    $self->can_edit() || return;
     
     $self->patt(TITLE => $text::titles{"event_add"});
     $self->view_select->subtemplate("event_add.tt");
@@ -321,6 +328,8 @@ sub set {
     my $is_new = !defined($id);
     
     return unless $self->rights_check_event($::rEvent, $::rAdvanced);
+    
+    $self->can_edit() || return;
     
     # Êıøèğóåì çàğàíåå äàííûå
     my ($rec) = (($self->d->{rec}) = $self->model('Event')->search({ id => $id })) if $id;
@@ -359,6 +368,9 @@ sub del {
     my ($self, $id) = @_;
     
     return unless $self->rights_check_event($::rEvent, $::rAdvanced);
+    
+    $self->can_edit() || return;
+    
     my ($rec) = $self->model('Event')->search({ id => $id });
     $rec || return $self->state(-000105);
     
@@ -382,6 +394,8 @@ sub money_set {
     my $q = $self->req;
     
     return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
+    
+    $self->can_edit() || return;
     
     my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
     $rec || return $self->state(-000105);
@@ -408,6 +422,8 @@ sub money_list_set {
     my $q = $self->req;
     
     return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
+    
+    $self->can_edit() || return;
     
     # Ñîáûòèå
     my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
@@ -482,6 +498,8 @@ sub ausweis_commit {
     
     return unless $self->rights_check_event($::rEventCommit, $::rYes, $::rAdvanced);
     
+    $self->can_edit() || return;
+    
     my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
     $rec || return $self->state(-000105);
     my ($aus) = $self->model('Ausweis')->search({ id => $ausid, blocked => 0 });
@@ -545,6 +563,8 @@ sub ausweis_decommit {
     
     return unless $self->rights_check_event($::rEventCommit, $::rAdvanced);
     
+    $self->can_edit() || return;
+    
     my ($c) = $self->model('EventAusweis')->search({ evid => $evid, ausid => $ausid });
     $c || return $self->state(-000105);
     
@@ -562,6 +582,8 @@ sub necombat_commit {
     my $q = $self->req;
     
     return unless $self->rights_check_event($::rEventCommit, $::rYes, $::rAdvanced);
+    
+    $self->can_edit() || return;
     
     my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
     $rec || return $self->state(-000105);
@@ -588,6 +610,8 @@ sub necombat_decommit {
     my $q = $self->req;
     
     return unless $self->rights_check_event($::rEventCommit, $::rAdvanced);
+    
+    $self->can_edit() || return;
     
     my ($c) = $self->model('EventNecombat')->search({ id => $ncmbid });
     $c || return $self->state(-000105);

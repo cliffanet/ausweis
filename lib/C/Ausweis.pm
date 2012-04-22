@@ -175,6 +175,7 @@ sub show {
                 $self->rights_check($::rAusweisEdit, $::rAll) ||
                 $self->rights_check_event($::rAusweisPreEdit, $::rAll);
         }
+        $self->can_edit() || return;
     }
     
     $d->{href_set} = $self->href($::disp{AusweisSet}, $id);
@@ -267,6 +268,8 @@ sub edit {
     
     show($self, $id, 'edit');
     
+    $self->can_edit() || return;
+    
     my $d = $self->d;    
     my $rec = $d->{rec} || return;
     $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
@@ -311,6 +314,7 @@ sub adding {
     return unless 
         $self->rights_exists($::rAusweisEdit) ||
         $self->rights_exists_event($::rAusweisPreEdit);
+    
     my $cmdid = $self->req->param_dig('cmdid');
     $cmdid ||= $self->user->{cmdid}
         if !$self->rights_check($::rAusweisEdit, $::rAll);
@@ -319,6 +323,8 @@ sub adding {
             $self->rights_check($::rAusweisEdit, $::rAll) ||
             $self->rights_check_event($::rAusweisPreEdit, $::rAll);
     }
+    
+    $self->can_edit() || return;
     
     $self->patt(TITLE => $text::titles{"ausweis_add"});
     $self->view_select->subtemplate("ausweis_add.tt");
@@ -355,6 +361,9 @@ sub set {
     } else {
         return unless $self->rights_exists_event($::rAusweisEdit);
     }
+    
+    $self->can_edit() || return;
+    
     my $d = $self->d;
     my $q = $self->req;
     my %sub;

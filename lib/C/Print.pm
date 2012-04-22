@@ -190,6 +190,8 @@ sub set {
 
     return unless $self->rights_check_event($::rPrint, $::rWrite);
     
+    $self->can_edit() || return;
+    
     my $d = $self->d;
     my $q = $self->req;
     
@@ -305,6 +307,8 @@ sub _ausweis_add_del {
     my $d = $self->d;
 
     return unless $self->rights_exists_event($::rPrintAusweis);
+    
+    $self->can_edit() || return;
     
     $d->{rec} ||= ($self->model('Print')->search({ id => $id }))[0];
     $d->{rec} || do { $self->state(-000105, ''); return };

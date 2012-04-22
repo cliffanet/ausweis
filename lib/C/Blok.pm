@@ -140,6 +140,7 @@ sub show {
         if (!$self->user->{blkid} || ($self->user->{blkid} != $blkid)) {
             return unless $self->rights_check_event($::rBlokEdit, $::rAll);
         }
+        $self->can_edit() || return;
     }
     
     $d->{rec} ||= ($self->model('Blok')->search({ id => $blkid }))[0];
@@ -189,6 +190,8 @@ sub edit {
     
     show($self, $id, 'edit');
     
+    $self->can_edit() || return;
+    
     my $d = $self->d;    
     my $rec = $d->{rec} || return;
     $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
@@ -235,6 +238,8 @@ sub adding {
 
     return unless $self->rights_check_event($::rBlokEdit, $::rAll);
     
+    $self->can_edit() || return;
+    
     $self->patt(TITLE => $text::titles{"blok_add"});
     $self->view_select->subtemplate("blok_add.tt");
     
@@ -268,6 +273,8 @@ sub set {
     if (!$id || !$self->user->{blkid} || ($self->user->{blkid} != $id)) {
         return unless $self->rights_check_event($::rBlokEdit, $::rAll);
     }
+    
+    $self->can_edit() || return;
     
     # Êıøèğóåì çàğàíåå äàííûå
     my ($rec) = (($self->d->{rec}) = $self->model('Blok')->search({ id => $id })) if $id;
@@ -320,6 +327,9 @@ sub del {
     my ($self, $id) = @_;
     
     return unless $self->rights_check_event($::rBlokEdit, $::rAll);
+    
+    $self->can_edit() || return;
+    
     my ($rec) = $self->model('Blok')->search({ id => $id });
     $rec || return $self->state(-000105);
     

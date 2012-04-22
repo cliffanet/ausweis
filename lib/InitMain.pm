@@ -319,5 +319,16 @@ sub ParamParse {
     return $ret;
 }
 
+sub can_edit {
+    my $self = shift;
+    
+    if ($self->d->{read_only}) {
+        $self->state(-000107, '');
+        return;
+    }
+    
+    1;
+}
+
 
 1;

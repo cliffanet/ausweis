@@ -150,6 +150,7 @@ sub show {
         if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
             return unless $self->rights_check_event($::rCommandEdit, $::rAll);
         }
+        $self->can_edit() || return;
     }
     
     my ($rec) = (($self->d->{rec}) = 
@@ -285,6 +286,8 @@ sub edit {
     
     show($self, $id, 'edit');
     
+    $self->can_edit() || return;
+    
     my $d = $self->d;
     my $rec = $d->{rec} || return;
     $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
@@ -331,6 +334,8 @@ sub adding {
 
     return unless $self->rights_check_event($::rCommandEdit, $::rAll);
     
+    $self->can_edit() || return;
+    
     $self->patt(TITLE => $text::titles{"command_add"});
     $self->view_select->subtemplate("command_add.tt");
     
@@ -364,6 +369,8 @@ sub set {
     if (!$id || !$self->user->{cmdid} || ($self->user->{cmdid} != $id)) {
         return unless $self->rights_check_event($::rCommandEdit, $::rAll);
     }
+    
+    $self->can_edit() || return;
     
     # Êıøèğóåì çàğàíåå äàííûå
     my ($rec) = (($self->d->{rec}) = $self->model('Command')->search({ id => $id })) if $id;
@@ -465,6 +472,9 @@ sub del {
     my ($self, $id) = @_;
     
     return unless $self->rights_check_event($::rCommandEdit, $::rAll);
+    
+    $self->can_edit() || return;
+    
     my ($rec) = $self->model('Command')->search({ id => $id });
     $rec || return $self->state(-000105);
     
