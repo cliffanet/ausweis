@@ -254,7 +254,7 @@ sub show {
     $d->{ausweis_history_my} = sub {
         return $d->{_ausweis_history_my} = [
             map {
-                $_->{ausweis} = Ñ::Ausweis::_item($self, $_->{ausweis});
+                $_->{ausweis} = C::Ausweis::_item($self, $_->{ausweis});
                 $_->{nick} = $_->{ausweis}->{nick} || $_->{field_nick}->{value} || '';
                 $_->{href_hide} = $self->href($::disp{PreeditHide}, $_->{id});
                 $_;
