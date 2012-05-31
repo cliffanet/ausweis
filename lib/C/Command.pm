@@ -205,9 +205,7 @@ sub show {
     $d->{ausweis_preedit_list} = sub {
         $d->{_ausweis_preedit_list} ||= [
             map { 
-                my $aus = C::Ausweis::_item($self, delete $_->{ausweis});
                 my $p = $self->ToHtml($_);
-                $p->{ausweis} = $aus;
                 $p->{allow_cancel} = 
                     $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
                         $self->rights_check($::rPreeditCancel, $::rMy) ?
@@ -222,7 +220,7 @@ sub show {
                 modered => 0,
                 'field_cmdid.value' => $rec->{id},
             }, {
-                prefetch => ['field_cmdid', 'field_nick', 'ausweis'],
+                prefetch => ['field_cmdid', 'field_nick'],
                 order_by => 'field_nick.value',
             })
         ];
@@ -542,7 +540,7 @@ sub history {
                     %eid_create ? { id => [keys %eid_create] } : (),
                     %ausid ? { tbl=>'Ausweis', recid=>[keys %ausid] } : ()
                 ], {
-                    prefetch    => ['user'],
+                    prefetch    => ['user', 'ausweis'],
                     order_by    => 'id'
                 })
         ] if %eid_create || %ausid;

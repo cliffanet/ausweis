@@ -14,8 +14,12 @@ use Clib::Mould;
 sub _item {
     my $self = shift;
     
+    
+    my $aus = C::Ausweis::_item($self, delete $_[0]->{ausweis}) if $_[0]->{ausweis};
     my $item = $self->ToHtml(shift, 1) || return;
     my $id = $item->{id};
+    
+    $p->{ausweis} = $aus if $aus;
     
     $item->{field} = sub {
         return $item->{_field} if $item->{_field};
