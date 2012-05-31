@@ -19,7 +19,7 @@ sub _item {
     my $item = $self->ToHtml(shift, 1) || return;
     my $id = $item->{id};
     
-    $p->{ausweis} = $aus if $aus;
+    $item->{ausweis} = $aus if $aus;
     
     $item->{field} = sub {
         return $item->{_field} if $item->{_field};
