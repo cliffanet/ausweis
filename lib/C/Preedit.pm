@@ -20,6 +20,7 @@ sub _item {
     my $id = $item->{id};
     
     $item->{ausweis} = $aus if $aus;
+    $item->{ausweis}->{id} ||= 0 if $aus;
     
     $item->{field} = sub {
         return $item->{_field} if $item->{_field};

@@ -28,7 +28,7 @@
     <td class="ltitle" style="width:250px">
         <a name="pre[% id %]"></a>
         [% IF op=='C' %]Добавление[% ELSIF op=='E' %]Редактирование[% ELSIF op=='D' %]Удаление[% END %]
-        [% IF tbl=='Ausweis' %]аусвайса (<a href="[% ausweis.href_info %]">[% ausweis.numid %]</a>)[% END %]:<br />
+        [% IF tbl=='Ausweis' %]аусвайса[% IF ausweis.id %] (<a href="[% ausweis.href_info %]">[% ausweis.numid %]</a>)[% END %][% END %]:<br />
         <small>[% datetime(dtadd) %]<br />
         [% user.login %][% IF ip %] [[% ip %]][% END %]<br /></small>
         [% IF modered > 0 %]<div style="color: green">+ [% comment %]</div>
