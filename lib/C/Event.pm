@@ -188,7 +188,7 @@ sub show {
                         map { ($_->{cmdid} => $_->{count}) }
                         $self->model('Ausweis')->search(
                             { 'event.evid' => $evid },
-                            { join => 'event', group_by => 'cmdid',
+                            { join => 'event', group_by => 'event.cmdid',
                                 columns => ['cmdid'], '+columns' => ['COUNT(*) as `count`'] }
                         )
                     };
@@ -230,13 +230,16 @@ sub show {
     $d->{ausweis_list} = sub {
         $d->{_ausweis_list} ||= [
             map { 
-                $_->{event}->{dtadd_format} = Func::dt_datetime($_->{event}->{dtadd});
-                C::Ausweis::_item($self, $_);
+                my $aus = delete $_->{ausweis};
+                $aus->{command} = delete $_->{command};
+                $aus->{event} = $_;
+                $aus->{event}->{dtadd_format} = Func::dt_datetime($aus->{event}->{dtadd});
+                C::Ausweis::_item($self, $aus);
             }
-            $self->model('Ausweis')->search(
+            $self->model('EventAusweis')->search(
                 { 'event.evid' => $evid, $cmdid ? (cmdid=>$cmdid) : () },
                 { 
-                    prefetch => [qw/event command/],
+                    prefetch => [qw/ausweis command/],
                     order_by => [qw/command.name nick/],
                 }
             )
@@ -510,7 +513,7 @@ sub ausweis_commit {
     
     my $m = $self->model('EventMoney')->get($rec->{id}, $aus->{cmdid});
     
-    my %c = ( evid => $evid, ausid => $ausid );
+    my %c = ( evid => $evid, ausid => $ausid, cmdid => $aus->{cmdid} );
     
     $c{payonkpp} = $q->param_bool('payonkpp');
     # Сумма взноса
