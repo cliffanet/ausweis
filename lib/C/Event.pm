@@ -237,7 +237,7 @@ sub show {
                 C::Ausweis::_item($self, $aus);
             }
             $self->model('EventAusweis')->search(
-                { 'id' => $evid, $cmdid ? (cmdid=>$cmdid) : () },
+                { 'evid' => $evid, $cmdid ? (cmdid=>$cmdid) : () },
                 { 
                     prefetch => [qw/ausweis command/],
                     order_by => [qw/command.name nick/],
