@@ -268,6 +268,7 @@ sub show {
                 $_->{ausweis} = C::Ausweis::_item($self, $_->{ausweis});
                 $_->{event} = C::Event::_item($self, $_->{event});
                 $_->{command} = C::Command::_item($self, $_->{command});
+                $_;
             }
             $self->model('EventAusweis')->search({
                 ausid   => $rec->{id}
