@@ -27,6 +27,7 @@ sub _item {
         $item->{href_del}       = $self->href($::disp{CommandDel}, $item->{id});
         $item->{href_delete}    = $self->href($::disp{CommandDel}, $item->{id});
         $item->{href_history}   = $self->href($::disp{CommandHistory}, $item->{id});
+        $item->{href_event_list}= $self->href($::disp{CommandEventList}, $item->{id});
         
         $item->{href_file}      = sub { $self->href($::disp{CommandFile}, $item->{id}, shift) };
         $item->{file_size} = sub {
@@ -556,5 +557,55 @@ sub history {
         $d->{_list};
     };
 }
+
+
+sub event_list {
+    my ($self, $cmdid) = @_;
+    my $d = $self->d;
+    
+    return unless $self->rights_exists_event($::rCommandInfo);
+    
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
+        return unless $self->rights_check_event($::rCommandInfo, $::rAll);
+    }
+    
+    my ($rec) = (($self->d->{rec}) = 
+        map { _item($self, $_) }
+        $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
+    $rec || return $self->state(-000105);
+    
+    $self->patt(TITLE => sprintf($text::titles{"command_event_list"}, $rec->{name}));
+    $self->view_select->subtemplate("command_event_list.tt");
+    
+    $d->{list} = sub {
+        return $d->{_list} if $d->{_list};
+        my %ev;
+        $d->{_list} = [
+            map {
+                my $ev = C::Event::_item($self, $_);
+                $ev->{aisweis_list} = [];
+                $ev{$ev->{id}} = $ev;;
+                $ev;
+            }
+            $self->model('Event')->search(
+                {},
+                { $self->sort('date'), },
+            )
+        ];
+        map {
+            my $aus = C::Ausweis::_item($self, $_);
+            $aus->{command} = C::Command::_item($self, $aus->{command});
+            push @{ $ev{ $aus->{event}->{evid} }->{aisweis_list} }, $aus;
+        }
+        $self->model('Ausweis')->search({
+            'event.cmdid' => $rec->{id}
+        }, {
+            prefetch => [qw/event command/],
+            order_by => 'nick'
+        });
+        $d->{_list};
+    };
+}
+
 
 1;
