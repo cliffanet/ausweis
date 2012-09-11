@@ -46,7 +46,7 @@
     <tr>
         <td class="ltitle">Дополнительно:</td>
         <td>
-            <a href="[% rec.href_history %]">История изменений</a><br /
+            <a href="[% rec.href_history %]">История изменений</a><br />
             <a href="[% rec.href_event_list %]">Мероприятия</a>
         </td>
     </tr>
