@@ -259,7 +259,7 @@
         <td><a title="Просмотр" alt="Просмотр" href="[% event.href_info %]">[% event.name %]</a></td>
         <td align="right">[% datetime(event.dtadd) %]</td>
         <td>
-        [% IF cmdid != ausweis.cmdid %]
+        [% IF cmdid != rec.cmdid %]
         В составе команды:
         <a title="Просмотр информации о команде" alt="Просмотр информации о команде" href="[% command.href_info %]">[% command.name %]</a>
         [% END %]
