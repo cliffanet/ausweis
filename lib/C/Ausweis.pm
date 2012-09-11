@@ -261,6 +261,22 @@ sub show {
             })
         ];
     };
+    
+    $d->{event_commited} = sub {
+        $d->{_event_commited} ||= [
+            map {
+                $_->{ausweis} = C::Ausweis::_item($self, $_->{ausweis});
+                $_->{event} = C::Event::_item($self, $_->{event});
+                $_->{command} = C::Command::_item($self, $_->{command});
+            }
+            $self->model('EventAusweis')->search({
+                ausid   => $rec->{id}
+            }, {
+                prefetch => [qw/event command/],
+                order_by => 'event.date'
+            })
+        ];
+    };
 }
 
 sub edit {

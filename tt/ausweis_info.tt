@@ -245,4 +245,31 @@
 [% END # FOREACH event_list %]
 [% END # IF allow_event %]
 
+<br />
+<h3>Мероприятия, в которых участвовал аусвайс:</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="200">Мероприятие</td>
+        <td width="120">Дата/Время</td>
+        <td>Особые отметки</td>
+    </tr>
+[% IF event_commited.size > 0 %]
+[% FOREACH event_commited %]
+    <tr>
+        <td><a title="Просмотр" alt="Просмотр" href="[% event.href_info %]">[% event.name %]</a></td>
+        <td align="right">[% datetime(event.dtadd) %]</td>
+        <td>
+        [% IF cmdid != ausweis.cmdid %]
+        В составе команды:
+        <a title="Просмотр информации о команде" alt="Просмотр информации о команде" href="[% command.href_info %]">[% command.name %]</a>
+        [% END %]
+        </td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
+        Этот аусвайс еще не был зарегистрирован ни на одном мероприятии
+    </td></tr>
+[% END %]
+</table>
 
