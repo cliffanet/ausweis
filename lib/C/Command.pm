@@ -583,7 +583,7 @@ sub event_list {
         $d->{_list} = [
             map {
                 my $ev = C::Event::_item($self, $_);
-                $ev->{aisweis_list} = [];
+                $ev->{ausweis_list} = [];
                 $ev{$ev->{id}} = $ev;;
                 $ev;
             }
@@ -595,7 +595,7 @@ sub event_list {
         map {
             my $aus = C::Ausweis::_item($self, $_);
             $aus->{command} = C::Command::_item($self, $aus->{command});
-            push @{ $ev{ $aus->{event}->{evid} }->{aisweis_list} }, $aus;
+            push @{ $ev{ $aus->{event}->{evid} }->{ausweis_list} }, $aus;
         }
         $self->model('Ausweis')->search({
             'event.cmdid' => $rec->{id}
