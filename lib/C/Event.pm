@@ -100,7 +100,7 @@ sub list {
         $self->model('Event')->search(
             {},
             {
-                $self->sort($sort || 'name'),
+                $self->sort($sort || 'date'),
             },
         )
     ];
