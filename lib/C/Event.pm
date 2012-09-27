@@ -537,7 +537,7 @@ sub ausweis_commit {
     if (($c{price} > 0) && !$c{payonkpp}) {
         # ѕровер€ем, можем ли мы из сданных заранее оплатить
         my @aus = $self->model('Ausweis')->search(
-            { cmdid => $aus->{cmdid}, 'event.evid' => $rec->{id}, 'event.payonkpp' => 0 },
+            { 'event.cmdid' => $aus->{cmdid}, 'event.evid' => $rec->{id}, 'event.payonkpp' => 0 },
             { prefetch => ['event'] }
         );
         my $summ = 0;
