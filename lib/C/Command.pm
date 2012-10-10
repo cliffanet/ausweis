@@ -601,7 +601,8 @@ sub event_list {
             'event.cmdid' => $rec->{id}
         }, {
             prefetch => [qw/event command/],
-            order_by => 'nick'
+            #order_by => 'nick'
+            order_by => 'event.dtadd'
         });
         $d->{_list};
     };
