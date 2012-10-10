@@ -593,8 +593,9 @@ sub event_list {
             )
         ];
         map {
+            my $cmd = delete $_->{command};
             my $aus = C::Ausweis::_item($self, $_);
-            $aus->{command} = C::Command::_item($self, $aus->{command});
+            $aus->{command} = C::Command::_item($self, $cmd);
             push @{ $ev{ $aus->{event}->{evid} }->{ausweis_list} }, $aus;
         }
         $self->model('Ausweis')->search({
