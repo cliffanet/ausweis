@@ -188,7 +188,7 @@ sub show {
                         map { ($_->{cmdid} => $_->{count}) }
                         $self->model('EventAusweis')->search(
                             { evid => $evid },
-                            { group_by => cmdid,
+                            { group_by => 'cmdid',
                                 columns => ['cmdid'], '+columns' => ['COUNT(*) as `count`'] }
                         )
                     };
