@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+
+use strict;
+#use warnings;
+
+BEGIN {
+    $::pathRoot = $0;
+    $::pathRoot =~ s/\/+/\//g;
+    $::pathRoot =~ s/[^\/]+$//;
+    if ($::pathRoot !~ s/\/[^\/]+\/$//) {
+        $::pathRoot .= '..';
+    }
+};
+
+use lib "$::pathRoot/lib";
+use base 'Clib::LineScript';
+
+use Img;
+use Func;
+
+require "$::pathRoot/conf/defines.conf";
+
+if (!@ARGV || ($ARGV[0] ne '1234567890')) {
+    print "Usage: $0 1234567890\n";
+    exit -1;
+}
+
+# Чтобы warnings не ругался
+$::logDebug ||= 0;
+$::logPath ||= '/var/log';
+$::pidPath ||= '/var/run';
+my $self = __PACKAGE__->new(
+    schema              => 'DB',
+    log_file            => "$::logPath/event_import.log",
+    pid_file            => "$::pidPath/event_import.pid",
+    pid_file_noerror    => 1,
+    debug_file          => $::logDebug ? "$::logPath/event_import.log" : undef,
+);
+
+
+use Data::Dumper;
+$self->log(1);
+
+my @num = ();
+my $eventid;# = 9;
+my $dtadd;# = '2014-11-15 10:00';
+
+sub import_event {
+    my %cmdid = ();
+    foreach my $num (@num) {
+        my ($aus, @other) =
+            $self->model('Ausweis')->search({ numid => $num }, {}, nolog => 1);
+        if (!$aus) {
+            $self->error("Unknown NUMID: %s", $num);
+        }
+        if (@other) {
+            $self->error("More one NUMID: %s", $num);
+        }
+        if ($aus->{blocked}) {
+            $self->error("Blocked NUMID: %s", $num);
+        }
+
+        $cmdid{$aus->{cmdid}} = 1;
+
+        next;
+
+        my %c = ( dtadd => $dtadd, evid => $eventid, ausid => $aus->{id}, cmdid => $aus->{cmdid} );
+        $self->model('EventAusweis')->create(\%c)
+            || last;
+    }
+
+    return;
+
+    foreach my $cmdid (keys %cmdid) {
+        $self->model('EventMoney')->create({
+            evid        => $eventid,
+            cmdid       => $cmdid,
+            allowed     => 1,
+        }) || last;
+    }
+}
+
+@num = qw/
+    /;
+
+import_event();
+
+#==========================================================
+#================================================== End ===
+#==========================================================
+
