@@ -64,11 +64,14 @@ sub list {
     my $d = $self->d;
     my $q = $self->req;
     my $f = {
-        cmdid   => $q->param_dig('cmdid'),
-        blkid   => $q->param_dig('blkid'),
-        text    => $q->param_str('text'),
-        numidnick=>$q->param_str('numidnick'),
+        cmdid   => scalar $q->param_dig('cmdid'),
+        blkid   => scalar $q->param_dig('blkid'),
+        text    => scalar $q->param_str('text'),
+        numidnick=>scalar $q->param_str('numidnick'),
     };
+    
+    $self->d->{srch} = $self->ToHtml({ %$f });
+    
     my $srch = {};
     $srch->{cmdid} = $f->{cmdid} if $f->{cmdid};
     $srch->{blkid} = $f->{blkid} if $f->{blkid};
@@ -103,8 +106,6 @@ sub list {
             (map { $_.'='.Clib::Mould->ToUrl($f->{$_}) }
             grep { $f->{$_} } keys %$f));
     $srch_url ||= '';
-    
-    $self->d->{srch} = $self->ToHtml($f);
     
     
     $self->d->{sort}->{href_template} = sub {

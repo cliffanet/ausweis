@@ -242,9 +242,9 @@ sub ausweis_search {
     
     my $q = $self->req;
     my $f = {
-        cmdid   => $q->param_dig('cmdid'),
-        blkid   => $q->param_dig('blkid'),
-        text    => $q->param_str('text'),
+        cmdid   => scalar $q->param_dig('cmdid'),
+        blkid   => scalar $q->param_dig('blkid'),
+        text    => scalar $q->param_str('text'),
     };
     my $srch = { blocked => 0 };
     $srch->{cmdid} = $f->{cmdid} if $f->{cmdid};

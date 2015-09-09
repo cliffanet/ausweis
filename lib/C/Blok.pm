@@ -64,8 +64,8 @@ sub list {
     
     my $q = $self->req;
     my $f = {
-        blkid   => $q->param_dig('blkid'),
-        name    => $q->param_str('name'),
+        blkid   => scalar $q->param_dig('blkid'),
+        name    => scalar $q->param_str('name'),
     };
     $f->{name} ||= '*';
     

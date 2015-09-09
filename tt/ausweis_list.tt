@@ -4,11 +4,11 @@
 <table class="tbl">
     <tr>
         <td class="ltitle">По всем полям:</td>
-        <td><input type="text" name="text" class="stdin" value="[% srch.text %]"></td>
+        <td><input type="text" name="text" class="stdin" value="[% srch.text %]" /></td>
     </tr>
     <tr>
         <td class="ltitle">Номер / Ник:</td>
-        <td><input type="text" name="numidnick" class="stdin" value="[% srch.numidnick %]"></td>
+        <td><input type="text" name="numidnick" class="stdin" value="[% srch.numidnick %]" /></td>
     </tr>
     <tr>
         <td class="ltitle">Команда:</td>

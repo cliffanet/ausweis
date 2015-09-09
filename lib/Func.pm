@@ -48,10 +48,17 @@ sub SetTmpDir {
     
     my $dir = "$::dirFiles/tmp";
     if (!(-d $dir)) {
-        mkdir($dir) || return;
+        if (!mkdir($dir)) {
+            $self->error("[SetTmpDir] Can't make dir '%s': %s", $dir, $!);
+            return;
+        }
     }
     
     $self->req->upload_path($dir);
+    
+    if (!$self->req->upload_path()) {
+        $self->error("[SetTmpDir] Can't set upload dir '%s'", $dir);
+    }
     
     return $self->req->upload_path();
 }
