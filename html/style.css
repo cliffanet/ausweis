@@ -1,0 +1,275 @@
+
+form {
+    padding-bottom: 0px;
+    margin-bottom: 0;
+}
+
+input.stdin, select.stdin {
+    width: 100%;
+}
+
+h3 {
+    //padding-left: 5px;
+    //padding-right: 5px;
+    padding: 5px;
+}
+
+div.menu_blok_title {
+    //background: url('/images/title01.gif') no-repeat;
+    //font-size: 14px;
+    //font-weight: bold;
+    //color: #FFDC99;
+    //width: 198px;
+    //height: 31px;
+    //padding-left: 15px;
+    //padding-bottom: 7px;
+    //vertical-align: middle;
+}
+div.menu_blok_title a {
+    //font-size: 14px;
+    //font-weight: bold;
+    //color: #FFDC99;
+}
+
+div.menu_blok_content {
+    //font-size: 11px;
+    font-weight: bold;
+    padding-left: 10px;
+}
+
+div.menu_blok_content a {
+    //text-decoration: none;
+    //color: #707070;
+    //font-weight:bold;
+    //font-size: 12px;
+    //background: url('/images/link.gif') left no-repeat;
+    //padding-left: 25px;
+}
+div.menu_blok_content a:hover {
+    //text-decoration: underline;
+}
+
+
+div.title {
+    text-decoration: none;
+    //color: #0674A2;
+    font-weight:bold;
+    font-size: 18px;
+    text-transform: uppercase;
+    height: 40px;
+    padding: 0px;
+}
+
+td.head {
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    vertical-align: top;
+    height: 200px;
+    font-size: 8pt;
+}
+td.menu {
+    border: 0px;
+    padding: 10px;
+    
+}
+td.content {
+    border: 0px;
+    padding: 10px;
+    
+}
+
+td.footer_copy {
+    background: #2A2F1F;
+    text-align: right;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 7pt;
+}
+.hidecopy {
+    color: #2A2F1F;
+}
+
+.msg { 
+    width: 300px; 
+    height: 71px; 
+    background: url('/images/alert.gif') no-repeat; 
+    position: fixed; 
+    z-index: 100;
+    left: 350px; 
+    top: 15px; 
+    color: black;
+}
+.err { 
+    width: 300px; 
+    height: 71px; 
+    background: url('/images/alert.gif') no-repeat 0 -71px; 
+    position: fixed;  
+    z-index: 100;
+    left: 350px; 
+    top: 15px; 
+    color: black;
+}
+.msg a, .err a { 
+    display: block; 
+    width: 298px; 
+    margin-left: 1px; 
+    line-height: 16px; 
+    text-align: center;
+}
+.msg .text, .err .text { 
+    display: block; 
+    width: 290px; 
+    height: 40px; 
+    margin: 5px 0 0 5px;
+    font-size: 8pt;
+}
+
+.msgHelp { 
+    display: none;
+    background: url('/images/help_bgr.gif') no-repeat;
+    position: fixed; 
+    left: 230px;
+    top: 100px;
+    width: 400px;
+    height: 300px;
+}
+.msgHelp a { 
+    display: block; 
+    width: 398px; 
+    margin-left: 1px; 
+    line-height: 16px; 
+    text-align: center;
+}
+.msgHelp .text { 
+    display: block; 
+    width: 380px; 
+    height: 270px; 
+    margin: 5px 0 0 5px;
+    font-size: 8pt;
+}
+img.help {
+    width: 16px; 
+    height: 15px; 
+    border: 0px;
+}
+
+.auth {
+    //padding-left: 20px;
+    //padding-top: 10px;
+    font-size: 9pt;
+}
+
+table.frame {
+    border: 0;
+}
+
+table.frame td.c1 {
+    background: url('/images/b_1.gif') no-repeat;
+    width: 12px;
+    height: 33px;
+}
+table.frame td.c2 {
+    background: url('/images/b_2.gif') no-repeat;
+    width: 13px;
+    height: 33px;
+}
+table.frame td.title {
+    background: url('/images/b_3.gif') repeat-x;
+    height: 33px;
+    //font-size: 14px;
+    font-weight: bold;
+    color: #E7EFF8;
+    padding-bottom: 7px;
+    vertical-align: middle;
+    
+}
+table.frame td.c3 {
+    background: url('/images/b_7.gif') repeat-y;
+    width: 12px;
+}
+table.frame td.c4 {
+    background: url('/images/b_8.gif') repeat-y;
+    width: 13px;
+}
+table.frame td.content {
+}
+table.frame td.c5 {
+    background: url('/images/b_4.gif') no-repeat;
+    width: 12px;
+    height: 19px;
+}
+table.frame td.c6 {
+    background: url('/images/b_6.gif') repeat-x;
+    height: 19px;
+}
+table.frame td.c7 {
+    background: url('/images/b_5.gif') no-repeat;
+    width: 13px;
+    height: 19px;
+}
+
+table.tbl {
+    width: 100%;
+    border: 0px solid;
+    border-color: #515326;
+    border-collapse: collapse;
+/*    background: url(http://www.airsoftclub.ru/images/newimg/title.png) 0 0 repeat; */
+}
+table.tbl td {
+    border: 2px solid;
+    border-color: #515326;
+    padding: 5px;
+    vertical-align: top;
+    
+    border-right: 1px solid #666633;    
+    border-left: 1px solid #666633;
+    
+    font-size: 9pt;
+}
+table.tbl .title, table.tbl .title a {
+    text-align: center;
+    font-size: 9pt;
+    font-weight: bold;
+    //color: #515326;
+    vertical-align: top;
+}
+table.tbl .ltitle {
+    text-align: right;
+    font-size: 9pt;
+    font-weight: bold;
+    //color: #515326;
+    width: 150px;
+}
+table.tbl .submit {
+    height: 30px;
+    text-align: right;
+    border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
+    padding-bottom: 0px;
+}
+table.tbl .submit a {
+    font-size: 11pt;
+    font-weight: bold;
+    text-decoration: none;
+}
+table.tbl .submit a:hover {
+    text-decoration: underline;
+}
+table.tbl .grey, table.tbl .grey a {
+     color: #55562A;
+}
+
+
+
+.form_error {
+    color: red; 
+    font-size:7pt;
+}
+
+table.free, table.free td {
+    border: 0;
+    padding: 0;
+}
+
+

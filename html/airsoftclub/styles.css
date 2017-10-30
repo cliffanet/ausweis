@@ -1,0 +1,513 @@
+/* ——————————————————————————————————————————
+File: styles.css
+Site: Sport Club StrikeBall [http://airsoftclub.ru]
+Coder: Max P.
+Author: XHTMLPLUS [www.xhtmlplus.ru]
+Version: 17 Dec 2007
+# Browsers: IE 6, IE 7, FF 2.0, Opera 9
+————————————————————————————————————————— */
+
+/* ——————————————————————————————————————————
+————————————————————————————————————————— */
+.menu {  font-family: Arial; font-size: 12px; color: #9CCB81; font-weight: normal}
+.news {  font-family: Arial; font-size: 12px; font-weight: bold; color: 9CCB81}
+.text_old {  font-family: Arial; font-size: 12px; font-weight: normal; color: #C4E6B1; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px}
+.header {  
+	display: block;
+	margin: 0 0 0px 0;
+	background: url(/airsoftclub/title2.png);
+	padding: 0;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
+.headerR {  
+	margin: 0 0 0px 0;
+	background: url(/airsoftclub/title2.png);
+	padding: 0;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+
+
+a.header {  font-family: Arial; font-size: 12px; font-weight: bold; color: #BFB8A8; text-decoration: none}
+a.header:hover {  font-family: Arial; font-size: 12px; font-weight: bold; color: #BFB8A8; text-decoration: underline}
+.copyright {  font-family: Arial; font-size: 10px; color: #FFEBB0; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; line-height: normal}
+.date {  font-family: Arial; font-size: 9px; color: #C0AD72}
+.nick {  font-family: Arial; font-size: 12px; font-weight: normal; color: #FFEBB0; margin: 7px 0px 0px}
+.tableheader {  font-family: Arial; font-size: 9px; color: #FFEBB0; text-align: left}
+a.menulink, a.menulink:link {  font-family: Arial; font-size: 12px; color: #9CCB81; font-weight: normal; text-decoration: none}
+a.menulink:hover, a.menulink:active {  font-family: Arial; font-size: 12px; color: #9CCB81; font-weight: normal; text-decoration: underline}
+a.copyrightlink, a.copyrightlink:link {  font-family: Arial; font-size: 10px; color: #FFEBB0; text-decoration: none}
+a.copyrightlink:hover, a.copyrightlink:active {  font-family: Arial; font-size: 10px; color: FFEBB0; text-decoration:underline }
+
+
+
+p.header {  font-family: Arial; font-size: 12px; font-weight: bold; color: BFB8A8; margin-top: 0px; margin-right: 0px; margin-bottom: 3px; margin-left: 0px}
+
+a.textlink, a.textlink:link {  font-family: Tahoma; font-size: 12px; font-weight: bold; color: #9CCB81; text-decoration: none}
+a.textlink:hover, a.textlink:active {  font-family: Tahoma; font-size: 12px; font-weight: bold; color: #9CCB81; text-decoration: none}
+
+
+a:link {  font-family: Tahoma; font-size: 12px; font-weight: old; color:  #A3984D; text-decoration: none }
+a:hover, a:active, a:visited {  font-family: Tahoma; font-size: 12px; font-weight: old; color: #A3984D; text-decoration: none}
+
+
+a.intextlink:link {  font-family: Arial; font-size: 12px;  font-weight: bold; color: #A3984D; text-decoration: none}
+a.intextlink:hover, a.intextlink:active {  font-family: Arial; font-size: 12px; font-weight: bold; color: #9CCB81; text-decoration: none}
+a.intextlink { font-family: Arial; font-size: 12px; font-weight: bold; color: #A3984D; text-decoration: none } 
+
+a.nick, a.nick:link {  font-family: Arial; font-size: 12px; font-weight: normal; color: #FF8A00; text-decoration: none}
+a.nick:hover, a.nick:active {  font-family: Arial; font-size: 12px; font-weight: normal; color: #FF8A00; text-decoration: underline}
+a.news {  font-family: Arial; font-size: 12px; font-weight: bold; color: #9CCB81; text-decoration: none}
+a.news:hover, a.news:active, a.news:link, a.news:visited {  font-family: Arial; font-size: 12px; font-weight: normal; color: #C4E6B1; text-decoration: none}
+/* --ri.text {  font-family: Arial; font-size: 12px; font-weight: normal; color: #C4E6B1; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px}
+rl.text {  font-family: Arial; font-size: 12px; font-weight: normal; color: #C4E6B1; margin-top: -2px; margin-right: 0px; margin-bottom: 0px; margin-left: 20px; clip:   rect(  10px ); line-height: 15px}-- */
+p.text_old {  font-family: Arial; font-size: 12px; font-weight: normal; color: #C4E6B1; margin-top: 5px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px}
+a.date{  font-family: Arial; font-size: 9px; color: #C0AD72; text-decoration: none}
+a.date:active {  font-family: Arial; font-size: 9px; color: #C0AD72; text-decoration: underline}
+.category {  font-family: Arial; font-size: 11px; color: #FFEBB0; font-weight: bold}
+p.gunmanufac {  font-family: Arial; font-size: 11px; color: #FFEBB0; font-weight: bold; margin-top: 5px; margin-right: 0px; margin-bottom: 0px; margin-left: 5px}
+a.model {  font-family: Tahoma, Arial; font-size: 10px; color: #9ECB82; font-weight: normal; text-decoration: none; margin-top: 4px; margin-right: 0px; margin-bottom: 2px; margin-left: 10px; line-height: 10px}
+a.model.hover {  font-family: Tahoma, Arial; font-size: 10px; color: #9ECB82; font-weight: normal; text-decoration: underline; margin-top: 4px; margin-right: 0px; margin-bottom: 2px; margin-left: 10px; line-height: 10px}
+
+td.section {  font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: bold; color: #FFEBB0; padding-left: 5px; padding-right: 5px}
+ol.text {  font-family: Arial; font-size: 12px; font-weight: normal; color: #C4E6B1; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 30px}
+td.text_weapon { font-family: Tahoma, Arial; font-size: 10px; font-weight: normal; color: #C4E6B1; margin-top: 0px; margin-right: 0px; margin-left: 5px; padding-left: 5px; margin-bottom: 0px; line-height: 100%}
+a.date:link  { font-family: Arial; font-size: 9px; color: #C0AD72; text-decoration: none } 
+a.date:hover { font-family: Arial; font-size: 9px; color: #C0AD72; text-decoration: underline } 
+p.quest {  font-family: Arial; font-size: 12px; font-weight: bold; color: #BFB8A8; margin:  5px 0px 0px 8px}
+.vote {  font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #FF9900; margin: 5px 0px 0px 4px}
+.rezult {  font-family: Arial, Helvetica, sans-serif; font-size: 10px; color: #FF9900; margin: 5px 0px 0px 8px}
+
+p.text_weapon { font-family: Tahoma, Arial; font-size: 10px; font-weight: normal; color: #C4E6B1; margin-top: 5px; margin-right: 0px; margin-left: 5px; padding-left: 5px; margin-bottom: 0px; line-height: 100%}ul {  font-family: Arial, Helvetica, sans-serif; margin: 0px 0px 5px 25px; font-size: 12px; color: #C4E6B1}
+ol {  margin: 5px 0px 5px 35px}
+p_old {  font-family: Arial; font-size: 12px; font-weight: normal; color: #C4E6B1; margin-top: 5px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px}
+
+
+a img {
+	border: none;
+}
+.floatleft {
+	display: block;
+	float: left;
+	margin: 0 10px 3px 0;
+}
+.floatright {
+	display: block;
+	float: right;
+	margin: 0 0 3px 10px;
+}
+.clear {
+	cclear: both;
+}
+h2 {
+	display: block;
+	height: 13px;
+	margin: 0 0 0px 0;
+	padding: 0 10px;
+	background: url(/airsoftclub/title2.png) 0 0px repeat-x;
+}
+h3 {
+	display: block;
+	margin: 0 0 0px 0;
+	background: url(/airsoftclub/title2.png) 0 0px repeat-x;
+	padding: 0;
+	
+	font: 15px Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	color: #FFF;
+}
+
+
+
+h3 span {
+	font-size: 11px;
+	font-weight: normal;
+	color: #ffebb0;
+}
+h4 {
+	display: block;
+	margin: 0;
+	padding: 0;
+	font: 14px Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+	font-weight: bold;
+	color: #fbfbfb;
+}
+ul {
+	margin: 20 0 10px 0;
+	padding: 0;
+	rlist-style: none;
+}
+
+html, body {
+	padding: 0;
+	margin: 0;
+	font-family:Tahoma; 
+	font-size:12px;
+	color:#E1D6AB;
+
+}
+body {
+	width: 1000px;
+	margin: 0 auto; 
+	background: url(/airsoftclub/body.JPG) 0 0 repeat;
+	
+}
+
+#outer {
+	width:980px;
+	min-width: 980px;
+	padding: 10px;
+	border:0px solid;
+}
+
+
+#header {
+	position: relative;
+	z-index: 1;
+	width: 1000px;
+	height: 189px;
+	padding: 0px 0 0 0px;
+	background: url(/airsoftclub/header3.jpg) center 0 no-repeat;
+}
+#logo {
+	width: 178px;
+	height: 143px;
+	margin: 0 auto;
+	padding-top: 21px;
+	padding-left: 24px; 
+}
+#logo a {
+	position: absolute;
+	z-index: 1;
+}
+
+#top_menu { 
+	height: 23px;
+	width: 1000px;
+	margin-top: 0px;
+	padding-top: 11px;	
+	background: url(/airsoftclub/top3.png) 0 0 repeat;
+}
+#top_menu_links {
+	border:0px solid;    
+	position:absolute;
+	margin-left: 623px;
+}
+
+#top_nav {
+	border:0px solid;    
+	position:absolute;
+	
+	margin-left: 250px;
+}
+
+
+#top_menu_links a {
+	display: block; 
+	float: left;
+	height: 12px;
+}
+#top_menu_links img {
+	display: block;
+	float: left;
+	margin: 0 10px;
+}
+a#reviews {
+	width: 42px;
+	background: url(/airsoftclub/01_forum.JPG) 0 0 no-repeat;
+}
+
+a#conference {
+	width: 20px;
+	background: url(/airsoftclub/02_FAQ.JPG) 0 0 no-repeat;
+}
+
+a#faq {
+	width: 62px;
+	background: url(/airsoftclub/03_download.JPG) 0 0 no-repeat;
+}
+a#download {
+	width: 103px;
+	background: url(/airsoftclub/04_links.JPG) 0 0 no-repeat;
+}
+
+#column_left {
+	width: 221px;
+	margin-top: 0px;
+	margin-left: 0px; 
+	border:0px solid;
+	float: left;
+
+}
+
+.menu_base {
+	margin-left:10px;
+    bbackground: url(/airsoftclub/menu_links.jpg) 0 0 repeat;
+    background: url(/airsoftclub/menu_fon.png) 0 0 repeat;
+}
+
+.menu {
+	border-right: 1px solid #666633; 	
+	border-left: 1px solid #666633;
+	margin-bottom: 0px;
+	padding-left:15px;
+	margin-left:0px;
+
+}
+
+.menured {
+	border-right: 1px solid #666633; 	
+	border-left: 1px solid #666633;
+	margin-bottom: 0px;
+}
+
+
+.menu2 {
+	border-right: 1px solid #666633; 	
+	border-left: 1px solid #666633;
+	margin-bottom: 0px;
+	background: url(/airsoftclub/menu_links.jpg) 0 0 repeat;
+}
+
+.menu_block {
+	margin-bottom: 0px;
+	background: url(/airsoftclub/menu_fon.png) 0 0 repeat;
+}
+
+
+.menu_body {
+	position: relative;
+	z-index: 1;
+	top: -4px;
+	margin-right: 10px;
+	padding: 14px 10px 0 10px;
+	
+}
+
+.menu_body2 {
+	border-right: 1px solid #666633; 	
+	border-left: 1px solid #666633;
+	
+}
+
+
+a.banner img {
+	display: block;
+	margin: 0 auto;
+	margin-bottom: 10px;
+}
+#column_left .menu .h4 {
+	margin: 0 10px 0 0;
+}
+#column_left .menu_body {
+	margin: 0 0 0 0;
+}
+#useful, #actual {
+	padding-bottom: 10px;
+	font-size: 11px;
+}
+#useful a, #actual a {
+	font-size: 12px;
+	line-height: 18px;
+	font-weight: bold;
+	color: #FFF;
+	text-decoration: none;
+}
+#useful a:hover, #actual a:hover {
+	color: #9ccb81;
+	text-decoration: none;
+}
+.menu_links {
+	position: relative;
+	z-index: 1;
+	top: -4px;
+	margin: 0 0 0 10px;
+	border-bottom: none;
+}
+
+#column_center {
+	margin-left:223px;
+	padding: 0px 0px 0px 0px;
+	redoverflow: auto;	
+	min-height: 950px;	
+
+}
+
+#content {
+	border:0px solid;
+	padding-left: 10px;
+	width: 542px;
+	padding-top: 30px;
+
+
+}
+
+#content2 {
+	border:0px solid;
+	padding-left: 10px;
+	width: 542px;
+	padding-top: 30px;
+
+
+}
+
+#content2 > table {
+        background: url(/airsoftclub/title.png) 0 0 repeat;
+        padding-bottom: 20px;
+        width: 537px;
+        border-right: 1px solid #666633;
+        border-left: 1px solid #666633;
+        margin-top: -6px;
+	margin-left: 5px;
+
+
+}
+
+
+
+
+.block {
+	background: url(/airsoftclub/title.png) 0 0 repeat;
+	padding-bottom: 20px;
+	width: 537px;
+	border-right: 1px solid #666633; 	
+	border-left: 1px solid #666633;
+	margin-top: 20px;
+	
+
+}
+
+.block2 {
+	background: url(/airsoftclub/title.png) 0 0 repeat;
+	padding-bottom: 0px;
+	width: 537px;
+	border-right: 1px solid #666633; 	
+	border-left: 1px solid #666633;
+	margin-top: 0px;
+	color: #E1D6AB;
+	font-size:11px;
+}
+
+.block2 a {
+    color: #E1D6AB;	
+    font-size:11px;
+    text-decoration:none;
+}
+
+
+
+.block p {
+	margin: 0;
+	padding: 0 0 10px 0;
+}
+.block ul li {
+	padding-left: 10px;
+}
+a.more {
+	display: block;
+	width: 78px;
+	height: 22px;
+	float: right;
+	background: url(/airsoftclub/a_more.JPG) center 0 no-repeat;
+}
+
+
+a.forum {
+	ddisplay: block;
+	width: 78px;
+	height: 22px;
+	float: right;
+	border: 0px solid #9ccb81;
+	background: url(/airsoftclub/obsudit.jpg) center 0 no-repeat;
+}
+a.forum:hover {
+	bborder: 1px solid #ceb97f;
+	background: url(/airsoftclub/obsudit.jpg) center 0 no-repeat;
+}
+
+a.forum:active {
+	bborder: 1px solid #ceb97f;
+	background: url(/airsoftclub/obsudit.jpg) center 0 no-repeat;
+}
+
+
+a.download {
+	display: block;
+	height: 18px;
+	float: right;
+	padding-left: 19px;
+	color: #9ccb81;
+	text-decoration: underline;
+	background: url(/airsoftclub/a_download.gif) 0 0 no-repeat;
+}
+a.download:hover {
+	background: url(/airsoftclub/a_download.gif) 0 -18px no-repeat;
+	color: #ceb97f;
+	text-decoration: none;
+}
+.pages a {
+	color: #9ccb81;
+	text-decoration: none;
+}
+.pages a:hover {
+	color: #FFF;
+	text-decoration: none;
+}
+.pages a.current {
+	color: #FFF;
+	text-decoration: none;
+}
+
+#bottom_menu {
+	margin-top: 10px;
+	padding: 7px;
+	text-align: center;
+	font: 12px Verdana, Arial, Helvetica, sans-serif;
+	color: #9ccb81;
+	float: left;
+}
+#bottom_menu a {
+	font-weight: bold;
+	color: #FFF;
+	text-decoration: none;
+}
+#bottom_menu a:hover {
+	color: #9ccb81;
+	text-decoration: none;
+}
+
+
+
+
+#column_right {
+	width: 211px;
+	margin-top: 10px;
+	margin-right: -15px;
+	float: right; 
+}
+
+
+#footer {
+	background: url(/airsoftclub/footer2.jpg) 0 0 no-repeat;
+	padding: 10px 0px;
+	margin-left:5px;
+	text-align: right;
+	width: 1000px;
+	height: 88px;
+	font-size: 11px;
+	color: #ffebb0;
+}
+#footer a {
+	color: #ffebb0;
+	text-decoration: underline;
+}
+#footer a:hover {
+	color: #9ccb81;
+	text-decoration: underline;
+}
+
+
+
