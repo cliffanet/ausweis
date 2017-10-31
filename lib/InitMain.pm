@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
-#use warnings;
-#$::pathRoot ||= '/home/ausweis';
+use warnings;
+no warnings 'once';
+
+use utf8;
 
 require "$::pathRoot/conf/defines.conf";
 require "$::pathRoot/conf/rights.conf";
@@ -12,11 +14,16 @@ use Func;
 use Img;
 
 __PACKAGE__->config(
+    redefine        => $::pathRoot.'/conf/redefine.conf',
+    
     view_default=> 'Main',
     schema      => 'DB',
     log_file    => "$::logPath/main.log",
     debug_file  => $::logDebug ? "$::logPath/main.log" : undef,
+    pid_file    => "$::pidPath/main.fcgi.pid",
+    bind        => '127.0.0.1:9004',
     
+    controller_extended => 1,
     dispatcher  => {
         default                         => 'C::Misc::default',
         
@@ -81,6 +88,8 @@ __PACKAGE__->config(
         $::disp{EventNecombatDeCommit}  => 'C::Event::necombat_decommit',
     },
     
+    return_custom => [qw/Operation/],
+    
     plugins => [qw/ScriptTime
                     Session Authenticate Session::State Admin 
                     Admin::Edit 
@@ -110,10 +119,192 @@ __PACKAGE__->config(
 
 __PACKAGE__->run();
 
+sub const_init {
+    
+    version     => '0.30',
+    versionDate => '2017-10-29',
+    
+    db => {},
+}
+
+
+
+sub http_patt {
+    my $self = shift;
+    
+    my $ver = $self->c('version');
+    $ver = sprintf("%0.1f.%d", $1, $2 || 0) if $ver =~ /^(\d*\.\d)(\d*)$/;
+    
+    return {
+        IS_DEVEL        => $self->c('isDevel') ? 1 : 0,
+        ip              => $ENV{REMOTE_ADDR},
+        AUTOREFRESH     => 0,
+        RUNCOUNT        => $self->{_run_count},
+        href_base       => $self->href(),
+        TIME            => scalar(localtime time),
+        version         => $ver,
+        verdate         => $self->c('versionDate'),
+    };
+}
+
+#### ------------------------------------
+#### Работа с шаблонизатором
+#### ------------------------------------
+sub setbasetemplate {
+    my $self = shift;
+    my $view = shift;
+    $view ||= $self->view_select('Main2'); # После переезда надо убрать ('Main2')
+    
+    if ($self->req->param_bool('is_modal')) {
+        $view->basetemplate('base_modal');
+    }
+    elsif ($self->req->param_int('is_modal') == -1) {
+        $view->withoutbasetemplate(1);
+    }
+}
+sub notfound {
+    my $self = shift;
+    
+    my $view = $self->view_select('Main2'); # После переезда надо убрать ('Main2')
+    $view->template('notfound');
+    $self->setbasetemplate($view);
+    return (error => 100105) if $self->req->param_bool('is_ajax');
+    return;
+}
+
+sub template { #  Выбор шаблона, так же проверяется способ отображения - модальное окно или страница целиком
+    my ($self, $template, $block) = @_;
+    
+    my $view = $self->view_select('Main2'); # После переезда надо убрать ('Main2')
+    $view->template($template);
+    $view->block($block) if $block;
+    $self->setbasetemplate($view);
+}
+
+#### ------------------------------------
+#### Возвращение статуса операции
+#### ------------------------------------
+sub return_operation {
+    my ($self, %p) = @_;
+    
+    $self->disable_view();
+    
+    %p || return;
+    
+    my $ajax_redirect;
+    if ($self->req->param_bool('is_ajax') || $self->req->param_bool('to_ajax')) {
+        if (my $href = $p{redirect}) {
+            $ajax_redirect = $href;
+        }
+        elsif (defined($href = $p{href})) {
+            if (ref($href) eq 'ARRAY') {
+                $ajax_redirect = $self->href(@$href);
+            }
+            elsif ($href eq '') {
+                $ajax_redirect = $ENV{HTTP_REFERER};
+            }
+            else {
+                $ajax_redirect = $self->href($href, @{ $p{args}||[] });
+            }
+        }
+        elsif (defined(my $pref = $p{pref})) {
+            if (ref($pref) eq 'ARRAY') {
+                $ajax_redirect = $self->pref(@$pref);
+            }
+            else {
+                $ajax_redirect = $self->pref($pref, @{ $p{args}||[] });
+            }
+            # Если указан mref (ссылка всплывающим окном)
+            if (my $mref = $p{mref}) {
+                if (ref($mref) eq 'ARRAY') {
+                    $ajax_redirect .= '#m/' . $self->mref(@$mref);
+                }
+                else {
+                    $ajax_redirect .= '#m/' . $self->mref($mref, @{ $p{margs}||[] });
+                }
+            }
+            
+        }
+    }
+    
+    if ((my $ok = $p{ok})){# && (my $user = $self->user)) {
+        if ($self->req->param_bool('is_ajax')) {
+            my $message = $p{message} || $self->c(state => abs $ok);
+    
+            $self->return_json({ ok => 1, $message ? (message => $message) : (), $ajax_redirect ? (redirect => $ajax_redirect) : () });
+            return;
+        }
+        elsif ($self->req->param_bool('to_ajax') && $ajax_redirect) {
+            $self->redirect($ajax_redirect);
+            return;
+        }
+        $self->cmd('Admin::state' => { state => abs $ok } );
+    }
+    elsif ((my $err = $p{error})){# && ($user = $self->user)) {
+        if ($self->req->param_bool('is_ajax')) {
+            my $message = $text::form_errors{$p{errno}||0} || $p{message} || $self->c(state => abs($err)*-1);
+            my $field = $p{field} ? { map { ($_ => $text::form_errors{ $p{field}->{$_} }) } keys %{ $p{field} } } : undef;
+            $self->return_json({ ok => 0, errno => abs($err), $message ? (message => $message) : (), $field ? (err_field => $field) : () });
+            return;
+        }
+        $self->cmd('Admin::state' => { state => abs($err)*-1 } );
+    }
+    
+    if (my $href = $p{redirect}) {
+        $self->redirect($href);
+    }
+    
+    if (defined(my $href = $p{href})) {
+        if (ref($href) eq 'ARRAY') {
+            $href = $self->href(@$href);
+        }
+        elsif ($href eq '') {
+            $href = undef;
+        }
+        else {
+            $href = $self->href($href, @{ $p{args}||[] });
+        }
+        
+        $self->redirect($href);
+    }
+    
+    if (my $mref = $p{mref}) {
+        # Если указан mref (ссылка всплывающим окном), то без ajax используем ее как основную
+        if (ref($mref) eq 'ARRAY') {
+            $mref = $self->pref(@$mref);
+        }
+        else {
+            $mref = $self->pref($mref, @{ $p{margs}||[] });
+        }
+        $self->redirect($mref);
+    }
+    elsif (defined(my $pref = $p{pref})) {
+        if (ref($pref) eq 'ARRAY') {
+            $pref = $self->pref(@$pref);
+        }
+        else {
+            $pref = $self->pref($pref, @{ $p{args}||[] });
+        }
+        
+        $self->redirect($pref);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 sub http_accept {
     my $self = shift;
 
-    # ���������� ������
+    # Глобальный доступ
     if (!$self->rights_exists($::rMain)) {
         if ($ENV{PATH_INFO} && ($ENV{PATH_INFO} !~ /login$/)) {
             $self->patt->{redirect} = "http://$ENV{HTTP_HOST}$ENV{REQUEST_URI}";
@@ -240,7 +431,7 @@ sub http_accept {
     
     ############################
     
-    # ���� ��������������
+    # Меню администратора
     my $i = 0;
     $self->d->{menu} = [
         map {
@@ -271,7 +462,7 @@ sub http_accept {
         @rights::AdminMenu
     ];
     
-#    # ������� ��������
+#    # Главная страница
 #    if (!$self->d->{denied} &&
 #        (!$ENV{PATH_INFO} || ($ENV{PATH_INFO} =~ /^\/$/))) {
 #        if ($self->rights_exists($::rAusweisList)) {

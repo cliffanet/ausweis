@@ -4,8 +4,8 @@ use strict;
 use warnings;
 
 ##################################################
-###     Ñïèñîê êîìàíä
-###     Êîä ìîäóëÿ: 97
+###     Ð¡Ð¿Ð¸ÑÐ¾Ðº ÐºÐ¾Ð¼Ð°Ð½Ð´
+###     ÐšÐ¾Ð´ Ð¼Ð¾Ð´ÑƒÐ»Ñ: 97
 #############################################
 
 sub _item {
@@ -14,7 +14,7 @@ sub _item {
     my $id = $item->{id};
     
     if ($id) {
-        # Ññûëêè
+        # Ð¡ÑÑ‹Ð»ÐºÐ¸
         $item->{href_info}      = $self->href($::disp{BlokShow}, $item->{id}, 'info');
         $item->{href_edit}      = $self->href($::disp{BlokShow}, $item->{id}, 'edit');
         $item->{href_del}       = $self->href($::disp{BlokDel}, $item->{id});
@@ -52,75 +52,24 @@ sub _hash {
     };
 }
 
-sub list {
+sub list :
+    ReturnPatt
+{
     my ($self) = @_;
 
-    return unless $self->rights_exists_event($::rBlokList);
+    #return unless $self->rights_exists_event($::rBlokList);
     
-    $self->patt(TITLE => $text::titles{blok_list});
-    $self->view_select->subtemplate("blok_list.tt");
+    $self->template("blok_list");
     
-    my $blk = $self->d->{blk};
-    
-    my $q = $self->req;
-    my $f = {
-        blkid   => scalar $q->param_dig('blkid'),
-        name    => scalar $q->param_str('name'),
-    };
-    $f->{name} ||= '*';
-    
-    my $srch = {};
-    $srch->{id} = $f->{blkid} if $f->{blkid};
-    if ($f->{blkid}) {
-        $srch->{blkid} = $f->{blkid} > 0 ? $f->{blkid} : 0;
-    }
-    if ($f->{name}) {
-        my $name = $f->{name};
-        $name =~ s/([%_])/\\$1/g;
-        $name =~ s/\*/%/g;
-        $name =~ s/\?/_/g;
-        #$name = "%$name" if $name !~ /^%/;
-        #$name .= "%" if $name !~ /^(.*[^\\])?%$/;
-        $srch->{name} = { LIKE => $name };
-    }
-    
-    my $srch_url = 
-        join('&',
-            (map { $_.'='.Clib::Mould->ToUrl($f->{$_}) }
-            grep { $f->{$_} } keys %$f));
-    $srch_url ||= '';
-    
-    $self->d->{srch} = $self->ToHtml($f);
-    
-    
-    $self->d->{sort}->{href_template} = sub {
-        my $sort = shift;
-        return $self->href($::disp{BlokList})."?".
-                join('&', $srch_url, "sort=$sort");
-    };
-    my $sort = $self->req->param_str('sort');
-
-    $self->d->{pager}->{href} ||= sub {
-        my $page = shift;
-        return $self->href($::disp{BlokList})."?".
-            join('&', $srch_url, $sort?"sort=$sort":(), $page>1?"page=$page":());
-    };
-    my $page = $self->req->param_dig('page') || 1;
-    
-    $self->d->{list} = [
-        map {
-                my $item = _item($self, $_);
-                $item;
-        }
-        $self->model('Blok')->search(
-            $srch,
+    my @list = $self->model('Blok')->search(
+            {},
             {
-                $self->sort($sort || 'name'),
+                order_by => 'name',
             },
-            $self->pager($page, 100),
-        )
-    ] if $srch_url;
-    $self->d->{list} ||= 0;
+        );
+    
+    return
+        list => \@list,
 }
 
 sub show {
@@ -134,7 +83,7 @@ sub show {
     if (!$self->user->{blkid} || ($self->user->{blkid} != $blkid)) {
         return unless $self->rights_check_event($::rBlokInfo, $::rAll);
     }
-    ##### Ïðàâà íà åäàêòèðîâàíèå
+    ##### ÐŸÑ€Ð°Ð²Ð° Ð½Ð° ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ
     if ($type eq 'edit') {
         return unless $self->rights_exists_event($::rBlokEdit);
         if (!$self->user->{blkid} || ($self->user->{blkid} != $blkid)) {
@@ -153,7 +102,7 @@ sub show {
     
     $d->{href_set} = $self->href($::disp{BlokSet}, $blkid);
     
-    ##### Ñïèñîê êîìàíä
+    ##### Ð¡Ð¿Ð¸ÑÐ¾Ðº ÐºÐ¾Ð¼Ð°Ð½Ð´
     $d->{sort}->{href_template} = sub {
         my $sort = shift;
         return $self->href($::disp{BlokShow}, $rec->{id}, $type)."?sort=$sort";
@@ -246,11 +195,11 @@ sub adding {
     my $d = $self->d;
     $d->{href_add} = $self->href($::disp{BlokAdd});
     
-        # Àâòîçàïîëíåíèå ïîëåé, åñëè äàííûå èç ôîðìû íå ïðèõîäèëè
+        # ÐÐ²Ñ‚Ð¾Ð·Ð°Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð»ÐµÐ¹, ÐµÑÐ»Ð¸ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ð¸Ð· Ñ„Ð¾Ñ€Ð¼Ñ‹ Ð½Ðµ Ð¿Ñ€Ð¸Ñ…Ð¾Ð´Ð¸Ð»Ð¸
     $d->{form} =
         { map { ($_ => '') } qw/name/ };
     if ($self->req->params()) {
-        # Äàííûå èç ôîðìû - ëèáî ïîñëå ParamParse, ëèáî íàïðÿìóþ äàííûå
+        # Ð”Ð°Ð½Ð½Ñ‹Ðµ Ð¸Ð· Ñ„Ð¾Ñ€Ð¼Ñ‹ - Ð»Ð¸Ð±Ð¾ Ð¿Ð¾ÑÐ»Ðµ ParamParse, Ð»Ð¸Ð±Ð¾ Ð½Ð°Ð¿Ñ€ÑÐ¼ÑƒÑŽ Ð´Ð°Ð½Ð½Ñ‹Ðµ
         my $fdata = $self->ParamData(fillall => 1);
         if (keys %$fdata) {
             $d->{form} = { %{ $d->{form} }, %$fdata };
@@ -276,19 +225,19 @@ sub set {
     
     $self->can_edit() || return;
     
-    # Êýøèðóåì çàðàíåå äàííûå
+    # ÐšÑÑˆÐ¸Ñ€ÑƒÐµÐ¼ Ð·Ð°Ñ€Ð°Ð½ÐµÐµ Ð´Ð°Ð½Ð½Ñ‹Ðµ
     my ($rec) = (($self->d->{rec}) = $self->model('Blok')->search({ id => $id })) if $id;
     if (!$is_new && (!$rec || !$rec->{id})) {
         return $self->state(-000105, '');
     }
     
-    # Ïðîâåðÿåì äàííûå èç ôîðìû
+    # ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ð¸Ð· Ñ„Ð¾Ñ€Ð¼Ñ‹
     if (!$self->ParamParse(model => 'Blok', is_create => $is_new)) {
         $self->state(-000101);
         return $is_new ? adding($self) : edit($self, $id);
     }
     
-    # Ñîõðàíÿåì äàííûå
+    # Ð¡Ð¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ
     my $ret = $self->ParamSave( 
         model           => 'Blok', 
         $is_new ?
@@ -303,7 +252,7 @@ sub set {
         return $is_new ? adding($self) : edit($self, $id);
     }
     
-    # Çàãðóçêà ëîãîòèïà
+    # Ð—Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ð»Ð¾Ð³Ð¾Ñ‚Ð¸Ð¿Ð°
     if (my $file = $self->req->param("photo")) {
         Func::MakeCachDir('blok', $id)
             || return $self->state(-900102, '');
@@ -319,7 +268,7 @@ sub set {
         unlink("$dirUpload/$file");
     }
     
-    # Ñòàòóñ ñ ðåäèðåêòîì
+    # Ð¡Ñ‚Ð°Ñ‚ÑƒÑ Ñ Ñ€ÐµÐ´Ð¸Ñ€ÐµÐºÑ‚Ð¾Ð¼
     return $self->state($is_new ? 970100 : 970200,  $self->href($::disp{BlokShow}, $id, 'info') );
 }
 
@@ -336,19 +285,19 @@ sub del {
     $self->model('Blok')->delete({ id => $id })
         || return $self->state(-000104, '');
         
-    # Óáèðàåì áëîê ó êîìàíä
+    # Ð£Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð±Ð»Ð¾Ðº Ñƒ ÐºÐ¾Ð¼Ð°Ð½Ð´
     $self->model('Command')->update(
         { blkid => 0 },
         { blkid => $id },
     ) || return $self->state(-000104, '');
     
-    # Óáèðàåì áëîê ó àóñâàéñîâ
+    # Ð£Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ð±Ð»Ð¾Ðº Ñƒ Ð°ÑƒÑÐ²Ð°Ð¹ÑÐ¾Ð²
     $self->model('Ausweis')->update(
         { blkid => 0 },
         { blkid => $id },
     ) || return $self->state(-000104, '');
     
-    # ñòàòóñ ñ ðåäèðåêòîì
+    # ÑÑ‚Ð°Ñ‚ÑƒÑ Ñ Ñ€ÐµÐ´Ð¸Ñ€ÐµÐºÑ‚Ð¾Ð¼
     $self->state(970300, $self->href($::disp{BlokList}) );
 }
 

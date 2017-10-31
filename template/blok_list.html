@@ -1,0 +1,35 @@
+<!-- Поиск -->
+<h3>Поиск</h3>
+<form action="[% blk.href_list %]" method="GET">
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:</td>
+        <td><input type="text" name="name" class="stdin" value="[% srch.name %]"></td>
+    </tr>
+    <tr><td colspan="2" class="submit">
+        <input type="submit" value="Искать">
+        <br />
+        <a href="[% blk.href_adding %]">добавить</a>
+    </td></tr>
+</table>
+</form>
+
+[% IF list %]
+<h3>Результаты</h3>
+<table class="tbl">
+    <tr class="title">
+        <td>Название</td>
+    </tr>
+[% IF list.size > 0 %]
+[% FOREACH list %]
+    <tr>
+        <td><a title="Просмотр информации о блоке" alt="Просмотр информации о блоке" href="[% href_info %]">[% name %]</a></td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="2" style="height:50px;text-align:center;vertical-align:middle;">
+        ничего не найдено
+    </td></tr>
+[% END %]
+</table>
+[% END %]
