@@ -27,7 +27,7 @@ __PACKAGE__->config(
     dispatcher  => {
         default                         => 'C::Misc::default',
         
-        $::disp{BlokList}               => 'C::Blok::list',
+        #$::disp{BlokList}               => 'C::Blok::list',
         $::disp{BlokShow}               => 'C::Blok::show',
         $::disp{BlokShowMy}             => 'C::Blok::show_my',
         $::disp{BlokFile}               => 'C::Blok::file',
@@ -135,6 +135,21 @@ sub http_patt {
     my $ver = $self->c('version');
     $ver = sprintf("%0.1f.%d", $1, $2 || 0) if $ver =~ /^(\d*\.\d)(\d*)$/;
     
+    # Временно для корректной работы плагинов авторизации (потом надо заменить их на свои модули)
+    # меняем точки в patt на подхеши
+    my $patt = $self->patt;
+    foreach my $key (keys %$patt) {
+        my @key = split /\./, $key;
+        next if @key < 2;
+        my $val = delete $patt->{$key};
+        my $keylast = pop @key;
+        my $h = $patt;
+        $h = ($h->{$_}||={}) foreach @key;
+        #$val = $val->($self->view('Main')) if ref($val) eq 'CODE';
+        $val = $$val if ref($val) eq 'SCALAR';
+        $h->{$keylast} = $val;
+    }
+    
     return {
         IS_DEVEL        => $self->c('isDevel') ? 1 : 0,
         ip              => $ENV{REMOTE_ADDR},
@@ -144,6 +159,7 @@ sub http_patt {
         TIME            => scalar(localtime time),
         version         => $ver,
         verdate         => $self->c('versionDate'),
+        #patt => $self->patt
     };
 }
 
@@ -177,7 +193,7 @@ sub template { #  Выбор шаблона, так же проверяется
     
     my $view = $self->view_select('Main2'); # После переезда надо убрать ('Main2')
     $view->template($template);
-    $view->block($block) if $block;
+    $view->block($block) if $block && ($self->req->param_int('is_modal') == 2);
     $self->setbasetemplate($view);
 }
 

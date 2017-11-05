@@ -59,16 +59,28 @@ sub list :
 
     #return unless $self->rights_exists_event($::rBlokList);
     
-    $self->template("blok_list");
+    $self->template("blok_list", 'CONTENT_result');
+    
+    my $srch = {};
+    if (my $name = $self->req->param_str('srch')) {
+        $name =~ s/([%_])/\\$1/g;
+        $name =~ s/\*/%/g;
+        $name =~ s/\?/_/g;
+        $name = "$name" if $name !~ /^%/;
+        $name .= "%" if $name !~ /^(.*[^\\])?%$/;
+        $srch->{name} = { LIKE => $name };
+    }
+
     
     my @list = $self->model('Blok')->search(
-            {},
+            $srch,
             {
                 order_by => 'name',
             },
         );
     
     return
+        srch => $self->req->param_str('srch'),
         list => \@list,
 }
 
