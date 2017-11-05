@@ -62,6 +62,7 @@
                         if (!data.url) return;
                         
                         data.getText = function() { return $txt.val(); };
+                        data.text = data.getText();
                         
                         var timerKeypress = null;
                         $txt.keydown(function(e){
@@ -136,7 +137,7 @@
                                 $(data.target).html(res);
                                 data.text = txt;
                                 if (!noHistory)
-                                    history.replaceState('', document.title, '?srch=' + encodeURIComponent(txt));
+                                    history.replaceState('', document.title, txt === '' ? location.pathname : '?srch=' + encodeURIComponent(txt));
                             },
                             complete: function() {
                                 data.request = null;

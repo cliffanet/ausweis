@@ -3,6 +3,8 @@ package C::Blok;
 use strict;
 use warnings;
 
+use Encode '_utf8_on', 'encode';
+
 ##################################################
 ###     Список команд
 ###     Код модуля: 97
@@ -62,7 +64,9 @@ sub list :
     $self->template("blok_list", 'CONTENT_result');
     
     my $srch = {};
-    if (my $name = $self->req->param_str('srch')) {
+    my $s = $self->req->param_str('srch');
+    _utf8_on($s);
+    if (my $name = $s) {
         $name =~ s/([%_])/\\$1/g;
         $name =~ s/\*/%/g;
         $name =~ s/\?/_/g;
@@ -80,7 +84,7 @@ sub list :
         );
     
     return
-        srch => $self->req->param_str('srch'),
+        srch => $s,
         list => \@list,
 }
 
