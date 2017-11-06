@@ -125,8 +125,112 @@ sub const_init {
     versionDate => '2017-10-29',
     
     db => {},
+    
+    rtypes    => [
+        [Read       => 'r'  => "Чтение"],
+        [Write      => 'w'  => "Изменение"],
+        [Yes        => 'y'  => "Да"],
+        [My         => 'm'  => "Только свои"],
+        [Advanced   => 'a'  => "Расширенный"],
+        [All        => 'z'  => "Все"],
+        [Add        => 'c'  => "Добавление"],
+        [No         => '-'  => "Нет"],
+        [Group      => 'g'  => "Как у группы"],
+    ],
+    
+    rights => [
+        "Доступ к системе",
+        [Main               => 1    => "Глобальный доступ"                  => qw/Lite Advanced/],
+        [Admins             => 2    => "Пользователи"                       => qw/Read Write/],
+        'База аусвайсов',
+        [BlokList           => 11   => "Блоки: список"                      => qw/Read/],
+        [BlokInfo           => 12   => "Блоки: информация"                  => qw/My All/],
+        [BlokEdit           => 13   => "Блоки: редактирование"              => qw/My All/],
+        [CommandList        => 21   => "Команды: список"                    => qw/Read/],
+        [CommandInfo        => 22   => "Команды: информация"                => qw/My All/],
+        [CommandEdit        => 23   => "Команды: редактирование"            => qw/My All/],
+        [CommandLogo        => 24   => "Команды: загрузка логотипа"         => qw/My All/],
+        [AusweisList        => 31   => "Аусвайсы: список"                   => qw/Read/],
+        [AusweisInfo        => 32   => "Аусвайсы: информация"               => qw/My All/],
+        [AusweisEdit        => 33   => "Аусвайсы: редактирование"           => qw/My All/],
+        [AusweisPreEdit     => 34   => "Аусвайсы: запрос на изменение"      => qw/My All/],
+        [AusweisFindRepeat  => 35   => "Аусвайсы: поиск повторов"           => qw/Yes/],
+        'Общее управление',
+        [Print              => 40   => "Печать"                             => qw/Read Write/],
+        [PrintAusweis       => 41   => "Печать: работа с аусвайсами"        => qw/My All/],
+        [Preedit            => 50   => "Модерация изменений в базе"         => qw/Yes/],
+        [PreeditCancel      => 51   => "Модерация изменений : отмена заявки"=> qw/My All/],
+        [Event              => 45   => "Мероприятия"                        => qw/Read Write Advanced/],
+        [EventView          => 46   => "Мероприятия: особое отображение"    => qw/Yes/],
+        [EventCommit        => 47   => "Мероприятия: регистрация на КПП"    => qw/Yes Advanced/],
+    ],
+    
+    menu    => [
+        #"Администрирование",
+        #["Аккаунты"         =>  admin_read      => 'admin'],
+        #'Администрирование',
+        #[ 'Аккаунты',           sub { shift->d->{admin}->{href_list} },
+        #                        sub { $_[0]->rights_exists($rAdmins) } ],
+        #[ 'Группы',             sub { shift->d->{admin_group}->{href_list} },
+        #                        sub { $_[0]->rights_exists($rAdmins) } ],
+        #undef,
+        #[ 'Печать',             sub { shift->href($::disp{PrintList}) },
+        #                        sub { $_[0]->rights_exists($rPrint) } ],
+        #[ 'Модерация',          sub { shift->href($::disp{PreeditShowItem}) },
+        #                        sub { $_[0]->rights_exists($rPreedit) } ],
+        #[ 'Поиск повторов',     sub { shift->href($::disp{AusweisFindRepeat}) },
+        #                        sub { $_[0]->rights_exists($rAusweisFindRepeat) } ],
+        #[ 'Мероприятия',        sub { shift->href($::disp{EventList}) },
+        #                        sub { $_[0]->rights_exists($rEvent) } ],
+        'Аусвайсы',
+        [ 'Блоки',          => blok_list        => 'blok/list' ],
+        #[ 'Команды',            sub { shift->href($::disp{CommandList}) },
+        #                        sub { $_[0]->rights_exists($rCommandList) } ],
+        #[ 'Аусвайсы',           sub { shift->href($::disp{AusweisList}) },
+        #                        sub { $_[0]->rights_exists($rAusweisList) } ],
+        #[ 'Моя команда',        sub { shift->href($::disp{CommandShowMy}, 'info') },
+        #                        sub { $_[0]->rights_check($rCommandInfo, $rMy, $rAll) } ],
+        #undef,
+        #[ 'Добавить аусвайс',   sub { shift->href($::disp{AusweisAdding}) },
+        #                        sub { $_[0]->rights_check($rAusweisEdit, $rAll) } ],
+    ],
 }
 
+sub http_after_init {
+    my $self = shift;
+    
+    my %num = ();
+    if (my $rights = $self->c('rights')) {
+        foreach my $r (@$rights) {
+            ref($r) || next;
+            my ($name, $num, $title, @variant) = @$r;
+            $num{$name} = $num;
+            eval "\$\::r$name = $num;";
+        }
+    }
+    my %val = ();
+    if (my $rtypes = $self->c('rtypes')) {
+        foreach my $r (@$rtypes) {
+            ref($r) || next;
+            my ($name, $val, $title) = @$r;
+            $val{$name} = $val;
+            eval "\$\::$name = $val;";
+        }
+    }
+    
+    use Clib::Rights;
+    $self->{rcheck} = {
+        global          => sub { rights_Check($_[0],    $num{Main},     $val{Yes}); },
+        
+        admin_read      => sub { rights_Exists($_[0],   $num{Admins}); },
+        admin_write     => sub { rights_Check($_[0],    $num{Admins},   $val{Write}); },
+        
+        blok_list       => sub { rights_Exists($_[0],   $num{BlokList}); },
+        #admin_write     => sub { rights_Check($_[0],    $num{Admins},   $val{Write}); },
+        
+        
+    };
+}
 
 
 sub http_patt {
@@ -150,6 +254,40 @@ sub http_patt {
         $h->{$keylast} = $val;
     }
     
+    my %u = ();
+    my $u = $self->user;
+    if ($u && $u->{login}) {
+        $u{ok} = 1;
+        $u{denied} = $self->rcheck('global') ? 0 : 1; 
+        $u{login} = $u->{login};
+        $u{group} = $u->{group} && $u->{group}->{id} ? $u->{group}->{name} : '';
+    }
+    else {
+        $u{ok} = 0;
+        $u{error} = $self->d->{auth_error} if $self->d->{auth_error};
+    }
+    
+    my $mt = { list => [] };
+    my @menu =
+        grep { $_->{is_item} || @{ $_->{list} } }
+        map {
+            if (ref($_) eq 'ARRAY') {
+                my ($title, $rcheck, $pref, @args) = @$_;
+                my @m = $self->rcheck($rcheck) ?
+                    { is_item => 1, title => $title, href => $self->pref($pref, @args) } :
+                    ();
+                push @{ $mt->{list} }, @m;
+                @m;
+            }
+            elsif ($_) {
+                $mt = { is_title => 1, title => $_, list => [] };
+            }
+            else {
+                $mt = { is_splitter => 1, list => [] };
+            }
+        }
+        @{ $self->c('menu') || [] };
+    
     return {
         IS_DEVEL        => $self->c('isDevel') ? 1 : 0,
         ip              => $ENV{REMOTE_ADDR},
@@ -159,6 +297,8 @@ sub http_patt {
         TIME            => scalar(localtime time),
         version         => $ver,
         verdate         => $self->c('versionDate'),
+        user            => \%u,
+        menu            => \@menu,
         #patt => $self->patt
     };
 }
@@ -306,6 +446,40 @@ sub return_operation {
     }
 }
 
+#### ------------------------------------
+#### Права
+#### ------------------------------------
+sub rcheck {
+    my $self = shift;
+    
+    my $admin = $self->admin || return;
+    my $rights = $admin->{rights} || return;
+    $_[0] || return;
+    my $rc = $self->{rcheck}->{ $_[0] } || return;
+    
+    return $rc->($rights);
+}
+
+sub view_rcheck { # Проверка прав в обработчиках отображения информации
+    my ($self, $r) = @_;
+    
+    return 1 if $self->rcheck($r);
+    
+    $self->template('rdenied');
+    
+    return;
+}
+
+sub rdenied { # Возврат ошибки прав доступа для обработчиков с аттрибутом ReturnOperation
+    my $self = shift;
+    
+    if ($self->req->param_bool('is_ajax')) {
+        $self->json({ error => $self->c(userError => 6) });
+        return;
+    }
+    
+    return ( error => 100102, href => '' );
+}
 
 
 
