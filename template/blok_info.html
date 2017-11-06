@@ -1,0 +1,55 @@
+[% BLOCK TITLE %]Блок "[% blok.name %]"[% END %]
+[% BLOCK CONTENT %]
+<h3>Блок</h3>
+[% DUMPER file_logo %]
+[% DUMPER file_logo_size %]
+<table class="tbl">
+    <tr>
+        <td rowspan="2" style="border:0; width:200px">
+[% IF file_logo_size %]
+<img width="300" alt="[% blok.name %]" title="[% blok.name %]" src="[% PREF blok/file: blok.id, file_logo %]" />
+<br />
+[% ELSE %]
+<div style="color:red; text-weight:bold;">[ЭМБЛЕМЫ БЛОКА НЕТ]</div>
+[% END %]
+        </td>
+        <td class="ltitle">Название:</td>
+        <td><b><big>[% blok.name %]</big></b></td>
+    </tr>
+[% IF rec.regen > 0 %]
+    <tr>
+        <td class="ltitle">Пересборка:</td>
+        <td>
+            в процессе: [% rec.regens %]
+        </td>
+    </tr>
+[% END %]
+    <tr>
+        <td class="submit" colspan="2">
+            <a href="[% PREF blok/edit: blok.id %]">изменить</a>
+        </td>
+    </tr>
+</table>
+
+<br />
+
+<h3>Команды</h3>
+<table class="tbl">
+[% IF size(cmd_list) > 0 %]
+[% FOREACH cmd = cmd_list %]
+    <tr>
+        <td><a title="Просмотр команды" alt="Просмотр команды" href="[% PREF command/info: cmd.id %]">[% cmd.name %]</a></td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+        ничего не найдено
+    </td></tr>
+[% END %]
+    <tr><td colspan="2" class="submit">
+        <a href="[% PREF command/adding %]?blkid=[% blok.id %]">добавить</a>
+    </td></tr>
+</table>
+[% END %]
+
+

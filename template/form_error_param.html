@@ -1,0 +1,2 @@
+[% IF loop && id %][% p = "${p}\.${id}" %][% END -%]
+[% IF !i %][% i=0 %][% END %][% IF p && form_check.$p.$i %]<div class="form_error">[% form_check.$p.$i.str %]</div>[% END %]

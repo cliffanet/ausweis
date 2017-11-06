@@ -88,113 +88,92 @@ sub list :
         list => \@list,
 }
 
-sub show {
-    my ($self, $blkid, $type) = @_;
-    my $d = $self->d;
-    
-    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
+sub info :
+    ParamObj('blok', 0)
+    ReturnPatt
+{
+    my ($self, $blok) = @_;
 
-    return unless $self->rights_exists_event($::rBlokInfo);
-    
-    if (!$self->user->{blkid} || ($self->user->{blkid} != $blkid)) {
-        return unless $self->rights_check_event($::rBlokInfo, $::rAll);
+    $self->view_rcheck('blok_info') || return;
+    $blok || return $self->notfound;
+    if (!$self->user->{blkid} || ($self->user->{blkid} != $blok->{id})) {
+        $self->view_rcheck('blok_info_all') || return;
     }
-    ##### Права на едактирование
-    if ($type eq 'edit') {
-        return unless $self->rights_exists_event($::rBlokEdit);
-        if (!$self->user->{blkid} || ($self->user->{blkid} != $blkid)) {
-            return unless $self->rights_check_event($::rBlokEdit, $::rAll);
-        }
-        $self->can_edit() || return;
-    }
+    $self->template("blok_info");
     
-    $d->{rec} ||= ($self->model('Blok')->search({ id => $blkid }))[0];
-    $d->{rec} || return $self->state(-000105);
-    my ($rec) = ($d->{rec} =  _item($self, $d->{rec}));
-    $d->{form} = $rec;
+    my $filelogo = 'logo.site.jpg';
+    my $flsize = -s Func::CachDir('blok', $blok->{id})."/$filelogo";
     
-    $self->patt(TITLE => sprintf($text::titles{"blok_$type"}, $rec->{name}));
-    $self->view_select->subtemplate("blok_$type.tt");
-    
-    $d->{href_set} = $self->href($::disp{BlokSet}, $blkid);
-    
-    ##### Список команд
-    $d->{sort}->{href_template} = sub {
-        my $sort = shift;
-        return $self->href($::disp{BlokShow}, $rec->{id}, $type)."?sort=$sort";
-    };
-    my $sort = $self->req->param_str('sort');
-    
-    $d->{command_list} =  sub {
-        $d->{_command_list} ||= [
-        map {
-                my $item = C::Command::_item($self, $_);
-                $item;
-        }
+    my @cmd =
         $self->model('Command')->search(
-            { blkid => $rec->{id} },
-            {
-                $self->sort($sort || 'name'),
-            },
-        )
-        ];
-    };
+            { blkid => $blok->{id} },
+            { order_by => 'name' },
+        );
+    
+    return
+        blok => $blok,
+        file_logo => $filelogo,
+        file_logo_size => $flsize,
+        cmd_list => \@cmd,
+}  
+
+sub my :
+    ReturnPatt
+{
+    my ($self) = @_;
+    
+    my $user = $self->user || return $self->rdenied;
+    my $blkid = $self->user->{blkid} || return $self->notfound;
+    my $blok = $self->obj(blok => [$blkid]) || return $self->notfound;
+    
+    return info($self, $blok->{$blkid});
 }
 
-sub show_my {
-    my ($self, $type) = @_;
-    
-    my $blkid = $self->user ? $self->user->{blkid} : 0;
-    $blkid || return $self->rights_denied();
-    
-    return show($self, $blkid, $type);
-}
+sub edit :
+    ParamObj('blok', 0)
+    ReturnPatt
+{
+    my ($self, $blok) = @_;
 
-sub edit {
-    my ($self, $id) = @_;
-    
-    show($self, $id, 'edit');
-    
-    $self->can_edit() || return;
-    
-    my $d = $self->d;    
-    my $rec = $d->{rec} || return;
-    $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
-    if ($self->req->params()) {
-        my $fdata = $self->ParamData;
-        $fdata || return;
-        $d->{form}->{$_} = $self->ToHtml($fdata->{$_}) foreach keys %$fdata;
+    $self->view_rcheck('blok_edit') || return;
+    $blok || return $self->notfound;
+    if (!$self->user->{blkid} || ($self->user->{blkid} != $blok->{id})) {
+        $self->view_rcheck('blok_edit_all') || return;
     }
+    $self->view_can_edit() || return;
+    $self->template("blok_edit");
+    
+    my %form = %$blok;
+    if ($self->req->params() && (my $fdata = $self->ParamData)) {
+        $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
+    }
+    
+    return
+        blok => $blok,
+        form => \%form,
 }
 
-sub file {
-    my ($self, $id, $file) = @_;
+sub file :
+    ParamObj('blok', 0)
+    ParamRegexp('[a-zA-Z\d\.\-]+')
+    ReturnPatt
+{
+    my ($self, $blok, $file) = @_;
 
-    return unless 
-        $self->rights_exists($::rBlokInfo) ||
-        $self->rights_exists_event($::rCommandInfo);
+    $self->view_rcheck('blok_file') || return;
+    $blok || return $self->notfound;
+    if (!$self->user->{blkid} || ($self->user->{blkid} != $blok->{id})) {
+        $self->view_rcheck('blok_file_all') || return;
+    }
     my $d = $self->d;
-    
-    my ($rec) = (($d->{rec}) = 
-        $self->model('Blok')->search({ id => $id }));
-    $rec || return $self->state(-000105, '');
-    
-    if (!$self->user->{blkid} || ($self->user->{blkid} != $rec->{id})) {
-        return unless 
-            $self->rights_check($::rBlokInfo, $::rAll) ||
-            $self->rights_check_event($::rCommandInfo, $::rAll);
-    }
-    
-    $file =~ s/[^a-zA-Z\d\.\-]+//g;
-    
     $self->view_select('File');
     
-    $d->{file} = Func::CachDir('blok', $rec->{id})."/$file";
+    $d->{file} = Func::CachDir('blok', $blok->{id})."/$file";
     
     if (my $t = $::BlokFile{$file}) {
         $d->{type} = $t->[0]||'';
         my $m = Clib::Mould->new();
-        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $rec, dot2hash => 1);
+        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $blok, dot2hash => 1);
     }
 }
 

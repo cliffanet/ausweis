@@ -9,7 +9,7 @@
             <td><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
         </tr>
         <tr><td colspan="2" class="submit">
-            <a href="[% blk.href_adding %]">добавить</a>
+            <a href="[% PREF blok/adding %]">добавить</a>
         </td></tr>
     </table>
             </form>
@@ -23,9 +23,9 @@
             <td>Название</td>
         </tr>
     [% IF size(list) > 0 %]
-    [% FOREACH list %]
+    [% FOREACH bl = list %]
         <tr>
-            <td><a title="Просмотр информации о блоке" alt="Просмотр информации о блоке" href="[% href_info %]">[% name %]</a></td>
+            <td><a title="Просмотр информации о блоке" alt="Просмотр информации о блоке" href="[% PREF blok/info: bl.id %]">[% bl.name %]</a></td>
         </tr>
     [% END %]
     [% ELSE %]

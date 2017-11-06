@@ -28,9 +28,9 @@ __PACKAGE__->config(
         default                         => 'C::Misc::default',
         
         #$::disp{BlokList}               => 'C::Blok::list',
-        $::disp{BlokShow}               => 'C::Blok::show',
-        $::disp{BlokShowMy}             => 'C::Blok::show_my',
-        $::disp{BlokFile}               => 'C::Blok::file',
+        #$::disp{BlokShow}               => 'C::Blok::show',
+        #$::disp{BlokShowMy}             => 'C::Blok::show_my',
+        #$::disp{BlokFile}               => 'C::Blok::file',
         $::disp{BlokAdding}             => 'C::Blok::adding',
         $::disp{BlokAdd}                => 'C::Blok::set',
         $::disp{BlokSet}                => 'C::Blok::set',
@@ -226,8 +226,14 @@ sub http_after_init {
         admin_write     => sub { rights_Check($_[0],    $num{Admins},   $val{Write}); },
         
         blok_list       => sub { rights_Exists($_[0],   $num{BlokList}); },
-        #admin_write     => sub { rights_Check($_[0],    $num{Admins},   $val{Write}); },
-        
+        blok_info       => sub { rights_Exists($_[0],   $num{BlokInfo}); },
+        blok_info_all   => sub { rights_Check($_[0],    $num{BlokInfo}, $val{All}); },
+        blok_edit       => sub { rights_Exists($_[0],   $num{BlokEdit}); },
+        blok_edit_all   => sub { rights_Check($_[0],    $num{BlokEdit}, $val{All}); },
+        blok_file       => sub { rights_Exists($_[0],   $num{BlokInfo}) ||
+                                 rights_Exists($_[0],   $num{CommandInfo}); },
+        blok_file_all   => sub { rights_Check($_[0],    $num{BlokInfo}, $val{All}) ||
+                                 rights_Check($_[0],    $num{CommandInfo}, $val{All}); },
         
     };
 }
@@ -304,7 +310,7 @@ sub http_patt {
 }
 
 #### ------------------------------------
-#### Работа с шаблонизатором
+####    Работа с шаблонизатором
 #### ------------------------------------
 sub setbasetemplate {
     my $self = shift;
@@ -338,7 +344,7 @@ sub template { #  Выбор шаблона, так же проверяется
 }
 
 #### ------------------------------------
-#### Возвращение статуса операции
+####    Возвращение статуса операции
 #### ------------------------------------
 sub return_operation {
     my ($self, %p) = @_;
@@ -447,7 +453,7 @@ sub return_operation {
 }
 
 #### ------------------------------------
-#### Права
+####    Права
 #### ------------------------------------
 sub rcheck {
     my $self = shift;
@@ -479,6 +485,34 @@ sub rdenied { # Возврат ошибки прав доступа для об�
     }
     
     return ( error => 100102, href => '' );
+}
+
+sub view_can_edit {
+    my $self = shift;
+    
+    if ($self->d->{read_only}) {
+        $self->template('readonly');
+        return;
+    }
+    
+    1;
+}
+
+#### ------------------------------------
+####    Объекты
+#### ------------------------------------
+#my $xname = 'IF(`abon_profile`.`is_jurical`, '.
+#    'CONCAT(`abon_profile`.`jur_forma`, \' \', `abon_profile`.`jur_name`), '.
+#    'CONCAT(`abon_profile`.`family`, \' \', '.
+#    '`abon_profile`.`name`, \' \', `abon_profile`.`otch`)) as `xname`';
+sub obj_blok {
+    my $self = shift;
+    
+    $self->object_by_model(
+        'Blok',
+        #where => { deleted => 0 },
+        #param => { order_by => 'numid', '+columns' => [$xname] }
+    )
 }
 
 
