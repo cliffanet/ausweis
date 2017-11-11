@@ -1,0 +1,43 @@
+[% BLOCK TITLE %]Команда "[% cmd.name %]" - Участие в мероприятиях[% END %]
+[% BLOCK CONTENT %]
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Команда:</td>
+        <td><a href="[% PREF command/info: cmd.id %]"<b><big>[% cmd.name %]</big></b></a></td>
+    </tr>
+</table>
+
+<br />
+
+[% FOREACH list %]
+<h3>[% name %]</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="120">Время</td>
+        <td width="100">Номер</td>
+        <td width="200">Ник</td>
+        <td></td>
+    </tr>
+[% IF size(ausweis_list) > 0 %]
+[% FOREACH ausweis_list %]
+    <tr>
+        <td align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% DATETIME event.dtadd %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+        <td>
+            [% IF cmdid != event.cmdid %]
+            Сменил команду: 
+            <a title="Просмотр информации о команде" alt="Просмотр информации о команде" href="[% command.href_info %]">[% command.name %]</a>
+            [% END %]
+        </td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
+        Команда не участвовала в данном мероприятии
+    </td></tr>
+[% END %]
+</table>
+<br />
+[% END # foreach list %]
+[% END %]

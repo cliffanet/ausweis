@@ -26,18 +26,6 @@ __PACKAGE__->config(
     controller_extended => 1,
     dispatcher  => {
         default                         => 'C::Misc::default',
-        
-        $::disp{CommandList}            => 'C::Command::list',
-        $::disp{CommandShow}            => 'C::Command::show',
-        $::disp{CommandShowMy}          => 'C::Command::show_my',
-        $::disp{CommandFile}            => 'C::Command::file',
-        $::disp{CommandAdding}          => 'C::Command::adding',
-        $::disp{CommandAdd}             => 'C::Command::set',
-        $::disp{CommandSet}             => 'C::Command::set',
-        $::disp{CommandLogo}            => 'C::Command::logo',
-        $::disp{CommandDel}             => 'C::Command::del',
-        $::disp{CommandHistory}         => 'C::Command::history',
-        $::disp{CommandEventList}       => 'C::Command::event_list',
 
         $::disp{AusweisList}            => 'C::Ausweis::list',
         $::disp{AusweisShow}            => 'C::Ausweis::show',
@@ -175,12 +163,10 @@ sub const_init {
         #                        sub { $_[0]->rights_exists($rEvent) } ],
         'Аусвайсы',
         [ 'Блоки',          => blok_list        => 'blok/list' ],
-        #[ 'Команды',            sub { shift->href($::disp{CommandList}) },
-        #                        sub { $_[0]->rights_exists($rCommandList) } ],
+        [ 'Команды',        => command_list     => 'command/list' ],
         #[ 'Аусвайсы',           sub { shift->href($::disp{AusweisList}) },
         #                        sub { $_[0]->rights_exists($rAusweisList) } ],
-        #[ 'Моя команда',        sub { shift->href($::disp{CommandShowMy}, 'info') },
-        #                        sub { $_[0]->rights_check($rCommandInfo, $rMy, $rAll) } ],
+        [ 'Моя команда',    => command_info     => 'command/my' ],
         #undef,
         #[ 'Добавить аусвайс',   sub { shift->href($::disp{AusweisAdding}) },
         #                        sub { $_[0]->rights_check($rAusweisEdit, $rAll) } ],
@@ -308,6 +294,18 @@ sub http_after_init {
                                  rights_Exists($_[0],   $num{CommandInfo}); },
         blok_file_all   => sub { rights_Check($_[0],    $num{BlokInfo}, $val{All}) ||
                                  rights_Check($_[0],    $num{CommandInfo}, $val{All}); },
+        
+        command_list    => sub { rights_Exists($_[0],   $num{CommandList}); },
+        command_info    => sub { rights_Exists($_[0],   $num{CommandInfo}); },
+        command_info_all=> sub { rights_Check($_[0],    $num{CommandInfo}, $val{All}); },
+        command_edit    => sub { rights_Exists($_[0],   $num{CommandEdit}); },
+        command_edit_all=> sub { rights_Check($_[0],    $num{CommandEdit}, $val{All}); },
+        command_logo    => sub { rights_Exists($_[0],   $num{CommandLogo}); },
+        command_logo_all=> sub { rights_Check($_[0],    $num{CommandLogo}, $val{All}); },
+        command_file    => sub { rights_Exists($_[0],   $num{CommandInfo}) ||
+                                 rights_Exists($_[0],   $num{CommandInfo}); },
+        command_file_all=> sub { rights_Check($_[0],    $num{CommandInfo}, $val{All}) ||
+                                 rights_Check($_[0],    $num{AusweisInfo}, $val{All}); },
         
     };
 }
@@ -616,6 +614,15 @@ sub obj_blok {
     
     $self->object_by_model(
         'Blok',
+        #where => { deleted => 0 },
+        #param => { order_by => 'numid', '+columns' => [$xname] }
+    )
+}
+sub obj_cmd {
+    my $self = shift;
+    
+    $self->object_by_model(
+        'Command',
         #where => { deleted => 0 },
         #param => { order_by => 'numid', '+columns' => [$xname] }
     )

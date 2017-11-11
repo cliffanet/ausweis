@@ -1,0 +1,48 @@
+[% BLOCK TITLE %]Список команд[% END %]
+[% BLOCK CONTENT %]
+    <!-- Поиск -->
+    <h3>Поиск</h3>
+    <form action="[% PREF command/list %]">
+    <table class="tbl">
+        <tr>
+            <td class="ltitle">Название:</td>
+            <td><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
+        </tr>
+    [% IF blkid %]
+        <tr>
+            <td class="ltitle">Блок:</td>
+            <td>[% IF blkid > 0 %][% blok.name %][% ELSE %]&lt;- без блока -&gt;[% END %]</td>
+        </tr>
+    [% END %]
+        <tr><td colspan="2" class="submit">
+            <a href="[% PREF command/adding %]">добавить</a>
+        </td></tr>
+    </table>
+    </form>
+
+    <div id="search-result">
+    [% BLOCK result %]
+    [% IF list %]
+    <h3>Результаты ([% count %][% IF countall != count %] из [% countall %][% END %])</h3>
+    <table class="tbl">
+        <tr class="title">
+            <td width="300">Название</td>
+            <td>Блок</td>
+        </tr>
+    [% IF size(list) > 0 %]
+    [% FOREACH cmd = list %]
+        <tr>
+            <td><a title="Просмотр информации о команде" alt="Просмотр информации о команде" href="[% PREF command/info: cmd.id %]">[% cmd.name %]</a></td>
+            <td>[% IF cmd.blok.id %]<a title="Просмотр информации о блоке" alt="Просмотр информации о блоке" href="[% PREF blok/info: cmd.blok.id %]">[% cmd.blok.name %]</a>[% END %]</td>
+        </tr>
+    [% END %]
+    [% ELSE %]
+        <tr><td colspan="2" style="height:50px;text-align:center;vertical-align:middle;">
+            ничего не найдено
+        </td></tr>
+    [% END %]
+    </table>
+    [% END %]
+    [% END %]
+    </div>
+[% END %]

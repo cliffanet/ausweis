@@ -186,7 +186,7 @@ sub adding :
     $self->view_can_edit() || return;
     $self->template("blok_add");
     
-        # Автозаполнение полей, если данные из формы не приходили
+    # Автозаполнение полей, если данные из формы не приходили
     my $form =
         { map { ($_ => '') } qw/name/ };
     if ($self->req->params()) {

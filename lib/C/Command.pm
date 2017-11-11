@@ -3,9 +3,11 @@ package C::Command;
 use strict;
 use warnings;
 
+use Encode '_utf8_on', 'encode';
+
 ##################################################
-###     Ñïèñîê êîìàíä
-###     Êîä ìîäóëÿ: 98
+###     Ğ¡Ğ¿Ğ¸ÑĞ¾Ğº ĞºĞ¾Ğ¼Ğ°Ğ½Ğ´
+###     ĞšĞ¾Ğ´ Ğ¼Ğ¾Ğ´ÑƒĞ»Ñ: 98
 #############################################
 
 sub _item {
@@ -20,7 +22,7 @@ sub _item {
         if $blok;
     
     if ($id) {
-        # Ññûëêè
+        # Ğ¡ÑÑ‹Ğ»ĞºĞ¸
         $item->{href_info}      = $self->href($::disp{CommandShow}, $item->{id}, 'info');
         $item->{href_srch}      = $self->href($::disp{AusweisList}."?cmdid=%d", $item->{id});
         $item->{href_edit}      = $self->href($::disp{CommandShow}, $item->{id}, 'edit');
@@ -61,481 +63,201 @@ sub _hash {
     };
 }
 
-sub list {
+sub list :
+    ReturnPatt
+{
     my ($self) = @_;
 
-    return unless $self->rights_exists_event($::rCommandList);
-    
-    $self->patt(TITLE => $text::titles{command_list});
-    $self->view_select->subtemplate("command_list.tt");
-    
-    my $d = $self->d;
-    my $cmd = $d->{cmd};
-    
-    my $q = $self->req;
-    my $f = {
-        cmdid   => scalar $q->param_dig('cmdid'),
-        blkid   => scalar $q->param_dig('blkid'),
-        name    => scalar $q->param_str('name'),
-    };
-    $f->{name} ||= '*';
+    $self->view_rcheck('command_list') || return;
+    $self->template("command_list", 'CONTENT_result');
     
     my $srch = {};
-    $srch->{id} = $f->{cmdid} if $f->{cmdid};
-    if ($f->{blkid}) {
-        $srch->{blkid} = $f->{blkid} > 0 ? $f->{blkid} : 0;
-    }
-    if ($f->{name}) {
-        my $name = $f->{name};
+    my $s = $self->req->param_str('srch');
+    _utf8_on($s);
+    if (my $name = $s) {
         $name =~ s/([%_])/\\$1/g;
         $name =~ s/\*/%/g;
         $name =~ s/\?/_/g;
-        #$name = "%$name" if $name !~ /^%/;
+        $name = "%$name" if $name !~ /^%/;
+        $name .= "%" if $name !~ /%$/;
         #$name .= "%" if $name !~ /^(.*[^\\])?%$/;
         $srch->{name} = { LIKE => $name };
     }
     
-    my $srch_url = 
-        join('&',
-            (map { $_.'='.Clib::Mould->ToUrl($f->{$_}) }
-            grep { $f->{$_} } keys %$f));
-    $srch_url ||= '';
-    
-    $d->{srch} = $self->ToHtml($f);
-    
-    
-    $d->{sort}->{href_template} = sub {
-        my $sort = shift;
-        return $self->href($::disp{CommandList})."?".
-                join('&', $srch_url, "sort=$sort");
-    };
-    my $sort = $self->req->param_str('sort');
-
-    $d->{pager}->{href} ||= sub {
-        my $page = shift;
-        return $self->href($::disp{CommandList})."?".
-            join('&', $srch_url, $sort?"sort=$sort":(), $page>1?"page=$page":());
-    };
-    my $page = $self->req->param_dig('page') || 1;
-    
-    $d->{list} = [
-        map {
-                my $item = _item($self, $_);
-                $item;
+    my $blkid = $self->req->param_dig('blkid');
+    my $blok;
+    if ($blkid) {
+        $srch->{blkid} = $blkid > 0 ? $blkid : 0;
+        if ($blkid > 0) {
+            $blok = $self->model('Blok')->byId($blkid);
         }
-        $self->model('Command')->search(
+    }
+    
+    my ($count, $countall);
+    my @list = $self->model('Command')->search(
             $srch,
             {
                 prefetch => 'blok',
-                $self->sort($sort || 'name'),
+                order_by => 'name',
             },
-            $self->pager($page, 100),
-        )
-    ] if $srch_url;
-    $d->{list} ||= 0;
-}
-
-sub show {
-    my ($self, $cmdid, $type) = @_;
-    my $d = $self->d;
-    
-    $type = 'info' if !$type || ($type !~ /^(edit|info)$/);
-
-    return unless $self->rights_exists_event($::rCommandInfo);
-    
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
-        return unless $self->rights_check_event($::rCommandInfo, $::rAll);
-    }
-    if ($type eq 'edit') {
-        return unless $self->rights_exists_event($::rCommandEdit);
-        if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
-            return unless $self->rights_check_event($::rCommandEdit, $::rAll);
-        }
-        $self->can_edit() || return;
-    }
-    
-    my ($rec) = (($self->d->{rec}) = 
-        map { _item($self, $_) }
-        $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
-    $rec || return $self->state(-000105);
-    $d->{form} = $rec || {};
-    
-    $self->patt(TITLE => sprintf($text::titles{"command_$type"}, $rec->{name}));
-    $self->view_select->subtemplate("command_$type.tt");
-    
-    $d->{href_set} = $self->href($::disp{CommandSet}, $cmdid);
-    $d->{href_logo}= $self->href($::disp{CommandLogo}, $cmdid);
-    
-    $d->{sort}->{href_template} = sub {
-        my $sort = shift;
-        return $self->href($::disp{CommandShow}, $rec->{id}, $type)."?sort=$sort";
-    };
-    my $sort = $self->req->param_str('sort');
-    
-    if ($type eq 'info') {
-        ($d->{print_open}) = 
-            map { C::Print::_item($self, $_) } 
-                $self->model('Print')->search(
-                    { status => 'A' },
-                    { order_by => '-id', limit => 1 }
-                );
-        $d->{print_open} ||= 0;
-    }
-    
-    $d->{ausweis_list} =  sub {
-        $d->{_ausweis_list} ||= [
-        map {
-                my $item = C::Ausweis::_item($self, $_);
-                $item;
-        }
-        $self->model('Ausweis')->search(
-            { cmdid => $rec->{id} },
-            {
-                $d->{print_open} ? (
-                    prefetch        => [qw/print/],
-                    join_cond => {
-                        print => { prnid => $d->{print_open}->{id} },
-                    },
-                ) : (),
-                $self->sort($sort || 'nick'),
+            pager => {
+                onpage => 100,
+                handler => sub {
+                    my %p = @_;
+                    $count = $p{count};
+                    $countall = $p{countall};
+                },
             },
-        )
-        ];
-    };
-    
-    $d->{ausweis_preedit_list} = sub {
-        $d->{_ausweis_preedit_list} ||= [
-            map { 
-                my $p = $self->ToHtml($_);
-                $p->{allow_cancel} = 
-                    $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
-                        $self->rights_check($::rPreeditCancel, $::rMy) ?
-                            ($p->{uid} == $self->user->{id} ? 1 : 0) : 0
-                    );
-                $p->{href_show} = $self->href($::disp{CommandHistory}.'#pre%d', $rec->{id}, $p->{id});
-                $p->{href_cancel} = $self->href($::disp{PreeditCancel}, $p->{id});
-                $p;
-            }
-            $self->model('Preedit')->search({
-                tbl     => 'Ausweis',
-                modered => 0,
-                'field_cmdid.value' => $rec->{id},
-            }, {
-                prefetch => ['field_cmdid', 'field_nick'],
-                order_by => 'field_nick.value',
-            })
-        ];
-    };
-    
-    $d->{allow_event} = $self->rights_exists($::rEvent);
-    $d->{allow_event_write} = $self->rights_check($::rEvent, $::rWrite, $::rAdvanced);
-    $d->{allow_event_commit} = $self->rights_check($::rEventCommit, $::rYes, $::rAdvanced);
-    $d->{event_list} = sub {
-        $d->{_event_list} ||= [
-            map { C::Event::_item($self, $_, $cmdid); }
-            $self->model('Event')->search({
-                status  => 'O',
-            }, {
-                order_by => [qw/date id/],
-            })
-        ];
-    };
-    
-    $d->{cmd_account_list} = sub {
-        return $d->{_cmd_account_list} ||= [
-            $self->model('UserList')->search({
-                cmdid   => $rec->{id},
-            }, {
-                prefetch => 'group',
-                order_by => 'login',
-            })
-        ];
-    };
-    
-    $d->{ausweis_history_my} = sub {
-        return $d->{_ausweis_history_my} = [
-            map {
-                $_->{ausweis} = C::Ausweis::_item($self, $_->{ausweis});
-                $_->{nick} = $_->{ausweis}->{nick} || $_->{field_nick}->{value} || '';
-                $_->{href_hide} = $self->href($::disp{PreeditHide}, $_->{id});
-                $_;
-            }
-            $self->model('Preedit')->search({
-                uid     => $self->user->{id},
-                tbl     => 'Ausweis',
-                modered => { '!=' => 0 },
-                visibled=> 1,
-                -or     => { 'field_cmdid.value' => $rec->{id}, 'ausweis.cmdid' => $rec->{id} },
-            }, {
-                prefetch => [qw/field_cmdid field_nick ausweis/],
-                order_by => 'id',
-            })
-        ];
-    };
-}
-
-sub show_my {
-    my ($self, $type) = @_;
-    
-    my $cmdid = $self->user ? $self->user->{cmdid} : 0;
-    $cmdid || return $self->rights_denied();
-    
-    return show($self, $cmdid, $type);
-}
-
-sub edit {
-    my ($self, $id) = @_;
-    
-    show($self, $id, 'edit');
-    
-    $self->can_edit() || return;
-    
-    my $d = $self->d;
-    my $rec = $d->{rec} || return;
-    $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
-    if ($self->req->params()) {
-        my $fdata = $self->ParamData;
-        $fdata || return;
-        $d->{form}->{$_} = $self->ToHtml($fdata->{$_}) foreach keys %$fdata;
-    }
-}
-
-sub file {
-    my ($self, $id, $file) = @_;
-
-    return unless 
-        $self->rights_exists($::rCommandInfo) ||
-        $self->rights_exists_event($::rAusweisInfo);
-    my $d = $self->d;
-    
-    my ($rec) = (($d->{rec}) = 
-        $self->model('Command')->search({ id => $id }));
-    $rec || return $self->state(-000105, '');
-    
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{id})) {
-        return unless 
-            $self->rights_check($::rCommandInfo, $::rAll) ||
-            $self->rights_check_event($::rAusweisInfo, $::rAll);
-    }
-    
-    $file =~ s/[^a-zA-Z\d\.\-]+//g;
-    
-    $self->view_select('File');
-    
-    $d->{file} = Func::CachDir('command', $rec->{id})."/$file";
-    
-    if (my $t = $::CommandFile{$file}) {
-        $d->{type} = $t->[0]||'';
-        my $m = Clib::Mould->new();
-        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $rec, dot2hash => 1);
-    }
-}
-
-sub adding {
-    my ($self) = @_;
-
-    return unless $self->rights_check_event($::rCommandEdit, $::rAll);
-    
-    $self->can_edit() || return;
-    
-    $self->patt(TITLE => $text::titles{"command_add"});
-    $self->view_select->subtemplate("command_add.tt");
-    
-    my $d = $self->d;
-    $d->{href_add} = $self->href($::disp{CommandAdd});
-    
-    # Àâòîçàïîëíåíèå ïîëåé, åñëè äàííûå èç ôîğìû íå ïğèõîäèëè
-    $d->{form} =
-        { map { ($_ => '') } qw/name blkid/ };
-    if ($self->req->params()) {
-        # Äàííûå èç ôîğìû - ëèáî ïîñëå ParamParse, ëèáî íàïğÿìóş äàííûå
-        my $fdata = $self->ParamData(fillall => 1);
-        if (keys %$fdata) {
-            $d->{form} = { %{ $d->{form} }, %$fdata };
-        } else {
-            $d->{form}->{$_} = $self->req->param($_) foreach $self->req->params();
-        }
-    }
-    #$d->{form}->{comment_nobr} = $self->ToHtml($d->{form}->{comment});
-    #$d->{form}->{comment} = $self->ToHtml($d->{form}->{comment}, 1);
-}
-
-sub set {
-    my ($self, $id) = @_;
-    my $is_new = !defined($id);
-    
-    my $dirUpload = Func::SetTmpDir($self)
-        || return !$self->state(-900101, '');
-    
-    return unless $self->rights_exists_event($::rCommandEdit);
-    if (!$id || !$self->user->{cmdid} || ($self->user->{cmdid} != $id)) {
-        return unless $self->rights_check_event($::rCommandEdit, $::rAll);
-    }
-    
-    $self->can_edit() || return;
-    
-    # Êıøèğóåì çàğàíåå äàííûå
-    my ($rec) = (($self->d->{rec}) = $self->model('Command')->search({ id => $id })) if $id;
-    if (!$is_new && (!$rec || !$rec->{id})) {
-        return $self->state(-000105, '');
-    }
-    
-    # Ïğîâåğÿåì äàííûå èç ôîğìû
-    if (!$self->ParamParse(model => 'Command', is_create => $is_new)) {
-        $self->state(-000101);
-        return $is_new ? adding($self) : edit($self, $id);
-    }
-    
-    my $fdata = $self->ParamData;
-    
-    # Ñîõğàíÿåì äàííûå
-    my $ret = $self->ParamSave( 
-        model           => 'Command', 
-        $is_new ?
-            ( insert => \$id ) :
-            ( 
-                update => { id => $id }, 
-                preselect => $rec
-            ),
-    );
-    if (!$ret) {
-        $self->state(-000104);
-        return $is_new ? adding($self) : edit($self, $id);
-    }
-    
-    if (!$is_new && defined($fdata->{blkid}) && ($fdata->{blkid} != $rec->{blkid})) {
-        $self->model('Ausweis')->update(
-            { blkid => $fdata->{blkid} },
-            { cmdid => $id }
-        ) || return $self->state(-000104, '');
-    }
-    
-    # Çàãğóçêà ëîãîòèïà
-    if (my $file = $self->req->param("photo")) {
-        Func::MakeCachDir('command', $id)
-            || return $self->state(-900102, '');
-        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('command', $id), 'logo')
-            || return $self->state(-900102, '');
-        $self->model('Command')->update(
-            { 
-                regen   => (1<<($::regen{logo}-1)),
-                photo   => $photo,
-            },
-            { id => $id }
-        ) || return $self->state(-000104, '');
-        unlink("$dirUpload/$file");
-    }
-    
-    # Ñòàòóñ ñ ğåäèğåêòîì
-    return $self->state($is_new ? 980100 : 980200,  $self->href($::disp{CommandShow}, $id, 'info') );
-}
-
-
-sub logo {
-    my ($self, $id) = @_;
-    
-    my $dirUpload = Func::SetTmpDir($self)
-        || return !$self->state(-900101, '');
-    
-    return unless $self->rights_exists_event($::rCommandLogo);
-    if (!$id || !$self->user->{cmdid} || ($self->user->{cmdid} != $id)) {
-        return unless $self->rights_check_event($::rCommandLogo, $::rAll);
-    }
-    
-    # Êıøèğóåì çàğàíåå äàííûå
-    my ($rec) = (($self->d->{rec}) = $self->model('Command')->search({ id => $id }));
-    if (!$rec || !$rec->{id}) {
-        return $self->state(-000105, '');
-    }
-    
-    # Çàãğóçêà ëîãîòèïà
-    my $file = $self->req->param("photo") 
-        || return $self->state(-000101, '');
-        
-        Func::MakeCachDir('command', $id)
-            || return $self->state(-900102, '');
-        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('command', $id), 'logo')
-            || return $self->state(-900102, '');
-        $self->model('Command')->update(
-            { 
-                regen   => (1<<($::regen{logo}-1)),
-                photo   => $photo,
-            },
-            { id => $id }
-        ) || return $self->state(-000104, '');
-        unlink("$dirUpload/$file");
-    
-    # Ñòàòóñ ñ ğåäèğåêòîì
-    return $self->state(980200, $self->href($::disp{CommandShow}, $id, 'info'));
-}
-
-
-sub del {
-    my ($self, $id) = @_;
-    
-    return unless $self->rights_check_event($::rCommandEdit, $::rAll);
-    
-    $self->can_edit() || return;
-    
-    my ($rec) = $self->model('Command')->search({ id => $id });
-    $rec || return $self->state(-000105);
-    
-    my ($item) = $self->model('Ausweis')->search({ cmdid => $id }, { limit => 1 });
-    return $self->state(-980301) if $item;
-    
-    $self->model('Command')->delete({ id => $id })
-        || return $self->state(-000104, '');
-    
-    # ñòàòóñ ñ ğåäèğåêòîì
-    $self->state(980300, $self->href($::disp{CommandList}) );
-}
-
-
-
-sub history {
-    my ($self, $cmdid) = @_;
-    my $d = $self->d;
-    
-    return unless $self->rights_exists_event($::rCommandInfo);
-    
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
-        return unless $self->rights_check_event($::rCommandInfo, $::rAll);
-    }
-    
-    my ($rec) = (($self->d->{rec}) = 
-        map { _item($self, $_) }
-        $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
-    $rec || return $self->state(-000105);
-    
-    $self->patt(TITLE => sprintf($text::titles{"command_history"}, $rec->{name}));
-    $self->view_select->subtemplate("command_history.tt");
-    
-    $d->{list} = sub {
-        return $d->{_list} if $d->{_list};
-        # id çàòğàãèâàåìûõ àóñâàéñîâ
-        my %ausid = (map { ($_->{id}=>1) } $self->model('Ausweis')->search({ cmdid=>$cmdid }));
-        # id preedit íà ñîçäàíèå àóñâàéñà
-        my %eid_create = (
-            map { ($_->{eid}=>1) } 
-            $self->model('PreeditField')->search(
-                { param => 'cmdid', value => $cmdid, 'edit.op' => 'C', 'edit.tbl' => 'Ausweis' },
-                { join => 'edit' }
-            )
         );
+    
+    
+    return
+        srch    => $s,
+        blkid   => $blkid,
+        blok    => $blok,
+        list    => \@list,
+        count   => $count,
+        countall=> $countall,
+}
+
+sub info :
+    ParamObj('cmd', 0)
+    ReturnPatt
+{
+    my ($self, $cmd) = @_;
+
+    $self->view_rcheck('command_info') || return;
+    $cmd || return $self->notfound;
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
+        $self->view_rcheck('command_info_all') || return;
+    }
+    $self->template("command_info");
+    
+    my $filelogo = 'logo.site.jpg';
+    my $flsize = -s Func::CachDir('command', $cmd->{id})."/$filelogo";
+    
+    my $blok;
+    $blok = $self->model('Blok')->byId($cmd->{blkid}) if $cmd->{blkid};
+    
+    my @ausweis_list =
+        $self->model('Ausweis')->search(
+            { cmdid => $cmd->{id} },
+            {
+                order_by => 'nick',
+            },
+        );
+    
+    my @ausweis_preedit_list =
+        map { 
+            $_->{allow_cancel} = 
+                $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
+                    $self->rights_check($::rPreeditCancel, $::rMy) ?
+                        ($_->{uid} == $self->user->{id} ? 1 : 0) : 0
+                );
+            #$p->{href_show} = $self->href($::disp{CommandHistory}.'#pre%d', $rec->{id}, $p->{id});
+            #$p->{href_cancel} = $self->href($::disp{PreeditCancel}, $p->{id});
+            $_;
+        }
+        $self->model('Preedit')->search({
+            tbl     => 'Ausweis',
+            modered => 0,
+            'field_cmdid.value' => $cmd->{id},
+        }, {
+            prefetch => ['field_cmdid', 'field_nick'],
+            order_by => 'field_nick.value',
+        });
+    
+    my @cmd_account_list =
+        $self->model('UserList')->search({
+            cmdid   => $cmd->{id},
+        }, {
+            prefetch => 'group',
+            order_by => 'login',
+        });
+    
+    my @ausweis_history_my = 
+        map {
+            $_->{nick} = $_->{ausweis}->{nick} || $_->{field_nick}->{value} || '';
+            $_;
+        }
+        $self->model('Preedit')->search({
+            uid     => $self->user->{id},
+            tbl     => 'Ausweis',
+            modered => { '!=' => 0 },
+            visibled=> 1,
+            -or     => { 'field_cmdid.value' => $cmd->{id}, 'ausweis.cmdid' => $cmd->{id} },
+        }, {
+            prefetch => [qw/field_cmdid field_nick ausweis/],
+            order_by => 'id',
+        });
+    
+    return
+        cmd => $cmd,
+        file_logo => $filelogo,
+        file_logo_size => $flsize,
+        blok => $blok,
         
-        my %eid;
-        $d->{_list} = [
+        ausweis_list => \@ausweis_list,
+        ausweis_preedit_list => \@ausweis_preedit_list,
+        
+        cmd_account_list => \@cmd_account_list,
+        ausweis_history_my => \@ausweis_history_my,
+}
+
+sub my :
+    ReturnPatt
+{
+    my ($self) = @_;
+    
+    my $user = $self->user || return $self->rdenied;
+    my $cmdid = $self->user->{cmdid} || return $self->notfound;
+    my $cmd = $self->obj(cmd => [$cmdid]) || return $self->notfound;
+    
+    return info($self, $cmd->{$cmdid});
+}
+
+
+
+sub history :
+    ParamObj('cmd', 0)
+    ReturnPatt
+{
+    my ($self, $cmd) = @_;
+
+    $self->view_rcheck('command_info') || return;
+    $cmd || return $self->notfound;
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
+        $self->view_rcheck('command_info_all') || return;
+    }
+    $self->template("command_history");
+    
+    my $blok;
+    $blok = $self->model('Blok')->byId($cmd->{blkid}) if $cmd->{blkid};
+    
+    # id Ğ·Ğ°Ñ‚Ñ€Ğ°Ğ³Ğ¸Ğ²Ğ°ĞµĞ¼Ñ‹Ñ… Ğ°ÑƒÑĞ²Ğ°Ğ¹ÑĞ¾Ğ²
+    my %ausid = (map { ($_->{id}=>1) } $self->model('Ausweis')->search({ cmdid=>$cmd->{id} }));
+    # id preedit Ğ½Ğ° ÑĞ¾Ğ·Ğ´Ğ°Ğ½Ğ¸Ğµ Ğ°ÑƒÑĞ²Ğ°Ğ¹ÑĞ°
+    my %eid_create = (
+        map { ($_->{eid}=>1) } 
+        $self->model('PreeditField')->search(
+            { param => 'cmdid', value => $cmd->{id}, 'edit.op' => 'C', 'edit.tbl' => 'Ausweis' },
+            { join => 'edit' }
+        )
+    );
+        
+    my %eid;
+    my @list;
+    if (%eid_create || %ausid) {
+        push @list,
             map {
-                my $p = C::Preedit::_item($self, $_);
-                $eid{$p->{id}}=$p;
-                $p->{field_list} = [];
-                $p->{allow_cancel} = 
+                $eid{$_->{id}}=$_;
+                $_->{field_list} = [];
+                $_->{allow_cancel} = 
                     $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
                         $self->rights_check($::rPreeditCancel, $::rMy) ?
-                            ($p->{uid} == $self->user->{id} ? 1 : 0) : 0
+                            ($_->{uid} == $self->user->{id} ? 1 : 0) : 0
                     );
-                $p->{href_cancel} = $self->href($::disp{PreeditCancel}, $p->{id});
-                $p;
+                $_;
             }
             $self->model('Preedit')->search([
                     %eid_create ? { id => [keys %eid_create] } : (),
@@ -543,71 +265,284 @@ sub history {
                 ], {
                     prefetch    => ['user', 'ausweis'],
                     order_by    => 'id'
-                })
-        ] if %eid_create || %ausid;
-        if (%eid) {
-            push( @{ $eid{$_->{eid}}->{field_list} }, $_)
-                foreach 
-                    map { $_->{enold} = defined $_->{old}; $_ }
-                    $self->model('PreeditField')->search(
-                        { eid => [keys %eid] }, 
-                        { order_by => 'field' }
-                    );
-        }
-        $d->{_list};
-    };
-}
-
-
-sub event_list {
-    my ($self, $cmdid) = @_;
-    my $d = $self->d;
-    
-    return unless $self->rights_exists_event($::rCommandInfo);
-    
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
-        return unless $self->rights_check_event($::rCommandInfo, $::rAll);
+                });
+    }
+    if (%eid) {
+        push( @{ $eid{$_->{eid}}->{field_list} }, $_)
+            foreach 
+                map { $_->{enold} = defined $_->{old}; $_ }
+                $self->model('PreeditField')->search(
+                    { eid => [keys %eid] }, 
+                    { order_by => 'field' }
+                );
     }
     
-    my ($rec) = (($self->d->{rec}) = 
-        map { _item($self, $_) }
-        $self->model('Command')->search({ id => $cmdid }, { prefetch => 'blok' }));
-    $rec || return $self->state(-000105);
-    
-    $self->patt(TITLE => sprintf($text::titles{"command_event_list"}, $rec->{name}));
-    $self->view_select->subtemplate("command_event_list.tt");
-    
-    $d->{list} = sub {
-        return $d->{_list} if $d->{_list};
-        my %ev;
-        $d->{_list} = [
-            map {
-                my $ev = C::Event::_item($self, $_);
-                $ev->{ausweis_list} = [];
-                $ev{$ev->{id}} = $ev;;
-                $ev;
-            }
-            $self->model('Event')->search(
-                {},
-                { $self->sort('date'), },
-            )
-        ];
-        map {
-            my $cmd = delete $_->{command};
-            my $aus = C::Ausweis::_item($self, $_);
-            $aus->{command} = C::Command::_item($self, $cmd);
-            push @{ $ev{ $aus->{event}->{evid} }->{ausweis_list} }, $aus;
-        }
-        $self->model('Ausweis')->search({
-            'event.cmdid' => $rec->{id}
-        }, {
-            prefetch => [qw/event command/],
-            #order_by => 'nick'
-            order_by => 'event.dtadd'
-        });
-        $d->{_list};
-    };
+    return
+        cmd => $cmd,
+        blok => $blok,
+        list => \@list,
 }
 
 
+sub event :
+    ParamObj('cmd', 0)
+    ReturnPatt
+{
+    my ($self, $cmd) = @_;
+
+    $self->view_rcheck('command_info') || return;
+    $cmd || return $self->notfound;
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
+        $self->view_rcheck('command_info_all') || return;
+    }
+    $self->template("command_event");
+    
+    my $blok;
+    $blok = $self->model('Blok')->byId($cmd->{blkid}) if $cmd->{blkid};
+    
+    my %ev;
+    my @list =
+        map {
+            $_->{ausweis_list} = [];
+            $ev{$_->{id}} = $_;
+            $_;
+        }
+        $self->model('Event')->search(
+            {},
+            { order_by => 'date', },
+        );
+        
+    push(@{ $ev{ $_->{event}->{evid} }->{ausweis_list} }, $_)
+        foreach
+            $self->model('Ausweis')->search({
+                'event.cmdid' => $cmd->{id}
+            }, {
+                prefetch => [qw/event command/],
+                #order_by => 'nick'
+                order_by => 'event.dtadd'
+            });
+    
+    return
+        cmd => $cmd,
+        blok => $blok,
+        list => \@list,
+}
+
+
+sub edit :
+    ParamObj('cmd', 0)
+    ReturnPatt
+{
+    my ($self, $cmd) = @_;
+
+    $self->view_rcheck('command_edit') || return;
+    $cmd || return $self->notfound;
+    if (!$self->user->{blkid} || ($self->user->{blkid} != $cmd->{id})) {
+        $self->view_rcheck('command_edit_all') || return;
+    }
+    $self->view_can_edit() || return;
+    $self->template("command_edit");
+    
+    my %form = %$cmd;
+    if ($self->req->params() && (my $fdata = $self->ParamData)) {
+        $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
+    }
+    
+    return
+        cmd => $cmd,
+        form => \%form,
+        blok_list => [ $self->model('Blok')->search({},{order_by=>'name'}) ],
+        ausweis_list_size => $self->model('Ausweis')->count({ cmdid => $cmd->{id} }),
+}
+
+sub file :
+    ParamObj('cmd', 0)
+    ParamRegexp('[a-zA-Z\d\.\-]+')
+    ReturnPatt
+{
+    my ($self, $cmd, $file) = @_;
+
+    $self->view_rcheck('command_file') || return;
+    $cmd || return $self->notfound;
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
+        $self->view_rcheck('command_file_all') || return;
+    }
+    my $d = $self->d;
+    $self->view_select('File');
+    
+    $d->{file} = Func::CachDir('command', $cmd->{id})."/$file";
+    
+    if (my $t = $::CommandFile{$file}) {
+        $d->{type} = $t->[0]||'';
+        my $m = Clib::Mould->new();
+        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $cmd, dot2hash => 1);
+    }
+}
+
+sub adding :
+    ReturnPatt
+{
+    my ($self) = @_;
+
+    $self->view_rcheck('command_edit_all') || return;
+    $self->view_can_edit() || return;
+    $self->template("command_add");
+    
+    # ĞĞ²Ñ‚Ğ¾Ğ·Ğ°Ğ¿Ğ¾Ğ»Ğ½ĞµĞ½Ğ¸Ğµ Ğ¿Ğ¾Ğ»ĞµĞ¹, ĞµÑĞ»Ğ¸ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ¸Ğ· Ñ„Ğ¾Ñ€Ğ¼Ñ‹ Ğ½Ğµ Ğ¿Ñ€Ğ¸Ñ…Ğ¾Ğ´Ğ¸Ğ»Ğ¸
+    my $form =
+        { map { ($_ => '') } qw/name blkid/ };
+    if ($self->req->params()) {
+        # Ğ”Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ¸Ğ· Ñ„Ğ¾Ñ€Ğ¼Ñ‹ - Ğ»Ğ¸Ğ±Ğ¾ Ğ¿Ğ¾ÑĞ»Ğµ ParamParse, Ğ»Ğ¸Ğ±Ğ¾ Ğ½Ğ°Ğ¿Ñ€ÑĞ¼ÑƒÑ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ
+        my $fdata = $self->ParamData(fillall => 1);
+        if (keys %$fdata) {
+            $form = { %$form, %$fdata };
+        } else {
+            $form->{$_} = $self->req->param($_) foreach $self->req->params();
+        }
+    }
+    return
+        form => $form,
+        blok_list => [ $self->model('Blok')->search({},{order_by=>'name'}) ],
+}
+
+sub _logo {
+    my ($self, $dirUpload, $cmdid) = @_;
+    
+    # Ğ—Ğ°Ğ³Ñ€ÑƒĞ·ĞºĞ° Ğ»Ğ¾Ğ³Ğ¾Ñ‚Ğ¸Ğ¿Ğ°
+    if (my $file = $self->req->param("photo")) {
+        Func::MakeCachDir('command', $cmdid)
+            || return 900102;
+        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('command', $cmdid), 'logo')
+            || return 900102;
+        $self->model('Command')->update(
+            { 
+                regen   => (1<<($::regen{logo}-1)),
+                photo   => $photo,
+            },
+            { id => $cmdid }
+        ) || return 000104;
+        unlink("$dirUpload/$file");
+    }
+    
+    return;
+}
+
+sub add :
+    ReturnOperation
+{
+    my ($self) = @_;
+    
+    $self->rcheck('command_edit_all') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
+    
+    my $dirUpload = Func::SetTmpDir($self)
+        || return ( error => 900101, pref => 'command/adding' );
+    
+    # ĞŸÑ€Ğ¾Ğ²ĞµÑ€ÑĞµĞ¼ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ¸Ğ· Ñ„Ğ¾Ñ€Ğ¼Ñ‹
+    $self->ParamParse(model => 'Command', is_create => 1, utf8 => 1)
+        || return (error => 000101, pref => 'command/adding', upar => $self->ParamData);
+    
+    # Ğ¡Ğ¾Ñ…Ñ€Ğ°Ğ½ÑĞµĞ¼ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ
+    my $cmdid;
+    $self->ParamSave( 
+        model   => 'Command', 
+        insert  => \$cmdid,
+    ) || return (error => 000104, pref => 'command/adding', upar => $self->ParamData);
+    
+    # Ğ—Ğ°Ğ³Ñ€ÑƒĞ·ĞºĞ° Ğ»Ğ¾Ğ³Ğ¾Ñ‚Ğ¸Ğ¿Ğ°
+    my $err = _logo($self, $dirUpload, $cmdid);
+    return (error => $err, pref => ['command/edit', $cmdid]) if $err;
+    
+    return (ok => 980100, pref => ['command/info', $cmdid]);
+}
+
+
+sub set :
+    ParamObj('cmd', 0)
+    ReturnOperation
+{
+    my ($self, $cmd) = @_;
+    
+    $self->rcheck('command_edit') || return $self->rdenied;
+    if (!$self->user->{cmdid} || ($cmd && ($self->user->{cmdid} != $cmd->{id}))) {
+        $self->rcheck('command_edit_all') || return $self->rdenied;
+    }
+    $self->d->{read_only} && return $self->cantedit();
+    $cmd || return $self->nfound();
+    
+    my $dirUpload = Func::SetTmpDir($self)
+        || return ( error => 900101, pref => ['command/edit', $cmd->{id}] );
+    
+    # ĞŸÑ€Ğ¾Ğ²ĞµÑ€ÑĞµĞ¼ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ Ğ¸Ğ· Ñ„Ğ¾Ñ€Ğ¼Ñ‹
+    $self->ParamParse(model => 'Command', utf8 => 1)
+        || return (error => 000101, pref => ['command/edit', $cmd->{id}], upar => $self->ParamData);
+    
+    # Ğ¡Ğ¾Ñ…Ñ€Ğ°Ğ½ÑĞµĞ¼ Ğ´Ğ°Ğ½Ğ½Ñ‹Ğµ
+    $self->ParamSave( 
+        model       => 'Command', 
+        update      => { id => $cmd->{id} }, 
+        preselect   => $cmd
+    ) || return (error => 000104, pref => ['command/edit', $cmd->{id}], upar => $self->ParamData);
+    
+    # Ğ—Ğ°Ğ³Ñ€ÑƒĞ·ĞºĞ° Ğ»Ğ¾Ğ³Ğ¾Ñ‚Ğ¸Ğ¿Ğ°
+    my $err = _logo($self, $dirUpload, $cmd->{id});
+    return (error => $err, pref => ['command/edit', $cmd->{id}]) if $err;
+    
+    # ĞĞ±Ğ½Ğ¾Ğ²Ğ»ÑĞµĞ¼ blkid Ñƒ Ğ°ÑƒÑĞ²Ğ°Ğ¹ÑĞ¾Ğ²
+    my $fdata = $self->ParamData;
+    if (defined($fdata->{blkid}) && ($fdata->{blkid} != $cmd->{blkid})) {
+        $self->model('Ausweis')->update(
+            { blkid => $fdata->{blkid} },
+            { cmdid => $cmd->{id} }
+        ) || return (error => 000104, pref => ['command/info', $cmd->{id}]);
+    }
+    
+    # Ğ¡Ñ‚Ğ°Ñ‚ÑƒÑ Ñ Ñ€ĞµĞ´Ğ¸Ñ€ĞµĞºÑ‚Ğ¾Ğ¼
+    return (ok => 980200, pref => ['command/info', $cmd->{id}]);
+}
+
+
+sub logo :
+    ParamObj('cmd', 0)
+    ReturnOperation
+{
+    my ($self, $cmd) = @_;
+    
+    $self->rcheck('command_edit') || return $self->rdenied;
+    if (!$self->user->{cmdid} || ($cmd && ($self->user->{cmdid} != $cmd->{id}))) {
+        $self->rcheck('command_edit_all') || return $self->rdenied;
+    }
+    $cmd || return $self->nfound();
+    
+    my $dirUpload = Func::SetTmpDir($self)
+        || return ( error => 900101, pref => ['command/info', $cmd->{id}] );
+    
+    # Ğ—Ğ°Ğ³Ñ€ÑƒĞ·ĞºĞ° Ğ»Ğ¾Ğ³Ğ¾Ñ‚Ğ¸Ğ¿Ğ°
+    my $err = _logo($self, $dirUpload, $cmd->{id});
+    return (error => $err, pref => ['command/info', $cmd->{id}]) if $err;
+    
+    # Ğ¡Ñ‚Ğ°Ñ‚ÑƒÑ Ñ Ñ€ĞµĞ´Ğ¸Ñ€ĞµĞºÑ‚Ğ¾Ğ¼
+    return (ok => 980200, pref => ['command/info', $cmd->{id}]);
+}
+
+sub del :
+    ParamObj('cmd', 0)
+    ReturnOperation
+{
+    my ($self, $cmd) = @_;
+    
+    $self->rcheck('command_edit_all') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
+    $cmd || return $self->nfound();
+    
+    my ($item) = $self->model('Ausweis')->search({ cmdid => $cmd->{id} }, { limit => 1 });
+    return (error => 980301, href => '') if $item;
+    
+    $self->model('Command')->delete({ id => $cmd->{id} })
+        || return (error => 000104, href => '');
+    
+    # ÑÑ‚Ğ°Ñ‚ÑƒÑ Ñ Ñ€ĞµĞ´Ğ¸Ñ€ĞµĞºÑ‚Ğ¾Ğ¼
+    return (ok => 980300, pref => 'command/list');
+}
+    
 1;

@@ -1,0 +1,130 @@
+[% BLOCK TITLE %]Команда "[% cmd.name %]"[% END %]
+[% BLOCK CONTENT %]
+<h3>Команда</h3>
+<table class="tbl">
+    <tr>
+        <td rowspan="5" style="border:0; width:200px">
+[% IF file_logo_size %]
+<img width="200" alt="[% cmd.name %]" title="[% cmd.name %]" src="[% PREF command/file: cmd.id, file_logo %]" />
+[% ELSE %]
+<span style="color:red; text-weight:bold;">[ЭМБЛЕМЫ КОМАНДЫ НЕТ]</span>
+[% END %]
+        </td>
+        <td class="ltitle">Название:</td>
+        <td><b><big>[% cmd.name %]</big></b></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блок:</td>
+        <td>[% IF blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% PREF blok/info: blok.id %]">[% blok.name %]</a>[% ELSE %]-[% END %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Аккаунты:</td>
+        <td>
+        [% IF size(cmd_account_list) > 0 %]
+        [% FOREACH acc = cmd_account_list %]
+            [% acc.login %][% IF acc.gid %] ([% acc.group.name %])[% END %]<br />
+        [% END %]
+        [% ELSE %]-[% END %]
+        </td>
+    </tr>
+[% IF rec.regen > 0 %]
+    <tr>
+        <td class="ltitle">Пересборка:</td>
+        <td>
+            в процессе: [% rec.regens %]
+        </td>
+    </tr>
+[% END %]
+            <form action="[% PREF command/logo: cmd.id %]" method="POST" enctype="multipart/form-data"></td>
+    <tr>
+        <td class="ltitle">Перезагрузить логотип:</td>
+        <td>
+            <input type="file" name="photo" class="stdin" />
+            <input type="submit" value=" Загрузить " /><br />
+            <small>Логотип буден виден через несколько минут после загрузки</small>
+        </td>
+    </tr>
+            </form>
+    <tr>
+        <td class="ltitle">Дополнительно:</td>
+        <td>
+            <a href="[% PREF command/history: cmd.id %]">История изменений</a><br />
+            <a href="[% PREF command/event: cmd.id %]">Мероприятия</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="3">
+            <a href="[% PREF command/edit: cmd.id %]">изменить</a>
+        </td>
+    </tr>
+</table>
+
+<br />
+
+[% IF size(ausweis_history_my) > 0 %]
+<h3>Премодерация</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="120">Дата/время</td>
+        <td width="180">Действие</td>
+        <td width="150">Ник</td>
+        <td>Комментарии модерации</td>
+        <td width="70"></td>
+    </tr>
+[% FOREACH h = ausweis_history_my %]
+    <tr>
+        <td>[% DATETIME h.dtadd %]</td>
+        <td>
+            [% IF h.op eq 'C' %]Добавление[% ELSIF h.op eq 'E' %]Редактирование[% ELSIF h.op eq 'D' %]Удаление[% END %]
+            [% IF h.tbl eq 'Ausweis' %]аусвайса[% END %]
+        </td>
+        <td>[% h.nick %]</td>
+        <td>
+            [% IF h.modered > 0 %]<div style="color: green">Выполнено [% h.comment %]</div>
+            [% ELSIF h.modered < -1 %]<div style="color: red">Отменено пользователем</div>
+            [% ELSIF h.modered < 0 %]<div style="color: red">Отклонено: [% h.comment %]</div>
+            [% ELSE %]<div style="color: yellow"><i>ожидает модерации</i></div>[% END %]
+        </td>
+        <td><a href="[% href_hide %]">скрыть</a></td>
+    </tr>
+[% END %]
+</table>
+<br />
+[% END %]
+
+<h3>Аусвайсы</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="150">Номер</td>
+        <td width="150">Ник</td>
+        <td width="250">ФИО</td>
+        <td>Блокировка</td>
+    </tr>
+[% IF size(ausweis_list) > 0 %]
+[% FOREACH aus = ausweis_list %]
+    <tr[% IF aus.blocked %] class="grey"[% END %]>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% aus.numid %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% aus.nick %]</a></td>
+        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% aus.fio %]</a></td>
+        <td>[% IF aus.blocked %]ЗАБЛОКИРОВАН[% END %]</td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+        ничего нет
+    </td></tr>
+[% END %]
+[% FOREACH aus = ausweis_preedit_list %]
+    <tr>
+        <td><i>Ожидает модерации</i></td>
+        <td><a href="[% PREF command/history: cmd.id %]#pre[% aus.id %]"><i>[% aus.field_nick.value %]</i></a></td>
+        <td></td>
+        <td>[% IF aus.allow_cancel %]<a href="[% PREF preedit/cancel: aus.id %]">отменить</a>[% END %]</td>
+    </tr>
+[% END %]
+    <tr><td colspan="4" class="submit">
+        <a href="[% PREF ausweis/adding %]?cmdid=[% cmd.id %]">добавить</a>
+    </td></tr>
+</table>
+
+[% END %]

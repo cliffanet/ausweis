@@ -1,0 +1,39 @@
+[% BLOCK TITLE %]Команда "[% cmd.name %]" - редактирование[% END %]
+[% BLOCK CONTENT %]
+<form action="[% PREF command/set: cmd.id %]" method="POST" enctype="multipart/form-data">
+<h3>Команда</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Название:    [% INCLUDE form_error_param.tt,  p='name' %]</td>
+        <td><input type="text" name="name" class="stdin" value="[% form.name %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блок:        [% INCLUDE form_error_param.tt,  p='blkid' %]</td>
+        <td>
+            <select name="blkid" class="stdin">
+                <option value="0"> &lt;- без блока -&gt; </option>
+[% FOREACH blk = blok_list %]
+                <option value="[% blk.id %]"[% IF form.blkid == blk.id %] selected[% END %]>[% blk.name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Загрузка логотипа:<br /><small>Логотип буден виден через несколько минут после загрузки</small></td>
+        <td><input type="file" name="photo" class="stdin" /></td>
+    </tr>
+<tr>
+    <td class="submit" colspan="2">
+        <input type="submit" value="Сохранить">
+        <input type="button" value="Отмена" onClick="history.go(-1)">
+[% IF ausweis_list_size == 0 %]
+<br />
+<a href="[% PREF command/del: cmd.id %]"
+    onClick="return confirm('Удаление Команды: [% cmd.name %]\nПродолжать?');"
+    >удалить</a>
+[% END %]
+    </td>
+</tr>
+</table>
+</form>
+[% END %]

@@ -1,0 +1,59 @@
+[% BLOCK TITLE %]Команда "[% cmd.name %]" - История изменений[% END %]
+[% BLOCK CONTENT %]
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Команда:</td>
+        <td><a href="[% PREF command/info: cmd.id %]"<b><big>[% cmd.name %]</big></b></a></td>
+    </tr>
+</table>
+
+<br />
+
+    <script type="text/javascript">
+    <!--
+        function fld_show(id) {
+            var list = document.getElementsByTagName('div');
+            for (var i=0; i<list.length; i++) {
+                var e = list[i];
+                if (e.id.match('^fld_[0-9]+')) 
+                   e.style.display = 'none';
+            }
+            document.getElementById(id).style.display = 'inline';
+        }
+    //-->
+    </script>
+
+<h3>История</h3>
+<table class="tbl">
+[% FOREACH list %]
+<tr>
+    <td class="ltitle" style="width:250px">
+        <a name="pre[% id %]"></a>
+        [% IF op=='C' %]Добавление[% ELSIF op=='E' %]Редактирование[% ELSIF op=='D' %]Удаление[% END %]
+        [% IF tbl=='Ausweis' %]аусвайса[% IF ausweis.id %] (<a href="[% ausweis.href_info %]">[% ausweis.numid %]</a>)[% END %][% END %]:<br />
+        <small>[% DATETIME dtadd %]<br />
+        [% user.login %][% IF ip %] [[% ip %]][% END %]<br /></small>
+        [% IF modered > 0 %]<div style="color: green">+ [% comment %]</div>
+        [% ELSIF modered < -1 %]<div style="color: red">Отменено пользователем</div>
+        [% ELSIF modered < 0 %]<div style="color: red">Отклонено: [% comment %]</div>
+        [% ELSE %]
+            <div style="color: yellow"><i>ожидает модерации</i>
+            [% IF allow_cancel %](<a href="[% href_cancel %]">отменить</a>)[% END %]
+            </div>[% END %]
+    </td>
+    <td>
+    [% FOREACH field_list %]
+        <a href="javascript: fld_show('fld_[% id %]');">[% param %]</a>[% IF loop.next %], [% END %]
+    [% END %]
+        <br />
+    [% FOREACH field_list %]
+        <div id="fld_[% id %]" style="display:none; padding-left:20px;">
+            <b>[% param %]</b><br />
+            <small><u>Значение:</u> [% value %][% IF enold %]<br /><u>Старое:</u> [% old %][% END %]</small>
+        </div>
+    [% END %]
+    </td>
+</tr>
+[% END # FOREACH list %]
+</table>
+[% END %]
