@@ -177,123 +177,144 @@ sub file :
     }
 }
 
-sub adding {
+sub adding :
+    ReturnPatt
+{
     my ($self) = @_;
 
-    return unless $self->rights_check_event($::rBlokEdit, $::rAll);
-    
-    $self->can_edit() || return;
-    
-    $self->patt(TITLE => $text::titles{"blok_add"});
-    $self->view_select->subtemplate("blok_add.tt");
-    
-    my $d = $self->d;
-    $d->{href_add} = $self->href($::disp{BlokAdd});
+    $self->view_rcheck('blok_edit_all') || return;
+    $self->view_can_edit() || return;
+    $self->template("blok_add");
     
         # Автозаполнение полей, если данные из формы не приходили
-    $d->{form} =
+    my $form =
         { map { ($_ => '') } qw/name/ };
     if ($self->req->params()) {
         # Данные из формы - либо после ParamParse, либо напрямую данные
         my $fdata = $self->ParamData(fillall => 1);
         if (keys %$fdata) {
-            $d->{form} = { %{ $d->{form} }, %$fdata };
+            $form = { %$form, %$fdata };
         } else {
-            $d->{form}->{$_} = $self->req->param($_) foreach $self->req->params();
+            $form->{$_} = $self->req->param($_) foreach $self->req->params();
         }
     }
-    #$d->{form}->{comment_nobr} = $self->ToHtml($d->{form}->{comment});
-    #$d->{form}->{comment} = $self->ToHtml($d->{form}->{comment}, 1);
+    return
+        form => $form
 }
 
-sub set {
-    my ($self, $id) = @_;
-    my $is_new = !defined($id);
-    
-    my $dirUpload = Func::SetTmpDir($self)
-        || return !$self->state(-900101, '');
-    
-    return unless $self->rights_exists_event($::rBlokEdit);
-    if (!$id || !$self->user->{blkid} || ($self->user->{blkid} != $id)) {
-        return unless $self->rights_check_event($::rBlokEdit, $::rAll);
-    }
-    
-    $self->can_edit() || return;
-    
-    # Кэшируем заранее данные
-    my ($rec) = (($self->d->{rec}) = $self->model('Blok')->search({ id => $id })) if $id;
-    if (!$is_new && (!$rec || !$rec->{id})) {
-        return $self->state(-000105, '');
-    }
-    
-    # Проверяем данные из формы
-    if (!$self->ParamParse(model => 'Blok', is_create => $is_new)) {
-        $self->state(-000101);
-        return $is_new ? adding($self) : edit($self, $id);
-    }
-    
-    # Сохраняем данные
-    my $ret = $self->ParamSave( 
-        model           => 'Blok', 
-        $is_new ?
-            ( insert => \$id ) :
-            ( 
-                update => { id => $id }, 
-                preselect => $rec
-            ),
-    );
-    if (!$ret) {
-        $self->state(-000104);
-        return $is_new ? adding($self) : edit($self, $id);
-    }
+sub _logo {
+    my ($self, $dirUpload, $blid) = @_;
     
     # Загрузка логотипа
     if (my $file = $self->req->param("photo")) {
-        Func::MakeCachDir('blok', $id)
-            || return $self->state(-900102, '');
-        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('blok', $id), 'logo')
-            || return $self->state(-900102, '');
+        Func::MakeCachDir('blok', $blid)
+            || return 900102;
+        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('blok', $blid), 'logo')
+            || return 900102;
         $self->model('Blok')->update(
             { 
                 regen   => (1<<($::regen{logo}-1)),
                 photo   => $photo,
             },
-            { id => $id }
-        ) || return $self->state(-000104, '');
+            { id => $blid }
+        ) || return 000104;
         unlink("$dirUpload/$file");
     }
     
-    # Статус с редиректом
-    return $self->state($is_new ? 970100 : 970200,  $self->href($::disp{BlokShow}, $id, 'info') );
+    return;
 }
 
-sub del {
-    my ($self, $id) = @_;
+sub add :
+    ReturnOperation
+{
+    my ($self) = @_;
     
-    return unless $self->rights_check_event($::rBlokEdit, $::rAll);
+    $self->rcheck('blok_edit_all') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
     
-    $self->can_edit() || return;
+    my $dirUpload = Func::SetTmpDir($self)
+        || return ( error => 900101, pref => 'blok/adding' );
     
-    my ($rec) = $self->model('Blok')->search({ id => $id });
-    $rec || return $self->state(-000105);
+    # Проверяем данные из формы
+    $self->ParamParse(model => 'Blok', is_create => 1, utf8 => 1)
+        || return (error => 000101, pref => 'blok/adding', upar => $self->ParamData);
     
-    $self->model('Blok')->delete({ id => $id })
-        || return $self->state(-000104, '');
+    # Сохраняем данные
+    my $blid;
+    $self->ParamSave( 
+        model   => 'Blok', 
+        insert  => \$blid,
+    ) || return (error => 000104, pref => 'blok/adding', upar => $self->ParamData);
+    
+    # Загрузка логотипа
+    my $err = _logo($self, $dirUpload, $blid);
+    return (error => $err, pref => ['blok/edit', $blid]) if $err;
+    
+    return (ok => 970100, pref => ['blok/info', $blid]);
+}
+
+sub set :
+    ParamObj('blok', 0)
+    ReturnOperation
+{
+    my ($self, $blok) = @_;
+    
+    $self->rcheck('blok_edit') || return $self->rdenied;
+    if (!$self->user->{blkid} || ($blok && ($self->user->{blkid} != $blok->{id}))) {
+        $self->rcheck('blok_edit_all') || return $self->rdenied;
+    }
+    $self->d->{read_only} && return $self->cantedit();
+    $blok || return $self->nfound();
+    
+    my $dirUpload = Func::SetTmpDir($self)
+        || return ( error => 900101, pref => ['blok/edit', $blok->{id}] );
+    
+    # Проверяем данные из формы
+    $self->ParamParse(model => 'Blok', utf8 => 1)
+        || return (error => 000101, pref => ['blok/edit', $blok->{id}], upar => $self->ParamData);
+    
+    # Сохраняем данные
+    $self->ParamSave( 
+        model       => 'Blok', 
+        update      => { id => $blok->{id} }, 
+        preselect   => $blok
+    ) || return (error => 000104, pref => ['blok/edit', $blok->{id}], upar => $self->ParamData);
+    
+    # Загрузка логотипа
+    my $err = _logo($self, $dirUpload, $blok->{id});
+    return (error => $err, pref => ['blok/edit', $blok->{id}]) if $err;
+    
+    # Статус с редиректом
+    return (ok => 970200, pref => ['blok/info', $blok->{id}]);
+}
+
+sub del :
+    ParamObj('blok', 0)
+    ReturnOperation
+{
+    my ($self, $blok) = @_;
+    
+    $self->rcheck('blok_edit_all') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
+    $blok || return $self->nfound();
+    
+    $self->model('Blok')->delete({ id => $blok->{id} })
+        || return (error => 000104, href => '');
         
     # Убираем блок у команд
     $self->model('Command')->update(
         { blkid => 0 },
-        { blkid => $id },
-    ) || return $self->state(-000104, '');
+        { blkid => $blok->{id} },
+    ) || return (error => 000104, href => '');
     
     # Убираем блок у аусвайсов
     $self->model('Ausweis')->update(
         { blkid => 0 },
-        { blkid => $id },
-    ) || return $self->state(-000104, '');
+        { blkid => $blok->{id} },
+    ) || return (error => 000104, href => '');
     
     # статус с редиректом
-    $self->state(970300, $self->href($::disp{BlokList}) );
+    return (ok => 970300, pref => 'blok/list');
 }
 
 

@@ -1,15 +1,12 @@
 #!/usr/bin/perl
-
 use strict;
-#use warnings;
+use warnings;
+no warnings 'once';
 
 BEGIN {
-    $::pathRoot = $0;
-    $::pathRoot =~ s/\/+/\//g;
-    $::pathRoot =~ s/[^\/]+$//;
-    if ($::pathRoot !~ s/\/[^\/]+\/$//) {
-        $::pathRoot .= '..';
-    }
+    use Cwd            qw( abs_path );
+    use File::Basename qw( dirname );
+    $::pathRoot = dirname(dirname(abs_path($0)));
 };
 
 use lib "$::pathRoot/lib";
@@ -28,6 +25,8 @@ $::logDebug ||= 0;
 $::logPath ||= '/var/log';
 $::pidPath ||= '/var/run';
 my $self = __PACKAGE__->new(
+    path_root           => $::pathRoot,
+    redefine            => 'conf/redefine.conf',
     schema              => 'DB',
     log_file            => "$::logPath/regen.log",
     pid_file            => "$::pidPath/regen.pid",

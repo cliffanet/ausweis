@@ -36,25 +36,24 @@
     [% END %]
 
 
-[% IF session_state.code %]
+[% IF state %]
 <!--  Статус выполненного -->
 <script type="text/javascript">
 <!--
     function msgClose() { document.getElementById('alert_msg').style.display = 'none'; }
 //-->
 </script>
-[% IF session_state.code > 0 %]
+[% IF state.code > 0 %]
     <div id="alert_msg" class="msg">
-        <span class="text" id="alert_msg_text">ВЫПОЛНЕНО! ([% TIME %])<br />[% session_state.name %]</span>
+        <span class="text" id="alert_msg_text">ВЫПОЛНЕНО! ([% TIME %])<br />[% state.msg %]</span>
         <a href="javascript:msgClose()">закрыть</a>
     </div>
 [% ELSE %]
     <div id="alert_msg" class="err">
-        <span class="text" id="alert_err_text">ОШИБКА! ([% TIME %])<br />[% session_state.name %]</span>
+        <span class="text" id="alert_err_text">ОШИБКА! ([% TIME %])<br />[% state.msg %]</span>
         <a href="javascript:msgClose()">закрыть</a>
     </div>
 [% END %]
-[% session_state.set_null %]
 <!-- // Статус выполненной операции -->
 [% END %]
 
