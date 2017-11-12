@@ -27,15 +27,15 @@ __PACKAGE__->config(
     dispatcher  => {
         default                         => 'C::Misc::default',
 
-        $::disp{AusweisList}            => 'C::Ausweis::list',
-        $::disp{AusweisShow}            => 'C::Ausweis::show',
-        $::disp{AusweisFile}            => 'C::Ausweis::file',
-        $::disp{AusweisAdding}          => 'C::Ausweis::adding',
-        $::disp{AusweisAdd}             => 'C::Ausweis::set',
-        $::disp{AusweisSet}             => 'C::Ausweis::set',
-        $::disp{AusweisDel}             => 'C::Ausweis::del',
-        $::disp{AusweisRegen}           => 'C::Ausweis::regen',
-        $::disp{AusweisFindRepeat}      => 'C::Ausweis::find_repeat',
+        #$::disp{AusweisList}            => 'C::Ausweis::list',
+        #$::disp{AusweisShow}            => 'C::Ausweis::show',
+        #$::disp{AusweisFile}            => 'C::Ausweis::file',
+        #$::disp{AusweisAdding}          => 'C::Ausweis::adding',
+        #$::disp{AusweisAdd}             => 'C::Ausweis::set',
+        #$::disp{AusweisSet}             => 'C::Ausweis::set',
+        #$::disp{AusweisDel}             => 'C::Ausweis::del',
+        #$::disp{AusweisRegen}           => 'C::Ausweis::regen',
+        #$::disp{AusweisFindRepeat}      => 'C::Ausweis::find_repeat',
         
         $::disp{PrintList}              => 'C::Print::list',
         $::disp{PrintInfo}              => 'C::Print::info',
@@ -133,7 +133,7 @@ sub const_init {
         [AusweisInfo        => 32   => "Аусвайсы: информация"               => qw/My All/],
         [AusweisEdit        => 33   => "Аусвайсы: редактирование"           => qw/My All/],
         [AusweisPreEdit     => 34   => "Аусвайсы: запрос на изменение"      => qw/My All/],
-        [AusweisFindRepeat  => 35   => "Аусвайсы: поиск повторов"           => qw/Yes/],
+        #[AusweisFindRepeat  => 35   => "Аусвайсы: поиск повторов"           => qw/Yes/],
         'Общее управление',
         [Print              => 40   => "Печать"                             => qw/Read Write/],
         [PrintAusweis       => 41   => "Печать: работа с аусвайсами"        => qw/My All/],
@@ -162,14 +162,12 @@ sub const_init {
         #[ 'Мероприятия',        sub { shift->href($::disp{EventList}) },
         #                        sub { $_[0]->rights_exists($rEvent) } ],
         'Аусвайсы',
-        [ 'Блоки',          => blok_list        => 'blok/list' ],
-        [ 'Команды',        => command_list     => 'command/list' ],
-        #[ 'Аусвайсы',           sub { shift->href($::disp{AusweisList}) },
-        #                        sub { $_[0]->rights_exists($rAusweisList) } ],
-        [ 'Моя команда',    => command_info     => 'command/my' ],
-        #undef,
-        #[ 'Добавить аусвайс',   sub { shift->href($::disp{AusweisAdding}) },
-        #                        sub { $_[0]->rights_check($rAusweisEdit, $rAll) } ],
+        [ 'Блоки'           => blok_list        => 'blok/list' ],
+        [ 'Команды'         => command_list     => 'command/list' ],
+        [ 'Аусвайсы'        => ausweis_list     => 'ausweis/list' ],
+        [ 'Моя команда'     => command_info     => 'command/my' ],
+        undef,
+        [ 'Добавить аусвайс'=> ausweis_edit_all => 'ausweis/adding' ],
     ],
     
     opstate => {
@@ -307,6 +305,16 @@ sub http_after_init {
         command_file_all=> sub { rights_Check($_[0],    $num{CommandInfo}, $val{All}) ||
                                  rights_Check($_[0],    $num{AusweisInfo}, $val{All}); },
         
+        ausweis_list    => sub { rights_Exists($_[0],   $num{AusweisList}); },
+        ausweis_info    => sub { rights_Exists($_[0],   $num{AusweisInfo}); },
+        ausweis_info_all=> sub { rights_Check($_[0],    $num{AusweisInfo}, $val{All}); },
+        ausweis_edit    => sub { rights_Exists($_[0],   $num{AusweisEdit}); },
+        ausweis_edit_all=> sub { rights_Check($_[0],    $num{AusweisEdit}, $val{All}); },
+        ausweis_pree    => sub { rights_Exists($_[0],   $num{AusweisPreEdit}); },
+        ausweis_pree_all=> sub { rights_Check($_[0],    $num{AusweisPreEdit}, $val{All}); },
+        ausweis_file    => sub { rights_Exists($_[0],   $num{AusweisInfo}); },
+        ausweis_file_all=> sub { rights_Check($_[0],    $num{AusweisInfo}, $val{All}); },
+        
     };
 }
 
@@ -388,6 +396,8 @@ sub http_patt {
         user            => \%u,
         menu            => \@menu,
         state           => $state,
+        allow_ausweis_list => $self->rcheck('ausweis_list'),
+        numidnick       => '',
     };
 }
 
@@ -623,6 +633,15 @@ sub obj_cmd {
     
     $self->object_by_model(
         'Command',
+        #where => { deleted => 0 },
+        #param => { order_by => 'numid', '+columns' => [$xname] }
+    )
+}
+sub obj_aus {
+    my $self = shift;
+    
+    $self->object_by_model(
+        'Ausweis',
         #where => { deleted => 0 },
         #param => { order_by => 'numid', '+columns' => [$xname] }
     )

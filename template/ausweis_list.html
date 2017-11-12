@@ -1,0 +1,65 @@
+[% BLOCK TITLE %]Список аусвайсов[% END %]
+[% BLOCK CONTENT %]
+    <!-- Поиск -->
+   <h3>Поиск</h3>
+   <form action="[% PREF ausweis/list %]">
+   <table class="tbl">
+       <tr>
+           <td class="ltitle">По всем полям:</td>
+           <td><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
+       </tr>
+    [% IF numidnick %]
+        <tr>
+            <td class="ltitle">Номер / Ник:</td>
+            <td>[% numidnick %]</td>
+        </tr>
+    [% END %]
+    [% IF blkid %]
+        <tr>
+            <td class="ltitle">Блок:</td>
+            <td>[% IF blkid > 0 %][% blok.name %][% ELSE %]&lt;- без блока -&gt;[% END %]</td>
+        </tr>
+    [% END %]
+    [% IF cmdid %]
+        <tr>
+            <td class="ltitle">Команда:</td>
+            <td>[% IF cmdid > 0 %][% cmd.name %][% ELSE %]&lt;- без команды -&gt;[% END %]</td>
+        </tr>
+    [% END %]
+   </table>
+   </form>
+   
+   <br />
+
+    <div id="search-result">
+    [% BLOCK result %]
+    [% IF list %]
+    <h3>Результаты ([% count %][% IF countall != count %] из [% countall %][% END %])</h3>
+    <table class="tbl">
+        <tr class="title">
+            <td width="70">Номер</td>
+            <td width="200">Ник</td>
+            <td width="200">Команда</td>
+            <td width="200">Блок</td>
+            <td>Блокировка</td>
+        </tr>
+    [% IF size(list) > 0 %]
+    [% FOREACH aus = list %]
+        <tr[% IF blocked %] class="grey"[% END %]>
+            <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% aus.numid %]</a></td>
+            <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% aus.nick %]</a></td>
+            <td><a title="Просмотр команды" alt="Просмотр команды" href="[% PREF command/info: aus.command.id %]">[% aus.command.name %]</a></td>
+            <td>[% IF aus.blok.id %]<a title="Просмотр блока" alt="Просмотр блока" href="[% PREF blok/info: aus.blok.id %]">[% aus.blok.name %]</a>[% END %]</td>
+            <td>[% IF aus.blocked %]ЗАБЛОКИРОВАН[% END %]</td>
+        </tr>
+    [% END %]
+    [% ELSE %]
+        <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
+            ничего не найдено
+        </td></tr>
+    [% END %]
+    </table>
+    [% END %]
+    [% END %]
+    </div>
+[% END %]

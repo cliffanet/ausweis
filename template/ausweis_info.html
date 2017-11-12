@@ -1,0 +1,129 @@
+[% BLOCK TITLE %]Аусвайс "[% aus.nick %]"[% END %]
+[% BLOCK CONTENT %]
+<h3>Аусвайс</h3>
+<table class="tbl">
+    <tr>
+        <td rowspan="15" style="border:0; width:200px">
+[% IF file_photo_size %]
+<img width="200" alt="[% aus.nick %]" title="[% aus.nick %]" src="[% PREF ausweis/file: aus.id, file_photo %]" />
+[% ELSE %]
+<span style="color:red; text-weight:bold;">[ФОТО НЕТ]</span>
+[% END %]
+    <br />
+        </td>
+        <td class="ltitle">ШтрихКод:</td>
+        <td><b>[% aus.numid %]</b></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Ник:</td>
+        <td><b><big>[% aus.nick %]</big></b>[% INCLUDE preedit_field.tt, field='nick' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Команда:</td>
+        <td>
+            <a title="Просмотр команды" alt="Просмотр команды" href="[% PREF coommand/info: cmd.id %]">[% cmd.name %]</a>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блок:</td>
+        <td>
+            [% IF blok %]<a title="Просмотр блока" alt="Просмотр блока" href="[% PREF block/info: blok.id %]">[% blok.name %]</a>[% ELSE %]-[% END %]
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блокировка:</td>
+        <td>[% IF aus.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %][% INCLUDE preedit_field.tt, field='blocked' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">ФИО:</td>
+        <td>[% aus.fio %][% INCLUDE preedit_field.tt, field='fio' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Группа крови:</td>
+        <td>[% aus.krov %][% INCLUDE preedit_field.tt, field='krov' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Аллергия:</td>
+        <td>[% aus.allerg %][% INCLUDE preedit_field.tt, field='allerg' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Непереносимость:</td>
+        <td>[% aus.neperenos %][% INCLUDE preedit_field.tt, field='neperenos' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Полис:</td>
+        <td>[% aus.polis %][% INCLUDE preedit_field.tt, field='polis' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Медик:</td>
+        <td>[% aus.medik %][% INCLUDE preedit_field.tt, field='medik' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Примечания:</td>
+        <td>[% aus.comment %][% INCLUDE preedit_field.tt, field='comment' %]</td>
+    </tr>
+    <tr>
+        <td class="ltitle">Печать самостоятельная:</td>
+        <td>
+            <a href="[% aus.href_regen %]">Пересобрать</a>
+            [% IF aus.regen > 0 %](в процессе: [% aus.regens %])[% END %]
+            <br />
+[% IF file_front_size || file_rear_size  %]
+        [% IF file_front_size  %]
+        <a target="_blank" href="[% PREF ausweis/file: aus.id, file_front %]">JPG (лицевая сторона)</a>
+        [% END %]
+        [% IF file_rear_size  %]
+        | <a target="_blank" href="[% PREF ausweis/file: aus.id, file_rear %]">JPG (тыльная сторона)</a>
+        [% END %]
+[% END %]
+[% IF file_pdf_size %]
+        | <a target="_blank" href="[% PREF ausweis/file: aus.id, file_pdf %]">PDF</a>
+[% END %]
+        </td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+            <a href="[% PREF ausweis/edit: aus.id %]">изменить</a>
+        </td>
+    </tr>
+</table>
+
+[% IF preedit_field.photo.exists %]
+<br />
+
+<h3>Фото - Ожидание модерации</h3>
+<img width="200" src="[% preedit_field.photo.href_file %]" />
+<br />
+
+[% END %]
+
+
+<br />
+<h3>Мероприятия, в которых участвовал аусвайс:</h3>
+<table class="tbl">
+    <tr class="title">
+        <td width="200">Мероприятие</td>
+        <td width="120">Дата/Время</td>
+        <td>Особые отметки</td>
+    </tr>
+[% IF event_commited.size > 0 %]
+[% FOREACH event_commited %]
+    <tr>
+        <td><a title="Просмотр" alt="Просмотр" href="[% event.href_info %]">[% event.name %]</a></td>
+        <td align="right">[% DATETIME event.dtadd %]</td>
+        <td>
+        [% IF cmdid != aus.cmdid %]
+        В составе команды:
+        <a title="Просмотр информации о команде" alt="Просмотр информации о команде" href="[% command.href_info %]">[% command.name %]</a>
+        [% END %]
+        </td>
+    </tr>
+[% END %]
+[% ELSE %]
+    <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
+        Этот аусвайс еще не был зарегистрирован ни на одном мероприятии
+    </td></tr>
+[% END %]
+</table>
+
+[% END %]

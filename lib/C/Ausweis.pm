@@ -3,12 +3,14 @@ package C::Ausweis;
 use strict;
 use warnings;
 
+use Encode '_utf8_on', 'encode';
+
 #use Image::Magick;
 use Clib::Mould;
 
 ##################################################
-###     Îñíîâíîé ñïèñîê
-###     Êîä ìîäóëÿ: 99
+###     ÐžÑÐ½Ð¾Ð²Ð½Ð¾Ð¹ ÑÐ¿Ð¸ÑÐ¾Ðº
+###     ÐšÐ¾Ð´ Ð¼Ð¾Ð´ÑƒÐ»Ñ: 99
 #############################################
 
 sub _item {
@@ -28,7 +30,7 @@ sub _item {
         if $blok;
     
     if ($id) {
-        # Ññûëêè
+        # Ð¡ÑÑ‹Ð»ÐºÐ¸
         $item->{href_info}      = $self->href($::disp{AusweisShow}, $item->{id}, 'info');
         $item->{href_edit}      = $self->href($::disp{AusweisShow}, $item->{id}, 'edit');
         
@@ -52,95 +54,132 @@ sub _item {
     return $item;
 }
 
-
-sub list {
+sub list :
+    ReturnPatt
+{
     my ($self) = @_;
 
-    return unless $self->rights_exists_event($::rAusweisList);
-    
-    $self->patt(TITLE => $text::titles{ausweis_list});
-    $self->view_select->subtemplate("ausweis_list.tt");
-    
-    my $d = $self->d;
-    my $q = $self->req;
-    my $f = {
-        cmdid   => scalar $q->param_dig('cmdid'),
-        blkid   => scalar $q->param_dig('blkid'),
-        text    => scalar $q->param_str('text'),
-        numidnick=>scalar $q->param_str('numidnick'),
-    };
-    
-    $self->d->{srch} = $self->ToHtml({ %$f });
+    $self->view_rcheck('ausweis_list') || return;
+    $self->template("ausweis_list", 'CONTENT_result');
     
     my $srch = {};
-    $srch->{cmdid} = $f->{cmdid} if $f->{cmdid};
-    $srch->{blkid} = $f->{blkid} if $f->{blkid};
-    if ($f->{text}) {
-        my $text = $f->{text};
+    my $s = $self->req->param_str('srch');
+    _utf8_on($s);
+    if (my $text = $s) {
         $text =~ s/([%_])/\\$1/g;
         $text =~ s/\*/%/g;
         $text =~ s/\?/_/g;
-        #$text = "%$text" if $text !~ /^%/;
+        $text = "%$text" if $text !~ /^%/;
+        $text .= "%" if $text !~ /%$/;
         #$text .= "%" if $text !~ /^(.*[^\\])?%$/;
         
-        $srch->{-or} = {};
-        $srch->{-or}->{$_} = { LIKE => $text }
+        my $or = ($srch->{-or} = {});
+        $or->{$_} = { LIKE => $text }
             foreach qw/nick fio comment krov allerg neperenos polis medik/;
     }
-    if ($f->{numidnick}) {
-        $d->{aus}->{srch_num} = $self->ToHtml($f->{numidnick});
-        my $s = $f->{numidnick};
-        if ($s =~ /^\d{10}$/) {
-            $srch->{numid} = $s;
+    
+    my $numidnick = $self->req->param_str('numidnick');
+    _utf8_on($numidnick);
+    if (my $num = $numidnick) {
+        if ($num =~ /^\d{10}$/) {
+            $srch->{numid} = $num;
         }
         else {
-            $s =~ s/([%_])/\\$1/g;
-            $s =~ s/\*/%/g;
-            $s =~ s/\?/_/g;
-            $srch->{nick} =  { LIKE => $s };
+            $num =~ s/([%_])/\\$1/g;
+            $num =~ s/\*/%/g;
+            $num =~ s/\?/_/g;
+            $srch->{nick} =  { LIKE => $num };
         }
     }
     
-    my $srch_url = 
-        join('&',
-            (map { $_.'='.Clib::Mould->ToUrl($f->{$_}) }
-            grep { $f->{$_} } keys %$f));
-    $srch_url ||= '';
-    
-    
-    $self->d->{sort}->{href_template} = sub {
-        my $sort = shift;
-        return $self->href($::disp{AusweisList})."?".
-                join('&', $srch_url, "sort=$sort");
-    };
-    my $sort = $self->req->param_str('sort');
-
-    $self->d->{pager}->{href} ||= sub {
-        my $page = shift;
-        return $self->href($::disp{AusweisList})."?".
-            join('&', $srch_url, $sort?"sort=$sort":(), $page>1?"page=$page":());
-    };
-    my $page = $self->req->param_dig('page') || 1;
-    
-    $d->{list} = [
-        map {
-                my $item = _item($self, $_);
-                $item;
+    my $blkid = $self->req->param_dig('blkid');
+    my $blok;
+    if ($blkid) {
+        $srch->{blkid} = $blkid > 0 ? $blkid : 0;
+        if ($blkid > 0) {
+            $blok = $self->model('Blok')->byId($blkid);
         }
-        $self->model('Ausweis')->search(
+    }
+    
+    my $cmdid = $self->req->param_dig('cmdid');
+    my $cmd;
+    if ($cmdid) {
+        $srch->{cmdid} = $cmdid > 0 ? $cmdid : 0;
+        if ($cmdid > 0) {
+            $cmd = $self->model('Command')->byId($cmdid);
+        }
+    }
+    
+    my ($count, $countall);
+    my @list = $self->model('Ausweis')->search(
             $srch,
             {
                 prefetch => [qw/command blok/],
-                $self->sort($sort || 'nick'),
+                order_by => 'nick',
             },
-            $self->pager($page, 100),
-        )
-    ] if $srch_url;
-    $d->{list} ||= 0;
+            pager => {
+                onpage => 100,
+                handler => sub {
+                    my %p = @_;
+                    $count = $p{count};
+                    $countall = $p{countall};
+                },
+            },
+        );
     
-    if ($d->{list} && (@{ $d->{list} } == 1)) {
-        $self->forward(sprintf($::disp{AusweisShow}, $d->{list}->[0]->{id}, 'show'));
+    if ($numidnick && (@list == 1)) {
+        $self->redirect($self->pref('ausweis/info', $list[0]->{id}));
     }
+    
+    return
+        srch    => $s,
+        numidnick => $numidnick,
+        blkid   => $blkid,
+        blok    => $blok,
+        cmdid   => $cmdid,
+        cmd     => $cmd,
+        list    => \@list,
+        count   => $count,
+        countall=> $countall,
+}
+
+sub info :
+    ParamObj('aus', 0)
+    ReturnPatt
+{
+    my ($self, $aus) = @_;
+
+    $self->view_rcheck('ausweis_info') || return;
+    $aus || return $self->notfound;
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $aus->{cmdid})) {
+        $self->view_rcheck('ausweis_info_all') || return;
+    }
+    $self->template("ausweis_info");
+    
+    my %fmap = (
+        photo => 'photo.site.jpg',
+        front => 'print.front.jpg',
+        rear  => 'print.rear.jpg',
+        pdf   => 'print.pdf',
+    );
+    my $cdir = Func::CachDir('ausweis', $aus->{id});
+    my %file = map {
+            ("file_$_" => $fmap{$_},
+            "file_${_}_size" => -s $cdir.'/'.$fmap{$_})
+        }
+        keys %fmap;
+    
+    my $blok;
+    $blok = $self->model('Blok')->byId($aus->{blkid}) if $aus->{blkid};
+    
+    my $cmd;
+    $cmd = $self->model('Command')->byId($aus->{cmdid}) if $aus->{cmdid};
+    
+    return
+        aus => $aus,
+        %file,
+        blok => $blok,
+        cmd => $cmd,
 }
 
 
@@ -181,7 +220,7 @@ sub show {
     
     $d->{href_set} = $self->href($::disp{AusweisSet}, $id);
     
-    # Ïàðòèÿ íà ïå÷àòü
+    # ÐŸÐ°Ñ€Ñ‚Ð¸Ñ Ð½Ð° Ð¿ÐµÑ‡Ð°Ñ‚ÑŒ
     $d->{print_list} = sub {
         return $d->{_print_list} ||= [
             map { C::Print::_item($self, $_) }
@@ -202,7 +241,7 @@ sub show {
         return $d->{_print_open} ||= 0;
     };
     
-    # Ïðåìîäåðàöèÿ èçìåíåíèé
+    # ÐŸÑ€ÐµÐ¼Ð¾Ð´ÐµÑ€Ð°Ñ†Ð¸Ñ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ð¹
     $d->{preedit_field} = sub {
         my ($param) = @_;
         $d->{_preedit_field} ||= {
@@ -220,7 +259,7 @@ sub show {
         };
     };
     
-    # Ìåðîïðèÿòèÿ
+    # ÐœÐµÑ€Ð¾Ð¿Ñ€Ð¸ÑÑ‚Ð¸Ñ
     $d->{allow_event} = $self->rights_exists($::rEvent);
     $d->{allow_event_commit} = $self->rights_check($::rEventCommit, $::rYes, $::rAdvanced);
     $d->{event_list} = sub {
@@ -350,11 +389,11 @@ sub adding {
     my $d = $self->d;
     $d->{href_add} = $self->href($::disp{AusweisAdd});
     
-    # Àâòîçàïîëíåíèå ïîëåé, åñëè äàííûå èç ôîðìû íå ïðèõîäèëè
+    # ÐÐ²Ñ‚Ð¾Ð·Ð°Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð»ÐµÐ¹, ÐµÑÐ»Ð¸ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ð¸Ð· Ñ„Ð¾Ñ€Ð¼Ñ‹ Ð½Ðµ Ð¿Ñ€Ð¸Ñ…Ð¾Ð´Ð¸Ð»Ð¸
     $d->{form} =
         { map { ($_ => '') } qw/nick cmdid fio krov allerg neperenos polis medik comment/ };
     if ($self->req->params()) {
-        # Äàííûå èç ôîðìû - ëèáî ïîñëå ParamParse, ëèáî íàïðÿìóþ äàííûå
+        # Ð”Ð°Ð½Ð½Ñ‹Ðµ Ð¸Ð· Ñ„Ð¾Ñ€Ð¼Ñ‹ - Ð»Ð¸Ð±Ð¾ Ð¿Ð¾ÑÐ»Ðµ ParamParse, Ð»Ð¸Ð±Ð¾ Ð½Ð°Ð¿Ñ€ÑÐ¼ÑƒÑŽ Ð´Ð°Ð½Ð½Ñ‹Ðµ
         my $fdata = $self->ParamData(fillall => 1);
         if (keys %$fdata) {
             $d->{form} = { %{ $d->{form} }, %$fdata };
@@ -386,7 +425,7 @@ sub set {
     my $q = $self->req;
     my %sub;
     
-    # Êýøèðóåì çàðàíåå äàííûå
+    # ÐšÑÑˆÐ¸Ñ€ÑƒÐµÐ¼ Ð·Ð°Ñ€Ð°Ð½ÐµÐµ Ð´Ð°Ð½Ð½Ñ‹Ðµ
     my ($rec) = (($self->d->{rec}) = $self->model('Ausweis')->search({ id => $id })) if $id;
     if ($is_new) {
         $d->{cmdid} = $q->param_dig('cmdid');
@@ -416,14 +455,14 @@ sub set {
     }
     
     
-    # Ïðîâåðÿåì äàííûå èç ôîðìû
+    # ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ð¸Ð· Ñ„Ð¾Ñ€Ð¼Ñ‹
     if (!$self->ParamParse(model => 'Ausweis', subcheck => \%sub, is_create => $is_new)) {
         $self->state(-000101);
         return $is_new ? adding($self) : edit($self, $id);
     }
     
     my $fdata = $self->ParamData;
-    delete $fdata->{photo}; # Äîáàâëåíî â ïðîâåðêó òîëüêî äëÿ ïðîâåðêè îáÿçàòåëüíîñòè ââîäà
+    delete $fdata->{photo}; # Ð”Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¾ Ð² Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÑƒ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð´Ð»Ñ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸ Ð¾Ð±ÑÐ·Ð°Ñ‚ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚Ð¸ Ð²Ð²Ð¾Ð´Ð°
     
     if ($d->{command} && ($is_new || ($d->{command}->{blkid} != $rec->{blkid}))) {
         $fdata->{blkid} = $d->{command}->{blkid};
@@ -438,7 +477,7 @@ sub set {
             %files = (files => { photo => $file });
         }
     } else {
-        # Ñîõðàíÿåì äàííûå
+        # Ð¡Ð¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ
         my $ret = $self->ParamSave(
             model           => 'Ausweis', 
             $is_new ?
@@ -450,7 +489,7 @@ sub set {
         );
         
     
-        # Çàãðóçêà ôîòî
+        # Ð—Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ñ„Ð¾Ñ‚Ð¾
         if (my $file = $self->req->param("photo")) {
             Func::MakeCachDir('ausweis', $id)
                 || return $self->state(-900102, '');
@@ -490,7 +529,7 @@ sub set {
     return $self->state(-000106, $self->href($::disp{AusweisShow}, $id, 'info'))
         if $ret == 0;
     
-    # Ñòàòóñ ñ ðåäèðåêòîì
+    # Ð¡Ñ‚Ð°Ñ‚ÑƒÑ Ñ Ñ€ÐµÐ´Ð¸Ñ€ÐµÐºÑ‚Ð¾Ð¼
     if ($preedit && $is_new && $fdata->{cmdid}) {
         return $self->state(990100,  $self->href($::disp{CommandShow}, $fdata->{cmdid}, 'info') );
     }
@@ -532,7 +571,7 @@ sub find_repeat {
     
     $d->{find} = $q->param_bool('find') || return;
     
-    # Îáùèé ñïèñîê àóñâàéñîâ
+    # ÐžÐ±Ñ‰Ð¸Ð¹ ÑÐ¿Ð¸ÑÐ¾Ðº Ð°ÑƒÑÐ²Ð°Ð¹ÑÐ¾Ð²
     my %byid;
     my @list = map {
         my ($nick, $fio) = (lc $_->{nick}, lc $_->{fio});
@@ -549,17 +588,17 @@ sub find_repeat {
         { prefetch => 'command', order_by => [qw/command.name nick/] }
     );
     
-    # Ïîâòîðû â íèêàõ (Ñïèñîê ñïèñêîâ - ðàçáèòî ïî ãðóïïàì ñîâïàäåíèé)
+    # ÐŸÐ¾Ð²Ñ‚Ð¾Ñ€Ñ‹ Ð² Ð½Ð¸ÐºÐ°Ñ… (Ð¡Ð¿Ð¸ÑÐ¾Ðº ÑÐ¿Ð¸ÑÐºÐ¾Ð² - Ñ€Ð°Ð·Ð±Ð¸Ñ‚Ð¾ Ð¿Ð¾ Ð³Ñ€ÑƒÐ¿Ð¿Ð°Ð¼ ÑÐ¾Ð²Ð¿Ð°Ð´ÐµÐ½Ð¸Ð¹)
     $d->{list_nick} = [];
     foreach my $aus1 (@list) {
         $aus1->{nick_len} || return;
         foreach my $aus2 (@list) {
             next if $aus1->{id} == $aus2->{id};
-            # Îáà íèêà óæå â ãðóïïàõ
+            # ÐžÐ±Ð° Ð½Ð¸ÐºÐ° ÑƒÐ¶Ðµ Ð² Ð³Ñ€ÑƒÐ¿Ð¿Ð°Ñ…
             next if $aus1->{nick_group} && $aus2->{nick_group};
-            # Âõîæäåíèå íèê2 â íèê1
+            # Ð’Ñ…Ð¾Ð¶Ð´ÐµÐ½Ð¸Ðµ Ð½Ð¸Ðº2 Ð² Ð½Ð¸Ðº1
             next if index($aus1->{nick_lc}, $aus2->{nick_lc}) < 0;
-            # Ïðîâåðêà, ÷òîáû äëèíà íèê2 (áîëåå êîðîòêèé) îòëè÷àëàñü íå áîëåå, ÷åì íà 20%
+            # ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ°, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð´Ð»Ð¸Ð½Ð° Ð½Ð¸Ðº2 (Ð±Ð¾Ð»ÐµÐµ ÐºÐ¾Ñ€Ð¾Ñ‚ÐºÐ¸Ð¹) Ð¾Ñ‚Ð»Ð¸Ñ‡Ð°Ð»Ð°ÑÑŒ Ð½Ðµ Ð±Ð¾Ð»ÐµÐµ, Ñ‡ÐµÐ¼ Ð½Ð° 20%
             next if (($aus1->{nick_len}-$aus2->{nick_len}) / $aus1->{nick_len}) > 0.2;
             
             if ($aus1->{nick_group}) {
@@ -580,17 +619,17 @@ sub find_repeat {
         }
     }
     
-    # Ïîâòîðû â ôèî (Ñïèñîê ñïèñêîâ - ðàçáèòî ïî ãðóïïàì ñîâïàäåíèé)
+    # ÐŸÐ¾Ð²Ñ‚Ð¾Ñ€Ñ‹ Ð² Ñ„Ð¸Ð¾ (Ð¡Ð¿Ð¸ÑÐ¾Ðº ÑÐ¿Ð¸ÑÐºÐ¾Ð² - Ñ€Ð°Ð·Ð±Ð¸Ñ‚Ð¾ Ð¿Ð¾ Ð³Ñ€ÑƒÐ¿Ð¿Ð°Ð¼ ÑÐ¾Ð²Ð¿Ð°Ð´ÐµÐ½Ð¸Ð¹)
     $d->{list_fio} = [];
     foreach my $aus1 (@list) {
         $aus1->{fio_len} || next;
         foreach my $aus2 (@list) {
             next if $aus1->{id} == $aus2->{id};
-            # Îáà ôèîà óæå â ãðóïïàõ
+            # ÐžÐ±Ð° Ñ„Ð¸Ð¾Ð° ÑƒÐ¶Ðµ Ð² Ð³Ñ€ÑƒÐ¿Ð¿Ð°Ñ…
             next if $aus1->{fio_group} && $aus2->{fio_group};
-            # Âõîæäåíèå ôèî2 â ôèî1
+            # Ð’Ñ…Ð¾Ð¶Ð´ÐµÐ½Ð¸Ðµ Ñ„Ð¸Ð¾2 Ð² Ñ„Ð¸Ð¾1
             next if index($aus1->{fio_lc}, $aus2->{fio_lc}) < 0;
-            # Ïðîâåðêà, ÷òîáû äëèíà ôèî2 (áîëåå êîðîòêèé) îòëè÷àëàñü íå áîëåå, ÷åì íà 30%
+            # ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ°, Ñ‡Ñ‚Ð¾Ð±Ñ‹ Ð´Ð»Ð¸Ð½Ð° Ñ„Ð¸Ð¾2 (Ð±Ð¾Ð»ÐµÐµ ÐºÐ¾Ñ€Ð¾Ñ‚ÐºÐ¸Ð¹) Ð¾Ñ‚Ð»Ð¸Ñ‡Ð°Ð»Ð°ÑÑŒ Ð½Ðµ Ð±Ð¾Ð»ÐµÐµ, Ñ‡ÐµÐ¼ Ð½Ð° 30%
             next if (($aus1->{fio_len}-$aus2->{fio_len}) / $aus1->{fio_len}) > 0.3;
             
             if ($aus1->{fio_group}) {
@@ -611,14 +650,14 @@ sub find_repeat {
         }
     }
     
-    # Ïîõîæèå ÍÈÊ-ÔÈÎ (âðåìåííî îòêëþ÷åíî)
+    # ÐŸÐ¾Ñ…Ð¾Ð¶Ð¸Ðµ ÐÐ˜Ðš-Ð¤Ð˜Ðž (Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¾ Ð¾Ñ‚ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¾)
     $d->{list_comb} = [];
 #    foreach my $aus1 (@list) {
 #        my $text = "$aus1->{nick_lc} $aus1->{fio_lc}";
 #        foreach my $aus ($self->model('Ausweis')->search_nick_fio_full($text, 0, $aus1->{id}, limit => 5, nolog => 1)) {
 #            my $aus2 = $byid{$aus->{id}} || next;
 #            next if $aus1->{id} == $aus2->{id};
-#            # Îáà ôèîà óæå â ãðóïïàõ
+#            # ÐžÐ±Ð° Ñ„Ð¸Ð¾Ð° ÑƒÐ¶Ðµ Ð² Ð³Ñ€ÑƒÐ¿Ð¿Ð°Ñ…
 #            next if $aus1->{comb_group} && $aus2->{comb_group};
 #            
 #            #$self->debug("[$text] - [$aus2->{nick_lc} $aus2->{fio_lc}] = $aus->{prec}");
