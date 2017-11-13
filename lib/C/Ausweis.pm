@@ -581,6 +581,7 @@ sub set :
 }
 
 
+# Тут надо доотладить новую версию и тогда можно удалять этот кусок кода
 sub set1 {
     my ($self, $id, $preedit) = @_;
     my $is_new = !defined($id);
@@ -713,26 +714,28 @@ sub set1 {
 }
 
 
-sub regen {
-    my ($self, $id) = @_;
+sub regen :
+    ParamObj('aus', 0)
+    ReturnOperation
+{
+    my ($self, $aus) = @_;
 
-    return unless $self->rights_exists_event($::rAusweisInfo);
-    
-    my ($rec) = (($self->d->{rec}) = 
-        #map { _item($self, $_) }
-        $self->model('Ausweis')->search({ id => $id })); #4, { prefetch => [qw/command blok/] }));
-    $rec || return $self->state(-000105, '');
+    $self->rcheck('ausweis_info')  || return $self->rdenied;
+    $aus || return $self->nfound;
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $aus->{cmdid})) {
+        $self->rcheck('ausweis_info_all') || return $self->rdenied;
+    }
 
     my $r_all = 0;
     my @l = qw/photo print_img print_pdf/;
-    push(@l, 'code') unless -s Func::CachDir('ausweis', $rec->{id})."/barcode.$rec->{numid}.orig.jpg";
+    push(@l, 'code') unless -s Func::CachDir('ausweis', $aus->{id})."/barcode.$aus->{numid}.orig.jpg";
     $r_all |= 1 << ($::regen{$_}-1) foreach grep { $::regen{$_} } @l;
     $self->model('Ausweis')->update(
-        { regen => int($rec->{regen})|int($r_all) },
-        { id => $rec->{id} }
-    ) || return $self->state(-000104, '');
+        { regen => int($aus->{regen})|int($r_all) },
+        { id => $aus->{id} }
+    ) || return (error => 000104, pref => ['ausweis/info', $aus->{id}]);
     
-    return $self->state(990400, '');
+    return (ok => 990400, pref => ['ausweis/info', $aus->{id}]);
 }
 
 # Этот функционал мы переработаем иначе.

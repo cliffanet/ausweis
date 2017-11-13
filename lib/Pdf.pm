@@ -80,7 +80,7 @@ sub Ausweis {
             
             $o->{text} || return;
             $o->{font} ||= 'arial.ttf';
-            my $fnt = $pdf->ttfont("$::font_dir/$o->{font}", -encode=>'cp1251'); 
+            my $fnt = $pdf->ttfont("$::font_dir/$o->{font}");#, -encode=>'cp1251'); 
             my $txt = $page->text;
             $txt->textstart;
             $txt->font($fnt, $o->{size}||10);
@@ -139,7 +139,7 @@ sub Ausweis {
 #                $error && last;
 #            } }
             my $gfx = $page->gfx;
-            my $fnt = $pdf->ttfont("$::font_dir/arial.ttf", -encode=>'cp1251'); 
+            my $fnt = $pdf->ttfont("$::font_dir/arial.ttf");#, -encode=>'cp1251'); 
             $o->{width} ||= 51*2.835;
             my $k = $o->{width}/(51*2.835);
             my $bc =  $pdf->xo_code128(
@@ -195,7 +195,7 @@ sub GenNumId {
     my $page = $pdf->page;
     
     my $gfx = $page->gfx;
-    my $fnt = $pdf->ttfont("$::font_dir/arial.ttf", -encode=>'cp1251'); 
+    my $fnt = $pdf->ttfont("$::font_dir/arial.ttf");#, -encode=>'cp1251'); 
     my $bc =  $pdf->xo_code128(
         -font   => $fnt,    # the font to use for text
         #-ean => 1,

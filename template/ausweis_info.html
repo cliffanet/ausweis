@@ -65,7 +65,7 @@
     <tr>
         <td class="ltitle">Печать самостоятельная:</td>
         <td>
-            <a href="[% aus.href_regen %]">Пересобрать</a>
+            <a href="[% PREF ausweis/regen: aus.id %]">Пересобрать</a>
             [% IF aus.regen > 0 %](в процессе: [% aus.regens %])[% END %]
             <br />
 [% IF file_front_size || file_rear_size  %]

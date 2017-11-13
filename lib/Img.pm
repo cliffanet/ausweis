@@ -119,7 +119,7 @@ sub Ausweis {
             my $m = Clib::Mould->new();
             $o->{text} = $m->Parse(data => $o->{text}, pattlist => $rec, dot2hash => 1);
             $self->debug("TEXT: $o->{text}");
-            $o->{text} = decode('cp1251', $o->{text});
+            #$o->{text} = decode('cp1251', $o->{text});
             
             $error = $img->Annotate(antialias=>'true', %$o);
             
