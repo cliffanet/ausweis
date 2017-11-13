@@ -1,0 +1,73 @@
+[% BLOCK TITLE %]Добавление аусвайса[% END %]
+[% BLOCK CONTENT %]
+<form action="[% PREF ausweis/add %]" method="POST" enctype="multipart/form-data">
+<h3>Команда</h3>
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Ник/позывной:[% BLOCK ferr: e=ferror.nick %][% IF e %]<div class="form_error">[% e %]</div>[% END %][% END %]</td>
+        <td><input type="text" name="nick" class="stdin" value="[% form.nick %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Команда:     [% BLOCKDUP ferr(ferror.cmdid) %]</td>
+        <td>
+            <select name="cmdid" class="stdin">
+                <option value="0"> &lt;- выбрать -&gt; </option>
+[% FOREACH cmd = cmd_list %]
+                <option value="[% cmd.id %]"[% IF form.cmdid == cmd.id %] selected[% END %]>[% cmd.name %]</option>
+[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Блокировка:  [% BLOCKDUP ferr(ferror.blocked) %]</td>
+        <td>
+            <select name="blocked" class="stdin">
+                <option value="0"> нет </option>
+                <option value="1"[% IF form.blocked  %] selected[% END %]> ЗАБЛОКИРОВАН </option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">ФИО:         [% BLOCKDUP ferr(ferror.fio) %]</td>
+        <td><input type="text" name="fio" class="stdin" value="[% form.fio %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Группа крови:[% BLOCKDUP ferr(ferror.krov) %]</td>
+        <td><input type="text" name="krov" class="stdin" value="[% form.krov %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Аллергия:    [% BLOCKDUP ferr(ferror.allerg) %]</td>
+        <td><input type="text" name="allerg" class="stdin" value="[% form.allerg %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Непереносимость:[% BLOCKDUP ferr(ferror.neperenos) %]</td>
+        <td><input type="text" name="neperenos" class="stdin" value="[% form.neperenos %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Полис:       [% BLOCKDUP ferr(ferror.polis) %]</td>
+        <td><input type="text" name="polis" class="stdin" value="[% form.polis %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Медик:       [% BLOCKDUP ferr(ferror.medik) %]</td>
+        <td><input type="text" name="medik" class="stdin" value="[% form.medik %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Комментарии: [% BLOCKDUP ferr(ferror.comment) %]</td>
+        <td><input type="text" name="comment" class="stdin" value="[% form.comment %]" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">
+            Загрузка фото:              [% BLOCKDUP ferr(ferror.photo) %]
+            <br /><small>Фото буден видно через несколько минут после загрузки</small></td>
+        <td><input type="file" name="photo" class="stdin" /></td>
+    </tr>
+<tr>
+    <td class="submit" colspan="2">
+        <input type="submit" value="Добавить">
+        <input type="button" value="Отмена" onClick="history.go(-1)">
+    </td>
+</tr>
+</table>
+</form>
+
+[% END %]

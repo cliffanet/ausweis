@@ -252,6 +252,26 @@ sub const_init {
         900101      => 'Ошибка временной директории',
         900102      => 'Ошибка загрузки файла',
     },
+    
+
+    ####    Формы ввода данных
+    form_errors => {
+        unknown     => 'Неизвестная ошибка (%d)',
+        1           => 'Обязательное для заполнения поле',
+        2           => 'Введенные данные не соответствуют формату поля',
+        3           => 'Значение введено неверно',
+        4           => 'Требуется подтверждение',
+        5           => 'Выбран несуществующий элемент',
+        6           => 'Значение уже занято',
+        7           => 'Значение должно быть строго положительное',
+        
+        11          => 'Несуществующий блок',
+        12          => 'Несуществующая команды',
+        21          => 'Аусвайс с таким ником уже существует в команде',
+        22          => 'Заблокированный аусвайс с таким ником уже существует в команде. Чтобы заблокировать еще один - смените ник',
+        23          => 'Аусвайс с таким фио уже существует в команде',
+    },
+
 }
 
 sub http_after_init {
@@ -308,10 +328,14 @@ sub http_after_init {
         ausweis_list    => sub { rights_Exists($_[0],   $num{AusweisList}); },
         ausweis_info    => sub { rights_Exists($_[0],   $num{AusweisInfo}); },
         ausweis_info_all=> sub { rights_Check($_[0],    $num{AusweisInfo}, $val{All}); },
-        ausweis_edit    => sub { rights_Exists($_[0],   $num{AusweisEdit}); },
-        ausweis_edit_all=> sub { rights_Check($_[0],    $num{AusweisEdit}, $val{All}); },
-        ausweis_pree    => sub { rights_Exists($_[0],   $num{AusweisPreEdit}); },
-        ausweis_pree_all=> sub { rights_Check($_[0],    $num{AusweisPreEdit}, $val{All}); },
+        ausweis_edit    => sub { rights_Exists($_[0],   $num{AusweisEdit}) ||
+                                 rights_Exists($_[0],   $num{AusweisPreEdit}); },
+        ausweis_edit_all=> sub { rights_Check($_[0],    $num{AusweisEdit}, $val{All}) ||
+                                 rights_Check($_[0],    $num{AusweisPreEdit}, $val{All}); },
+        ausweis_pree    => sub {!rights_Exists($_[0],   $num{AusweisEdit}) &&
+                                 rights_Exists($_[0],   $num{AusweisPreEdit}); },
+        ausweis_pree_all=> sub {!rights_Check($_[0],    $num{AusweisEdit}, $val{All}) &&
+                                 rights_Check($_[0],    $num{AusweisPreEdit}, $val{All}); },
         ausweis_file    => sub { rights_Exists($_[0],   $num{AusweisInfo}); },
         ausweis_file_all=> sub { rights_Check($_[0],    $num{AusweisInfo}, $val{All}); },
         
@@ -503,6 +527,7 @@ sub return_operation {
         }
     }
     
+    my $formpar = '';
     if ((my $ok = $p{ok})){# && (my $user = $self->user)) {
         if ($self->req->param_bool('is_ajax')) {
             my $message = $p{message} || $self->c(state => abs $ok);
@@ -524,9 +549,36 @@ sub return_operation {
             return;
         }
         $self->session_state(abs($err)*-1);
+        
+        # Ошибка после формы редактирования
+        my $form = $p{upar};
+        if ($form && %$form) {
+            my @form =
+                map {
+                    my $val = $form->{$_};
+                    Encode::_utf8_off($val);
+                    $_ . '=' . Clib::Mould->ToUrl($val)
+                }
+                grep { defined($form->{$_}) && ($form->{$_} ne '') }
+                grep { /^[A-Za-z\_\d]+$/ }
+                keys %$form;
+            use Data::Dumper;
+            $self->debug(Dumper \@form);
+            if ($form = $self->d->{form_check}) {
+                my @f =
+                    map { $_ .  '-' . $form->{$_}->[0]->{num} }
+                    grep { $form->{$_} && $form->{$_}->[0] }
+                    keys %$form;
+                if (@f) {
+                    push @form, 'field_error=' . join(',', @f);
+                }
+            }
+            $formpar = join '&', @form;
+        }
     }
     
     if (my $href = $p{redirect}) {
+        $href .= '?' . $formpar if $formpar;
         $self->redirect($href);
     }
     
@@ -541,6 +593,7 @@ sub return_operation {
             $href = $self->href($href, @{ $p{args}||[] });
         }
         
+        $href .= '?' . $formpar if $formpar;
         $self->redirect($href);
     }
     
@@ -562,6 +615,7 @@ sub return_operation {
             $pref = $self->pref($pref, @{ $p{args}||[] });
         }
         
+        $pref .= '?' . $formpar if $formpar;
         $self->redirect($pref);
     }
 }
@@ -865,6 +919,19 @@ sub ParamParse {
     }
     
     return $ret;
+}
+sub FormError {
+    my $self = shift;
+    my $err = $self->req->param_str('field_error') || return {};
+    
+    my %err =
+        map {
+            my ($f, $code) = split /-/;
+            my $err = $self->c(form_errors => $code) || sprintf($self->c(form_errors => 'unknown')||'[%d]', $code);
+            ($f => $err);
+        }
+        split /,/, $err;
+    return \%err;
 }
 
 sub can_edit {

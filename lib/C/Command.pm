@@ -337,7 +337,7 @@ sub edit :
 
     $self->view_rcheck('command_edit') || return;
     $cmd || return $self->notfound;
-    if (!$self->user->{blkid} || ($self->user->{blkid} != $cmd->{id})) {
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
         $self->view_rcheck('command_edit_all') || return;
     }
     $self->view_can_edit() || return;
@@ -345,12 +345,17 @@ sub edit :
     
     my %form = %$cmd;
     if ($self->req->params() && (my $fdata = $self->ParamData)) {
-        $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
+        if (keys %$fdata) {
+            $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
+        } else {
+            _utf8_on($form{$_} = $self->req->param($_)) foreach $self->req->params();
+        }
     }
     
     return
         cmd => $cmd,
         form => \%form,
+        ferror => $self->FormError(),
         blok_list => [ $self->model('Blok')->search({},{order_by=>'name'}) ],
         ausweis_list_size => $self->model('Ausweis')->count({ cmdid => $cmd->{id} }),
 }
@@ -395,13 +400,14 @@ sub adding :
         # Данные из формы - либо после ParamParse, либо напрямую данные
         my $fdata = $self->ParamData(fillall => 1);
         if (keys %$fdata) {
-            $form = { %$form, %$fdata };
+            $form->{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %$form;
         } else {
-            $form->{$_} = $self->req->param($_) foreach $self->req->params();
+            _utf8_on($form->{$_} = $self->req->param($_)) foreach $self->req->params();
         }
     }
     return
         form => $form,
+        ferror => $self->FormError(),
         blok_list => [ $self->model('Blok')->search({},{order_by=>'name'}) ],
 }
 

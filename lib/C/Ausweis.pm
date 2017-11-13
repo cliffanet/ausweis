@@ -175,14 +175,33 @@ sub info :
     my $cmd;
     $cmd = $self->model('Command')->byId($aus->{cmdid}) if $aus->{cmdid};
     
+    # Премодерация изменений
+    my %preedit_field =
+        map { ($_->{field}->{param} => $_->{field}) }
+        $self->model('Preedit')->search(
+            { tbl => 'Ausweis', op => 'E', recid => $aus->{id}, modered => 0 },
+            { prefetch => 'field', order_by => 'field.id' }
+        );
+    
+    my @event_commited = 
+        $self->model('EventAusweis')->search({
+            ausid   => $aus->{id}
+        }, {
+            prefetch => [qw/event command/],
+            order_by => 'event.date'
+        });
+    
     return
         aus => $aus,
         %file,
         blok => $blok,
         cmd => $cmd,
+        preedit_field => \%preedit_field,
+        event_commited => \@event_commited,
 }
 
 
+# Оставим пока тут обрезки старого функционала для прохождения КПП
 sub show {
     my ($self, $id, $type) = @_;
 
@@ -241,24 +260,6 @@ sub show {
         return $d->{_print_open} ||= 0;
     };
     
-    # Премодерация изменений
-    $d->{preedit_field} = sub {
-        my ($param) = @_;
-        $d->{_preedit_field} ||= {
-            map { ($_->{field}->{param} => $_->{field}) }
-            $self->model('Preedit')->search(
-                { tbl => 'Ausweis', op => 'E', recid => $id, modered => 0 },
-                { prefetch => 'field', order_by => 'field.id' }
-            )
-        };
-        return {
-            exists      => exists($d->{_preedit_field}->{$param}),
-            value       => sub { $d->{_preedit_field}->{$param}->{value} },
-            href_file   => sub { $self->href($::disp{PreeditFile}, 
-                $d->{_preedit_field}->{$param}->{eid}, $param) },
-        };
-    };
-    
     # Мероприятия
     $d->{allow_event} = $self->rights_exists($::rEvent);
     $d->{allow_event_commit} = $self->rights_check($::rEventCommit, $::rYes, $::rAdvanced);
@@ -301,111 +302,286 @@ sub show {
             })
         ];
     };
-    
-    $d->{event_commited} = sub {
-        $d->{_event_commited} ||= [
-            map {
-                $_->{ausweis} = C::Ausweis::_item($self, $_->{ausweis});
-                $_->{event} = C::Event::_item($self, $_->{event});
-                $_->{command} = C::Command::_item($self, $_->{command});
-                $_;
-            }
-            $self->model('EventAusweis')->search({
-                ausid   => $rec->{id}
-            }, {
-                prefetch => [qw/event command/],
-                order_by => 'event.date'
-            })
-        ];
-    };
 }
 
-sub edit {
-    my ($self, $id) = @_;
-    
-    show($self, $id, 'edit');
-    
-    $self->can_edit() || return;
-    
-    my $d = $self->d;    
-    my $rec = $d->{rec} || return;
-    $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
-    if ($self->req->params()) {
-        my $fdata = $self->ParamData;
-        $fdata || return;
-        $d->{form}->{$_} = $self->ToHtml($fdata->{$_}) foreach keys %$fdata;
+
+sub edit :
+    ParamObj('aus', 0)
+    ReturnPatt
+{
+    my ($self, $aus) = @_;
+
+    $self->view_rcheck('ausweis_edit') || return;
+    $aus || return $self->notfound;
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $aus->{cmdid})) {
+        $self->view_rcheck('ausweis_edit_all') || return;
     }
+    $self->view_can_edit() || return;
+    $self->template("ausweis_edit");
+    
+    my %form = %$aus;
+    if ($self->req->params() && (my $fdata = $self->ParamData)) {
+        if (keys %$fdata) {
+            $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
+        } else {
+            _utf8_on($form{$_} = $self->req->param($_)) foreach $self->req->params();
+        }
+    }
+    
+    # Премодерация изменений
+    my %preedit_field =
+        map { ($_->{field}->{param} => $_->{field}) }
+        $self->model('Preedit')->search(
+            { tbl => 'Ausweis', op => 'E', recid => $aus->{id}, modered => 0 },
+            { prefetch => 'field', order_by => 'field.id' }
+        );
+    
+    return
+        aus => $aus,
+        form => \%form,
+        ferror => $self->FormError(),
+        preedit_field => \%preedit_field,
+        blok_list => [ $self->model('Blok')->search({},{order_by=>'name'}) ],
+        cmd_list => [ $self->model('Command')->search({},{order_by=>'name'}) ],
 }
 
-sub file {
-    my ($self, $id, $file) = @_;
+sub file :
+    ParamObj('aus', 0)
+    ParamRegexp('[a-zA-Z\d\.\-]+')
+    ReturnPatt
+{
+    my ($self, $aus, $file) = @_;
 
-    return unless $self->rights_exists_event($::rAusweisInfo);
+    $self->view_rcheck('ausweis_file') || return;
+    $aus || return $self->notfound;
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $aus->{cmdid})) {
+        $self->view_rcheck('ausweis_file_all') || return;
+    }
     my $d = $self->d;
-    
-    my ($rec) = (($d->{rec}) = 
-        #map { _item($self, $_) }
-        $self->model('Ausweis')->search({ id => $id }, { prefetch => [qw/command blok/] }));
-    $rec || return $self->state(-000105, '');
-    
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $rec->{cmdid})) {
-        return unless $self->rights_check_event($::rAusweisInfo, $::rAll);
-    }
-    
-    $file =~ s/[^a-zA-Z\d\.\-]+//g;
-    
     $self->view_select('File');
     
-    $d->{file} = Func::CachDir('ausweis', $rec->{id})."/$file";
+    $d->{file} = Func::CachDir('ausweis', $aus->{id})."/$file";
     
     if (my $t = $::AusweisFile{$file}) {
         $d->{type} = $t->[0]||'';
         my $m = Clib::Mould->new();
-        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $rec, dot2hash => 1);
+        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $aus, dot2hash => 1);
     }
 }
 
-sub adding {
+sub adding :
+    ReturnPatt
+{
     my ($self) = @_;
-
-    return unless 
-        $self->rights_exists($::rAusweisEdit) ||
-        $self->rights_exists_event($::rAusweisPreEdit);
     
     my $cmdid = $self->req->param_dig('cmdid');
     $cmdid ||= $self->user->{cmdid}
-        if !$self->rights_check($::rAusweisEdit, $::rAll);
+        if !$self->rcheck('ausweis_edit_all');
+    $self->view_rcheck('ausweis_edit') || return;
     if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
-        return unless 
-            $self->rights_check($::rAusweisEdit, $::rAll) ||
-            $self->rights_check_event($::rAusweisPreEdit, $::rAll);
+        $self->view_rcheck('ausweis_edit_all') || return;
     }
-    
-    $self->can_edit() || return;
-    
-    $self->patt(TITLE => $text::titles{"ausweis_add"});
-    $self->view_select->subtemplate("ausweis_add.tt");
-    
-    my $d = $self->d;
-    $d->{href_add} = $self->href($::disp{AusweisAdd});
+    $self->view_can_edit() || return;
+    $self->template("ausweis_add");
     
     # Автозаполнение полей, если данные из формы не приходили
-    $d->{form} =
+    my $form =
         { map { ($_ => '') } qw/nick cmdid fio krov allerg neperenos polis medik comment/ };
     if ($self->req->params()) {
         # Данные из формы - либо после ParamParse, либо напрямую данные
         my $fdata = $self->ParamData(fillall => 1);
         if (keys %$fdata) {
-            $d->{form} = { %{ $d->{form} }, %$fdata };
+            $form = { %$form, %$fdata };
         } else {
-            $d->{form}->{$_} = $self->req->param($_) foreach $self->req->params();
+            _utf8_on($form->{$_} = $self->req->param($_)) foreach $self->req->params();
         }
     }
-    #$d->{form}->{comment_nobr} = $self->ToHtml($d->{form}->{comment});
-    #$d->{form}->{comment} = $self->ToHtml($d->{form}->{comment}, 1);
+    $form->{cmdid} ||= $self->user->{cmdid}
+        if !$self->rcheck('ausweis_edit_all');
+    return
+        form => $form,
+        ferror => $self->FormError(),
+        blok_list => [ $self->model('Blok')->search({},{order_by=>'name'}) ],
+        cmd_list => [ $self->model('Command')->search({},{order_by=>'name'}) ],
 }
 
-sub set {
+sub _photo {
+    my ($self, $dirUpload, $aus) = @_;
+    
+    # Загрузка фото
+    if (my $file = $self->req->param("photo")) {
+        Func::MakeCachDir('ausweis', $aus->{id})
+            || return 900102;
+        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('ausweis', $aus->{id}), 'photo')
+            || return 900102;
+        $self->model('Ausweis')->update(
+            { 
+                regen   => int($aus->{regen}) | (1<<($::regen{photo}-1)),
+                photo   => $photo,
+            },
+            { id => $aus->{id} }
+        ) || return 000104;
+        unlink("$dirUpload/$file");
+        
+        $self->d->{form_saves} ||= 1;
+    }
+    
+    return;
+}
+
+sub add :
+    ReturnOperation
+{
+    my ($self) = @_;
+    
+    $self->rcheck('ausweis_edit') || return $self->rdenied;
+    my $preedit = $self->rcheck('ausweis_pree');
+    $self->d->{read_only} && return $self->cantedit();
+    
+    my $q = $self->req;
+    my $dirUpload = Func::SetTmpDir($self)
+        || return ( error => 900101, pref => 'ausweis/adding' );
+        
+    my $cmdid = $q->param_dig('cmdid');
+    $cmdid ||= $self->user->{cmdid}
+        if !$self->rcheck('ausweis_edit_all');
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmdid)) {
+        $self->rcheck('ausweis_edit_all') || return $self->rdenied;
+        $preedit = $self->rcheck('ausweis_pree_all');
+    }
+    
+    # Проверяем данные из формы
+    $q->param('cmdid', $cmdid);
+    $self->d->{is_blocked} = $q->param_bool('blocked');
+    my %sub = (photo => { type => '!s', skip => 0 });
+    $self->ParamParse(model => 'Ausweis', subcheck => \%sub, is_create => 1, utf8 => 1)
+        || return (error => 000101, pref => 'ausweis/adding', upar => $self->ParamData);
+    
+    my $fdata = $self->ParamData;
+    delete $fdata->{photo}; # Добавлено в проверку только для проверки обязательности ввода
+    
+    if (my $cmd = $self->d->{command}) {
+        $fdata->{blkid} = $cmd->{blkid};
+    }
+    
+    my %files;
+    my $ausid;
+    if ($preedit) {
+        if (my $file = $q->param("photo")) {
+            %files = (files => { photo => $file });
+        }
+    } else {
+        # Сохраняем данные
+        my $ret = $self->ParamSave( 
+            model   => 'Ausweis', 
+            insert  => \$ausid,
+        );
+        
+        # Загрузка логотипа
+        my $err = _photo($self, $dirUpload, { id => $ausid, regen => 0 });
+        return (error => $err, pref => ['ausweis/edit', $ausid]) if $err;
+        
+        if (!$ret) {
+            return (error => 000104, pref => 'ausweis/adding', upar => $self->ParamData);
+        }
+        elsif (!$self->d->{form_saves}) {
+            return (error => 000106, pref => ['ausweis/edit', $ausid]);
+        }
+    }
+    
+    my $ret = $self->model('Preedit')->add(
+        tbl     => 'Ausweis',
+        op      => 'C',
+        recid   => $ausid,
+        modered => $preedit ? 0 : 1,
+        fields  => $fdata,
+        %files
+    ) || return (error => 000104, pref => ['ausweis/info', $ausid]);
+    return (error => 000106, pref => ['ausweis/info', $ausid])
+        if $ret == 0;
+    
+    # Статус с редиректом
+    if ($preedit && $fdata->{cmdid}) {
+        return (ok => 990100, pref => ['command/info', $fdata->{cmdid}]);
+    }
+    
+    return (ok => 990100, pref => ['ausweis/info', $ausid]);
+}
+
+sub set :
+    ParamObj('aus', 0)
+    ReturnOperation
+{
+    my ($self, $aus) = @_;
+    
+    $self->rcheck('ausweis_edit') || return $self->rdenied;
+    my $preedit = $self->rcheck('ausweis_pree');
+    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $aus->{cmdid})) {
+        $self->rcheck('ausweis_edit_all') || return $self->rdenied;
+        $preedit = $self->rcheck('ausweis_pree_all');
+    }
+    $self->d->{read_only} && return $self->cantedit();
+    $aus || return $self->nfound();
+    
+    my $dirUpload = Func::SetTmpDir($self)
+        || return ( error => 900101, pref => ['ausweis/edit', $aus->{id}] );
+    
+    # Проверяем данные из формы
+    my $d = $self->d;
+    my $q = $self->req;
+    $d->{rec} = $aus;
+    $d->{cmdid} = $aus->{cmdid};
+    $d->{is_blocked} = defined $q->param('blocked') ? $q->param_bool('blocked') : $aus->{blocked};
+    $self->ParamParse(model => 'Ausweis', utf8 => 1)
+        || return (error => 000101, pref => ['ausweis/edit', $aus->{id}], upar => $self->ParamData);
+    
+    my $fdata = $self->ParamData;
+    delete $fdata->{photo}; # Добавлено в проверку только для проверки обязательности ввода
+    
+    my %files;
+    my $ausid;
+    if ($preedit) {
+        if (my $file = $q->param("photo")) {
+            %files = (files => { photo => $file });
+        }
+    } else {
+        # Сохраняем данные
+        my $ret = $self->ParamSave( 
+            model       => 'Ausweis', 
+            update      => { id => $aus->{id} }, 
+            preselect   => $aus
+        );
+        
+        # Загрузка логотипа
+        my $err = _photo($self, $dirUpload, $aus);
+        return (error => $err, pref => ['ausweis/edit', $aus->{id}]) if $err;
+        
+        if (!$ret) {
+            return (error => 000104, pref => ['ausweis/edit', $aus->{id}], upar => $self->ParamData);
+        }
+        elsif (!$self->d->{form_saves}) {
+            return (error => 000106, pref => ['ausweis/edit', $aus->{id}]);
+        }
+    }
+    
+    my $ret = $self->model('Preedit')->add(
+        tbl     => 'Ausweis',
+        op      => 'E',
+        recid   => $aus->{id},
+        modered => $preedit ? 0 : 1,
+        fields  => $fdata,
+        old     => $aus,
+        %files
+    ) || return (error => 000104, pref => ['ausweis/info', $aus->{id}]);
+    return (error => 000106, pref => ['ausweis/info', $aus->{id}])
+        if $ret == 0;
+    
+    # Статус с редиректом
+    return (ok => 990200, pref => ['ausweis/info', $aus->{id}]);
+}
+
+
+sub set1 {
     my ($self, $id, $preedit) = @_;
     my $is_new = !defined($id);
     
@@ -559,6 +735,8 @@ sub regen {
     return $self->state(990400, '');
 }
 
+# Этот функционал мы переработаем иначе.
+# Сам код еще пригодится
 sub find_repeat {
     my ($self, $id) = @_;
 

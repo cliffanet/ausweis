@@ -145,12 +145,17 @@ sub edit :
     
     my %form = %$blok;
     if ($self->req->params() && (my $fdata = $self->ParamData)) {
-        $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
+        if (keys %$fdata) {
+            $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
+        } else {
+            _utf8_on($form{$_} = $self->req->param($_)) foreach $self->req->params();
+        }
     }
     
     return
         blok => $blok,
         form => \%form,
+        ferror => $self->FormError(),
 }
 
 sub file :
@@ -193,13 +198,14 @@ sub adding :
         # Данные из формы - либо после ParamParse, либо напрямую данные
         my $fdata = $self->ParamData(fillall => 1);
         if (keys %$fdata) {
-            $form = { %$form, %$fdata };
+            $form->{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %$form;
         } else {
-            $form->{$_} = $self->req->param($_) foreach $self->req->params();
+            _utf8_on($form->{$_} = $self->req->param($_)) foreach $self->req->params();
         }
     }
     return
-        form => $form
+        form => $form,
+        ferror => $self->FormError(),
 }
 
 sub _logo {

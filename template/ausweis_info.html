@@ -16,51 +16,51 @@
     </tr>
     <tr>
         <td class="ltitle">Ник:</td>
-        <td><b><big>[% aus.nick %]</big></b>[% INCLUDE preedit_field.tt, field='nick' %]</td>
+        <td><b><big>[% aus.nick %]</big></b>[% BLOCK preedit: field = preedit_field.nick %][% IF field %]<br /><small><i><u>Модерация:</u> [% field.value %]</i><small>[% END %][% END %]</td>
     </tr>
     <tr>
         <td class="ltitle">Команда:</td>
         <td>
-            <a title="Просмотр команды" alt="Просмотр команды" href="[% PREF coommand/info: cmd.id %]">[% cmd.name %]</a>
+            <a title="Просмотр команды" alt="Просмотр команды" href="[% PREF command/info: cmd.id %]">[% cmd.name %]</a>
         </td>
     </tr>
     <tr>
         <td class="ltitle">Блок:</td>
         <td>
-            [% IF blok %]<a title="Просмотр блока" alt="Просмотр блока" href="[% PREF block/info: blok.id %]">[% blok.name %]</a>[% ELSE %]-[% END %]
+            [% IF blok %]<a title="Просмотр блока" alt="Просмотр блока" href="[% PREF blok/info: blok.id %]">[% blok.name %]</a>[% ELSE %]-[% END %]
         </td>
     </tr>
     <tr>
         <td class="ltitle">Блокировка:</td>
-        <td>[% IF aus.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %][% INCLUDE preedit_field.tt, field='blocked' %]</td>
+        <td>[% IF aus.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %][% BLOCKDUP preedit(preedit_field.blocked) %]</td>
     </tr>
     <tr>
         <td class="ltitle">ФИО:</td>
-        <td>[% aus.fio %][% INCLUDE preedit_field.tt, field='fio' %]</td>
+        <td>[% aus.fio %][% BLOCKDUP preedit(preedit_field.fio) %]</td>
     </tr>
     <tr>
         <td class="ltitle">Группа крови:</td>
-        <td>[% aus.krov %][% INCLUDE preedit_field.tt, field='krov' %]</td>
+        <td>[% aus.krov %][% BLOCKDUP preedit(preedit_field.krov) %]</td>
     </tr>
     <tr>
         <td class="ltitle">Аллергия:</td>
-        <td>[% aus.allerg %][% INCLUDE preedit_field.tt, field='allerg' %]</td>
+        <td>[% aus.allerg %][% BLOCKDUP preedit(preedit_field.allerg) %]</td>
     </tr>
     <tr>
         <td class="ltitle">Непереносимость:</td>
-        <td>[% aus.neperenos %][% INCLUDE preedit_field.tt, field='neperenos' %]</td>
+        <td>[% aus.neperenos %][% BLOCKDUP preedit(preedit_field.neperenos) %]</td>
     </tr>
     <tr>
         <td class="ltitle">Полис:</td>
-        <td>[% aus.polis %][% INCLUDE preedit_field.tt, field='polis' %]</td>
+        <td>[% aus.polis %][% BLOCKDUP preedit(preedit_field.polis) %]</td>
     </tr>
     <tr>
         <td class="ltitle">Медик:</td>
-        <td>[% aus.medik %][% INCLUDE preedit_field.tt, field='medik' %]</td>
+        <td>[% aus.medik %][% BLOCKDUP preedit(preedit_field.medik) %]</td>
     </tr>
     <tr>
         <td class="ltitle">Примечания:</td>
-        <td>[% aus.comment %][% INCLUDE preedit_field.tt, field='comment' %]</td>
+        <td>[% aus.comment %][% BLOCKDUP preedit(preedit_field.comment) %]</td>
     </tr>
     <tr>
         <td class="ltitle">Печать самостоятельная:</td>
@@ -88,7 +88,7 @@
     </tr>
 </table>
 
-[% IF preedit_field.photo.exists %]
+[% IF preedit_field.photo %]
 <br />
 
 <h3>Фото - Ожидание модерации</h3>
@@ -106,15 +106,14 @@
         <td width="120">Дата/Время</td>
         <td>Особые отметки</td>
     </tr>
-[% IF event_commited.size > 0 %]
-[% FOREACH event_commited %]
+[% IF size(event_commited) > 0 %]
+[% FOREACH ev = event_commited %]
     <tr>
-        <td><a title="Просмотр" alt="Просмотр" href="[% event.href_info %]">[% event.name %]</a></td>
-        <td align="right">[% DATETIME event.dtadd %]</td>
+        <td><a title="Просмотр" alt="Просмотр" href="[% event.href_info %]">[% ev.event.name %]</a></td>
+        <td align="right">[% DATETIME ev.event.dtadd %]</td>
         <td>
-        [% IF cmdid != aus.cmdid %]
-        В составе команды:
-        <a title="Просмотр информации о команде" alt="Просмотр информации о команде" href="[% command.href_info %]">[% command.name %]</a>
+        [% IF ev.cmdid != aus.cmdid %]
+        В составе команды: [% ev.command.name %]
         [% END %]
         </td>
     </tr>
