@@ -39,15 +39,15 @@ sub _item {
     return $item;
 }
 
-sub showitem {
+sub first :
+    ReturnPatt
+{
     my ($self) = @_;
+
+    $self->view_rcheck('preedit_first') || return;
+    $self->template("preedit_first");
     
-    return unless $self->rights_exists_event($::rPreedit);
     my $d = $self->d;
-    
-    $self->patt(TITLE => $text::titles{"preedit_showitem"});
-    $self->view_select->subtemplate("preedit_showitem.tt");
-    
     my $afterid = $self->req->param_dig('afterid');
     my ($pre) = (($d->{pre}) = 
         map { _item($self, $_) } 
