@@ -1,0 +1,150 @@
+
+[% IF (pre.op == 'E') || (pre.op == 'D') %]
+    <tr>
+        <td class="ltitle">ШтрихКод:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td></td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td><b>[% rec.numid %]</b></td>
+        [% END %]
+    </tr>
+[% END %]
+    <tr[% IF !field_exists('nick') %] class="grey"[% END %]>
+        <td class="ltitle">Ник:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('nick') %][% field.nick %][% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>[% rec.nick %]</td>
+        [% END %]
+    </tr>
+    [% IF ((pre.op == 'C') || (pre.op == 'E')) && field_exists('nick') && nick_exists && (nick_exists.size > 0) %]
+    <tr>
+        <td class="ltitle"><font color="red">Ник уже используется:</font></td>
+        <td>
+        [% FOREACH nick_exists %]
+        [<a href="[% command.href_info %]">[% command.name %]</a>] <a href="[% href_info %]">[% nick %]</a><br />
+        [% END %]
+        </td>
+        [% IF (pre.op == 'E') %]
+        <td></td>
+        [% END %]
+    </tr>
+    [% END %]
+    <tr[% IF !field_exists('cmdid') %] class="grey"[% END %]>
+        <td class="ltitle">Команда:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>
+            [% IF field_exists('cmdid') %]
+            <a title="Просмотр команды" alt="Просмотр команды" href="[% cmd.hash.${field.cmdid}.href_info %]">[% cmd.hash.${field.cmdid}.name %]</a>
+            [% END %]
+        </td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>
+            <a title="Просмотр команды" alt="Просмотр команды" href="[% rec.command.href_info %]">[% rec.command.name %]</a>
+        </td>
+        [% END %]
+    </tr>
+    <tr[% IF !field_exists('blocked') %] class="grey"[% END %]>
+        <td class="ltitle">Блокировка:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('blocked') %][% IF field.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %][% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>[% IF rec.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %]</td>
+        [% END %]
+    </tr>
+    <tr[% IF !field_exists('fio') %] class="grey"[% END %]>
+        <td class="ltitle">ФИО:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('fio') %][% field.fio %][% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>[% rec.fio %]</td>
+        [% END %]
+    </tr>
+    [% IF ((pre.op == 'C') || (pre.op == 'E')) && field_exists('fio') && fio_exists && (fio_exists.size > 0) %]
+    <tr>
+        <td class="ltitle"><font color="red">ФИО используется:</font></td>
+        <td>
+        [% FOREACH fio_exists %]
+        [<a href="[% command.href_info %]">[% command.name %]</a>] <a href="[% href_info %]">[[% nick %]] [% fio %]</a><br />
+        [% END %]
+        </td>
+        [% IF (pre.op == 'E') %]
+        <td></td>
+        [% END %]
+    </tr>
+    [% END %]
+    <tr[% IF !field_exists('krov') %] class="grey"[% END %]>
+        <td class="ltitle">Группа крови:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('krov') %][% field.krov %][% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>[% rec.krov %]</td>
+        [% END %]
+    </tr>
+    <tr[% IF !field_exists('allerg') %] class="grey"[% END %]>
+        <td class="ltitle">Аллергия:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('allerg') %][% field.allerg %][% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>[% rec.allerg %]</td>
+        [% END %]
+    </tr>
+    <tr[% IF !field_exists('neperenos') %] class="grey"[% END %]>
+        <td class="ltitle">Непереносимость:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('neperenos') %][% field.neperenos %][% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>[% rec.neperenos %]</td>
+        [% END %]
+    </tr>
+    <tr[% IF !field_exists('polis') %] class="grey"[% END %]>
+        <td class="ltitle">Полис:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('polis') %][% field.polis %][% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>[% rec.polis %]</td>
+        [% END %]
+    </tr>
+    <tr[% IF !field_exists('medik') %] class="grey"[% END %]>
+        <td class="ltitle">Медик:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('medik') %][% field.medik %][% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>[% rec.medik %]</td>
+        [% END %]
+    </tr>
+    <tr[% IF !field_exists('comment') %] class="grey"[% END %]>
+        <td class="ltitle">Примечания:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('comment') %][% field.comment %][% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>[% rec.comment %]</td>
+        [% END %]
+    </tr>
+    <tr[% IF !field_exists('photo') %] class="grey"[% END %]>
+        <td class="ltitle">Фото:</td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td>[% IF field_exists('photo') %]<img width="200" src="[% pre.href_file('photo') %]" />[% END %]</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td align="center">
+[% IF rec.photo %]
+<img width="200" alt="[% rec.nick %]" title="[% rec.nick %]" src="[% rec.href_file('photo.site.jpg') %]" />
+[% ELSE %]
+<span style="text-weight:bold;">[ФОТО НЕТ]</span>
+[% END %]
+        </td>
+        [% END %]
+    </tr>
+

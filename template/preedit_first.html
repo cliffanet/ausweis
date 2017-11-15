@@ -1,0 +1,49 @@
+[% BLOCK TITLE %]Премодерация изменений в базе[% END %]
+[% BLOCK CONTENT %]
+[% IF type %]
+<h3>
+[% IF pre.op == 'C' %]Создание[% ELSIF pre.op == 'E' %]Изменение[% ELSIF pre.op == 'D' %]Удаление[% END -%]
+ [% IF type == 'ausweis' %]аусвайса[% END %]
+</h3>
+
+<table class="tbl">
+    <tr>
+        <td class="ltitle">Редактировал:</td>
+        <td colspan="2">
+            [% datetime(pre.dtadd) %]
+            [[% pre.ip %]] [% pre.user.login %]
+        </td>
+    </tr>
+    <tr class="title">
+        <td></td>
+        [% IF (pre.op == 'C') || (pre.op == 'E') %]
+        <td[% IF pre.op == 'E' %] width="250"[% END %]>Новое значение</td>
+        [% END %]
+        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        <td>Текущее значение</td>
+        [% END %]
+    </tr>
+[% INCLUDE preedit_ausweis %]
+    <form action="[% href_op %]" method="post">
+    <tr>
+        <td class="ltitle">Действие:</td>
+        <td colspan="2">
+            <label><input type="radio" name="modered" value="1"> принять</label><br />
+            <label><input type="radio" name="modered" value="-1"> отклонить</label><br />
+            Причина: <input type="text" name="comment" size="70" /><br />
+            <div style="text-align: right"><input type="submit" value=" Выполнить " /></div>
+        </td>
+    </tr>
+    </form>
+    <tr>
+        <td class="submit" colspan="3">
+            <a href="[% href_skipitem %]">пропустить</a>
+        </td>
+    </tr>
+</table>
+
+[% ELSE # IF type %]
+<h3>Нет элементов для модерации</h3>
+[% END # IF type %]
+
+[% END %]
