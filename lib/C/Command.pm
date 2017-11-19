@@ -10,6 +10,7 @@ use Encode '_utf8_on', 'encode';
 ###     Код модуля: 98
 #############################################
 
+=pod
 sub _item {
     my $self = shift;
 
@@ -62,6 +63,7 @@ sub _hash {
         @{ _list($self) }
     };
 }
+=cut
 
 sub list :
     ReturnPatt

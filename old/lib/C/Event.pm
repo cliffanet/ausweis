@@ -4,11 +4,10 @@ use strict;
 use warnings;
 
 ##################################################
-###     РњРµСЂРѕРїСЂРёСЏС‚РёСЏ
-###     РљРѕРґ РјРѕРґСѓР»СЏ: 94
+###     Мероприятия
+###     Код модуля: 94
 #############################################
 
-=pod
 sub _item {
     my $self = shift;
     my $item = $self->d->{excel} ? shift : $self->ToHtml(shift, 1);
@@ -18,7 +17,7 @@ sub _item {
     $item->{status_name} = $text::EventStatus{$item->{status}} || $item->{status};
     
     if ($id) {
-        # РЎСЃС‹Р»РєРё
+        # Ссылки
         $item->{href_info}      = $self->href($::disp{EventShow}, $item->{id}, 'info');
         $item->{href_edit}      = $self->href($::disp{EventShow}, $item->{id}, 'edit');
         $item->{href_command}   = $self->href($::disp{EventShow}, $item->{id}, 'command');
@@ -42,7 +41,7 @@ sub _item {
             $item->{_money} = $self->model('EventMoney')->get($item->{id}, $cmdid);
             $item->{_money} = $self->ToHtml($item->{_money}) if !$self->d->{excel};
             my $m = $item->{_money};
-            # Р¦РµРЅР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+            # Цена по умолчанию
             if (($m->{summ}==0) && ($m->{price1}==0) && ($m->{price2}==0) && 
                 !$m->{comment} && 
                 ($item->{price1} > 0) && ($item->{price2} > 0)) {
@@ -80,26 +79,31 @@ sub _item {
     
     return $item;
 }
-=cut
 
-
-sub list :
-    ReturnPatt
-{
+sub list {
     my ($self) = @_;
+    my $d = $self->d;
 
-    $self->view_rcheck('event_read') || return;
-    $self->template("event_list");
+    return unless $self->rights_exists_event($::rEvent);
     
-    my @list = $self->model('Event')->search(
+    $self->patt(TITLE => $text::titles{event_list});
+    $self->view_select->subtemplate("event_list.tt");
+
+    $d->{sort}->{href_template} = sub {
+        my $sort = shift;
+        return $self->href($::disp{EventList})."?sort=$sort";
+    };
+    my $sort = $self->req->param_str('sort');
+    
+    $self->d->{list} = [
+        map {_item($self, $_); }
+        $self->model('Event')->search(
             {},
             {
-                order_by => 'date',
+                $self->sort($sort || 'date'),
             },
-        );
-    
-    return
-        list => \@list,
+        )
+    ];
 }
 
 sub show {
@@ -119,7 +123,7 @@ sub show {
         return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
     }
     
-    # Р§С‚РѕР±С‹ СЃС‚СЂРѕРєРё РЅРµ РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°Р»РёСЃСЊ РІ html-РІРёРґ
+    # Чтобы строки не конвертировались в html-вид
     $d->{excel} = {} if $type =~ /_xls$/;
     
     my ($rec) = (($self->d->{rec}) = 
@@ -136,7 +140,7 @@ sub show {
     
     $d->{form} = $rec || {};
     
-    # РўРёРї РІС‹РІРѕРґР°
+    # Тип вывода
     if ($type =~ /^([a-z]+)_xls$/) {
         my $p = $1;
         $self->view_select('Excel', "event_$p", "event_${evid}_$p.xls");
@@ -146,11 +150,11 @@ sub show {
         $self->view_select->subtemplate("event_$type.tt");
     }
     
-    # РЎСЃС‹Р»РєРё
+    # Ссылки
     $d->{href_set} = $self->href($::disp{EventSet}, $evid);
     $d->{href_money_set} = $self->href($::disp{EventMoneyListSet}, $evid);
     
-    # РџРѕРєРѕРјР°РЅРґРЅС‹Рµ СЃРїРёСЃРєРё
+    # Покомандные списки
     $d->{command_all_list} = sub {
         return $d->{"_command_all_list"} ||= [
             map {
@@ -216,7 +220,7 @@ sub show {
         ];
     };
     
-    # РџРѕРёРјРµРЅРЅС‹Рµ СЃРїРёСЃРєРё
+    # Поименные списки
     my $cmdid;
     if ($cmdid = $self->req->param_dig('cmdid')) {
         $rec->{"href_$_"} .= "?cmdid=$cmdid"
@@ -262,7 +266,7 @@ sub show {
         ];
     };
     
-    # РЎРїРёСЃРѕРє РґР»СЏ РµРєСЃРµР»СЏ
+    # Список для екселя
     if ($type =~ /^([a-z]+)_xls$/) {
         my $p = $1;
         $d->{excel} = {
@@ -308,11 +312,11 @@ sub adding {
     my $d = $self->d;
     $d->{href_add} = $self->href($::disp{EventAdd});
     
-    # РђРІС‚РѕР·Р°РїРѕР»РЅРµРЅРёРµ РїРѕР»РµР№, РµСЃР»Рё РґР°РЅРЅС‹Рµ РёР· С„РѕСЂРјС‹ РЅРµ РїСЂРёС…РѕРґРёР»Рё
+    # Автозаполнение полей, если данные из формы не приходили
     $d->{form} =
         { map { ($_ => '') } qw/date status name price1 price2/ };
     if ($self->req->params()) {
-        # Р”Р°РЅРЅС‹Рµ РёР· С„РѕСЂРјС‹ - Р»РёР±Рѕ РїРѕСЃР»Рµ ParamParse, Р»РёР±Рѕ РЅР°РїСЂСЏРјСѓСЋ РґР°РЅРЅС‹Рµ
+        # Данные из формы - либо после ParamParse, либо напрямую данные
         my $fdata = $self->ParamData(fillall => 1);
         if (keys %$fdata) {
             $d->{form} = { %{ $d->{form} }, %$fdata };
@@ -330,13 +334,13 @@ sub set {
     
     $self->can_edit() || return;
     
-    # РљСЌС€РёСЂСѓРµРј Р·Р°СЂР°РЅРµРµ РґР°РЅРЅС‹Рµ
+    # Кэшируем заранее данные
     my ($rec) = (($self->d->{rec}) = $self->model('Event')->search({ id => $id })) if $id;
     if (!$is_new && (!$rec || !$rec->{id})) {
         return $self->state(-000105, '');
     }
     
-    # РџСЂРѕРІРµСЂСЏРµРј РґР°РЅРЅС‹Рµ РёР· С„РѕСЂРјС‹
+    # Проверяем данные из формы
     if (!$self->ParamParse(model => 'Event', is_create => $is_new)) {
         $self->state(-000101);
         return $is_new ? adding($self) : edit($self, $id);
@@ -344,7 +348,7 @@ sub set {
     
     my $fdata = $self->ParamData;
     
-    # РЎРѕС…СЂР°РЅСЏРµРј РґР°РЅРЅС‹Рµ
+    # Сохраняем данные
     my $ret = $self->ParamSave( 
         model           => 'Event', 
         $is_new ?
@@ -359,7 +363,7 @@ sub set {
         return $is_new ? adding($self) : edit($self, $id);
     }
     
-    # РЎС‚Р°С‚СѓСЃ СЃ СЂРµРґРёСЂРµРєС‚РѕРј
+    # Статус с редиректом
     return $self->state($is_new ? 940100 : 940200,  $self->href($::disp{EventShow}, $id, 'info') );
 }
 
@@ -382,7 +386,7 @@ sub del {
     $self->model('Event')->delete({ id => $id })
         || return $self->state(-000104, '');
     
-    # СЃС‚Р°С‚СѓСЃ СЃ СЂРµРґРёСЂРµРєС‚РѕРј
+    # статус с редиректом
     $self->state(940300, $self->href($::disp{EventList}) );
 }
 
@@ -411,7 +415,7 @@ sub money_set {
     $self->model('EventMoney')->set($evid, $cmdid, \%m)
         || return $self->state(-000104, '');
         
-    # СЃС‚Р°С‚СѓСЃ СЃ СЂРµРґРёСЂРµРєС‚РѕРј
+    # статус с редиректом
     $self->state(940400, '');
 }
 
@@ -424,28 +428,28 @@ sub money_list_set {
     
     $self->can_edit() || return;
     
-    # РЎРѕР±С‹С‚РёРµ
+    # Событие
     my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
     $rec || return $self->state(-000105);
     $evid = $rec->{id};
     
-    # РљРѕРјР°РЅРґС‹
+    # Команды
     my %cmd = (
         map { ($_->{id} => $_) }
         $self->model('Command')->search({})
     );
     
-    # РџСЂРёРІСЏР·РєР° РєРѕРјР°РЅРґ Рє СЃРѕР±С‹С‚РёСЋ
+    # Привязка команд к событию
     my %money = (
         map { ($_->{cmdid} => $_) }
         $self->model('EventMoney')->search({ evid => $evid })
     );
     
-    # РџР°СЂСЃРёРј РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ
+    # Парсим входные данные
     foreach my $cmdid ($q->param_dig('cmdid')) {
         $cmd{$cmdid} || next;
         
-        # Р”Р°РЅРЅС‹Рµ СЃ С„РѕСЂРјС‹
+        # Данные с формы
         my %d;
         $d{allowed}     = $q->param_bool('allowed.'.$cmdid);
         $d{summ}        = sprintf('%0.2f', $q->param_float('summ.'.$cmdid));
@@ -453,28 +457,28 @@ sub money_list_set {
         $d{price2}      = sprintf('%0.2f', $q->param_float('price2.'.$cmdid));
         $d{comment}     = $q->param_str('comment.'.$cmdid);
         
-        # Р”Р°РЅРЅС‹Рµ РІСЃРµ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ РёР»Рё РѕСЃРѕР±РµРЅРЅС‹Рµ
+        # Данные все стандартные или особенные
         my $isnull = !$d{allowed} && ($d{summ}<=0) && !$d{comment} &&
             ($d{price1} == $rec->{price1}) && ($d{price2} == $rec->{price2}) ?
             1 : 0;
             
-        # Р•СЃР»Рё СѓР¶Рµ РїСЂРѕРїРёСЃР°РЅС‹ РѕСЃРѕР±РµРЅРЅС‹Рµ РґР°РЅРЅС‹Рµ
+        # Если уже прописаны особенные данные
         if (my $m = $money{$cmdid}) {
-            if ($isnull) { # РќРѕ РІРІРµРґРµРЅРЅС‹Рµ РЅРµ СѓРЅРёРєР°Р»СЊРЅС‹
+            if ($isnull) { # Но введенные не уникальны
                 $self->model('EventMoney')->delete({ id => $m->{id} })
                     || return $self->state(-000104);
             }
-            else { # РџСЂРѕРІРµСЂСЏРµРј, РёР·РјРµРЅРёР»РѕСЃСЊ Р»Рё РєР°РєРѕРµ-С‚Рѕ РїРѕР»Рµ
+            else { # Проверяем, изменилось ли какое-то поле
                 foreach my $k (qw/allowed summ price1 price2 comment/) {
                     delete $d{$k} if $d{$k} eq $m->{$k};
                 }
-                if (%d) { # РњРµРЅСЏРµРј, РµСЃР»Рё РµСЃС‚СЊ, С‡С‚Рѕ РјРµРЅСЏС‚СЊ
+                if (%d) { # Меняем, если есть, что менять
                     $self->model('EventMoney')->update(\%d, { id => $m->{id} })
                         || return $self->state(-000104);
                 }
             }
         }
-        # РЎРѕР·РґР°РµРј РЅРѕРІСѓСЋ РїСЂРёРІСЏР·РєСѓ, РµСЃР»Рё РґР°РЅРЅС‹Рµ СѓРЅРёРєР°Р»СЊРЅС‹
+        # Создаем новую привязку, если данные уникальны
         elsif (!$isnull) { 
             $self->model('EventMoney')->create({
                 evid    => $evid,
@@ -484,9 +488,142 @@ sub money_list_set {
         }
     }
         
-    # СЃС‚Р°С‚СѓСЃ СЃ СЂРµРґРёСЂРµРєС‚РѕРј
+    # статус с редиректом
     $self->state(940400, $self->href($::disp{EventShow}, $evid, 'info'));
 }
 
+
+
+sub ausweis_commit {
+    my ($self, $evid, $ausid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEventCommit, $::rYes, $::rAdvanced);
+    
+    $self->can_edit() || return;
+    
+    my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
+    $rec || return $self->state(-000105);
+    my ($aus) = $self->model('Ausweis')->search({ id => $ausid, blocked => 0 });
+    $aus || return $self->state(-000105);
+    
+    my ($c) = $self->model('EventAusweis')->search({ evid => $evid, ausid => $ausid });
+    $c && return $self->state(-940501, '');
+    
+    my $m = $self->model('EventMoney')->get($rec->{id}, $aus->{cmdid});
+    
+    my %c = ( evid => $evid, ausid => $ausid, cmdid => $aus->{cmdid} );
+    
+    $c{payonkpp} = $q->param_bool('payonkpp');
+    # Сумма взноса
+    if ($c{payonkpp}) {
+        $c{price} = $q->param_float('price') if $q->param_float('price') > 0;
+    }
+    elsif (defined $q->param('price')) {
+        $c{price} = $q->param_float('price');
+    }
+    else {
+        if (($m->{summ} > 0) || ($m->{price1} > 0) || $m->{comment}) {
+            $c{price} = $m->{price1};
+        }
+        elsif ($rec->{price1} > 0) {
+            $c{price} = $rec->{price1};
+        }
+    }
+    
+    defined($c{price}) || return $self->state(-940502, '');
+    
+    if (($c{price} > 0) && !$c{payonkpp}) {
+        # Проверяем, можем ли мы из сданных заранее оплатить
+        my @aus = $self->model('Ausweis')->search(
+            { 'event.cmdid' => $aus->{cmdid}, 'event.evid' => $rec->{id}, 'event.payonkpp' => 0 },
+            { prefetch => ['event'] }
+        );
+        my $summ = 0;
+        $summ += $_->{event}->{price} foreach @aus;
+        
+        return $self->state(-940503, '')
+            if ($m->{summ}-$summ) < $c{price};
+    }
+    
+    $self->model('EventAusweis')->create(\%c)
+        || return $self->state(-000104, '');
+    #if ($c{payonkpp}) {
+    #    # Увеличиваем суммарный взнос команды
+    #    $self->model('EventMoney')->summ_add($rec->{id}, $aus->{cmdid}, $c{price})
+    #        || return $self->state(-000104, '');
+    #}
+        
+    # статус с редиректом
+    $self->state(940500, '');
+}
+
+sub ausweis_decommit {
+    my ($self, $evid, $ausid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEventCommit, $::rAdvanced);
+    
+    $self->can_edit() || return;
+    
+    my ($c) = $self->model('EventAusweis')->search({ evid => $evid, ausid => $ausid });
+    $c || return $self->state(-000105);
+    
+    $self->model('EventAusweis')->delete({ id => $c->{id} })
+        || return $self->state(-000104, '');
+    
+    # статус с редиректом
+    $self->state(940600, '');
+}
+
+
+sub necombat_commit {
+    my ($self, $evid, $cmdid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEventCommit, $::rYes, $::rAdvanced);
+    
+    $self->can_edit() || return;
+    
+    my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
+    $rec || return $self->state(-000105);
+    my ($cmd) = $self->model('Command')->search({ id => $cmdid });
+    $cmd || return $self->state(-000105);
+    
+    my $m = $self->model('EventMoney')->get($rec->{id}, $cmd->{id});
+    
+    my %c = ( evid => $rec->{id}, cmdid => $cmd->{id} );
+    
+    $c{name} = $q->param_str('name')
+        || return $self->state(-000101, '');
+    
+    $self->model('EventNecombat')->create(\%c)
+        || return $self->state(-000104, '');
+        
+    # статус с редиректом
+    $self->state(940700, '');
+}
+
+sub necombat_decommit {
+    my ($self, $ncmbid) = @_;
+    my $d = $self->d;
+    my $q = $self->req;
+    
+    return unless $self->rights_check_event($::rEventCommit, $::rAdvanced);
+    
+    $self->can_edit() || return;
+    
+    my ($c) = $self->model('EventNecombat')->search({ id => $ncmbid });
+    $c || return $self->state(-000105);
+    
+    $self->model('EventNecombat')->delete({ id => $c->{id} })
+        || return $self->state(-000104, '');
+    
+    # статус с редиректом
+    $self->state(940800, '');
+}
 
 1;

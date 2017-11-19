@@ -39,24 +39,18 @@ __PACKAGE__->config(
         #$::disp{PrintAusweisAdd}        => 'C::Print::ausweis_add',
         #$::disp{PrintAusweisDel}        => 'C::Print::ausweis_del',
         
-        #$::disp{PreeditShowItem}        => 'C::Preedit::showitem',
-        #$::disp{PreeditFile}            => 'C::Preedit::file',
-        #$::disp{PreeditOp}              => 'C::Preedit::op',
-        #$::disp{PreeditHide}            => 'C::Preedit::hide',
-        #$::disp{PreeditCancel}          => 'C::Preedit::cancel',
-        
-        $::disp{EventList}              => 'C::Event::list',
-        $::disp{EventShow}              => 'C::Event::show',
-        $::disp{EventAdding}            => 'C::Event::adding',
-        $::disp{EventAdd}               => 'C::Event::set',
-        $::disp{EventSet}               => 'C::Event::set',
-        $::disp{EventDel}               => 'C::Event::del',
-        $::disp{EventMoneySet}          => 'C::Event::money_set',
-        $::disp{EventMoneyListSet}      => 'C::Event::money_list_set',
-        $::disp{EventAusweisCommit}     => 'C::Event::ausweis_commit',
-        $::disp{EventAusweisDeCommit}   => 'C::Event::ausweis_decommit',
-        $::disp{EventNecombatCommit}    => 'C::Event::necombat_commit',
-        $::disp{EventNecombatDeCommit}  => 'C::Event::necombat_decommit',
+        #$::disp{EventList}              => 'C::Event::list',
+        #$::disp{EventShow}              => 'C::Event::show',
+        #$::disp{EventAdding}            => 'C::Event::adding',
+        #$::disp{EventAdd}               => 'C::Event::set',
+        #$::disp{EventSet}               => 'C::Event::set',
+        #$::disp{EventDel}               => 'C::Event::del',
+        #$::disp{EventMoneySet}          => 'C::Event::money_set',
+        #$::disp{EventMoneyListSet}      => 'C::Event::money_list_set',
+        #$::disp{EventAusweisCommit}     => 'C::Event::ausweis_commit',
+        #$::disp{EventAusweisDeCommit}   => 'C::Event::ausweis_decommit',
+        #$::disp{EventNecombatCommit}    => 'C::Event::necombat_commit',
+        #$::disp{EventNecombatDeCommit}  => 'C::Event::necombat_decommit',
     },
     
     return_custom => [qw/Operation/],
@@ -150,8 +144,7 @@ sub const_init {
         [ 'Модерация',      => preedit_first    => 'preedit/first' ],
         #[ 'Поиск повторов',     sub { shift->href($::disp{AusweisFindRepeat}) },
         #                        sub { $_[0]->rights_exists($rAusweisFindRepeat) } ],
-        #[ 'Мероприятия',        sub { shift->href($::disp{EventList}) },
-        #                        sub { $_[0]->rights_exists($rEvent) } ],
+        [ 'Мероприятия',    => event_read       => 'event/list' ],
         'Аусвайсы',
         [ 'Блоки'           => blok_list        => 'blok/list' ],
         [ 'Команды'         => command_list     => 'command/list' ],
@@ -336,6 +329,9 @@ sub http_after_init {
         preedit_cancel  => sub { rights_Exists($_[0],   $num{PreeditCancel}); },
         preedit_cancel_all=>sub{ rights_Check($_[0],    $num{PreeditCancel}, $val{All}); },
         
+        event_read      => sub { rights_Exists($_[0],   $num{Event}); },
+        event_edit      => sub { rights_Check($_[0],    $num{Event}, $val{Write}); },
+        event_advanced  => sub { rights_Check($_[0],    $num{Event}, $val{Advanced}); },
     };
 }
 
@@ -720,7 +716,7 @@ sub obj_pre {
 
 
 
-
+=pod
 sub http_accept {
     my $self = shift;
 
@@ -955,5 +951,6 @@ sub can_edit {
     1;
 }
 
+=cut
 
 1;

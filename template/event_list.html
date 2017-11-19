@@ -1,0 +1,29 @@
+[% BLOCK TITLE %]Мероприятия[% END %]
+[% BLOCK CONTENT %]
+    <table class="tbl">
+        <tr class="title">
+            <td width="100">Дата</td>
+            <td width="250">Статус</td>
+            <td>Название</td>
+        </tr>
+    [% IF size(list) > 0 %]
+    [% FOREACH ev = list %]
+        <tr>
+            <td align="right"><a title="Просмотр" alt="Просмотр" href="[% PREF event/info: ev.id %]">[% DATE ev.date %]</a></td>
+            <td align="right">
+                <a title="Просмотр" alt="Просмотр" href="[% PREF event/info: ev.id %]"
+                >[% IF ev.status eq 'O' %]Открыто[% ELSIF ev.status eq 'Z' %]Закрыто[% END %]</a>
+            </td>
+            <td align="right"><a title="Просмотр" alt="Просмотр" href="[% PREF event/info: ev.id %]">[% ev.name %]</a></td>
+        </tr>
+    [% END %]
+    [% ELSE %]
+        <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+            ничего не найдено
+        </td></tr>
+    [% END %]
+        <tr><td colspan="4" class="submit">
+            <a href="[% PREF event/adding %]">добавить</a>
+        </td></tr>
+    </table>
+[% END %]

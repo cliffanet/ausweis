@@ -10,6 +10,7 @@ use Encode '_utf8_on', 'encode';
 ###     Код модуля: 97
 #############################################
 
+=pod
 sub _item {
     my $self = shift;
     my $item = $self->d->{excel} ? shift : $self->ToHtml(shift, 1);
@@ -53,6 +54,7 @@ sub _hash {
         @{ _list($self) }
     };
 }
+=cut
 
 sub list :
     ReturnPatt
