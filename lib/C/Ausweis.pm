@@ -516,12 +516,12 @@ sub set :
     
     $self->rcheck('ausweis_edit') || return $self->rdenied;
     my $preedit = $self->rcheck('ausweis_pree');
+    $aus || return $self->nfound();
     if (!$self->user->{cmdid} || ($self->user->{cmdid} != $aus->{cmdid})) {
         $self->rcheck('ausweis_edit_all') || return $self->rdenied;
         $preedit = $self->rcheck('ausweis_pree_all');
     }
     $self->d->{read_only} && return $self->cantedit();
-    $aus || return $self->nfound();
     
     my $dirUpload = Func::SetTmpDir($self)
         || return ( error => 900101, pref => ['ausweis/edit', $aus->{id}] );

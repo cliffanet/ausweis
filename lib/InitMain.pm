@@ -333,7 +333,8 @@ sub http_after_init {
         preedit_first   => sub { rights_Exists($_[0],   $num{Preedit}); },
         preedit_op      => sub { rights_Exists($_[0],   $num{Preedit}); },
         preedit_hide    => sub { rights_Exists($_[0],   $num{CommandInfo}); },
-        preedit_cancel  => sub { rights_Check($_[0],    $num{PreeditCancel}, $val{My}, $val{All}); },
+        preedit_cancel  => sub { rights_Exists($_[0],   $num{PreeditCancel}); },
+        preedit_cancel_all=>sub{ rights_Check($_[0],    $num{PreeditCancel}, $val{All}); },
         
     };
 }
@@ -692,6 +693,15 @@ sub obj_aus {
     
     $self->object_by_model(
         'Ausweis',
+        #where => { deleted => 0 },
+        #param => { order_by => 'numid', '+columns' => [$xname] }
+    )
+}
+sub obj_pre {
+    my $self = shift;
+    
+    $self->object_by_model(
+        'Preedit',
         #where => { deleted => 0 },
         #param => { order_by => 'numid', '+columns' => [$xname] }
     )

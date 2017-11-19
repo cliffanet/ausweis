@@ -85,7 +85,7 @@
             [% ELSIF h.modered < 0 %]<div style="color: red">Отклонено: [% h.comment %]</div>
             [% ELSE %]<div style="color: yellow"><i>ожидает модерации</i></div>[% END %]
         </td>
-        <td><a href="[% href_hide %]">скрыть</a></td>
+        <td><a href="[% PREF preedit/hide: h.id %]">скрыть</a></td>
     </tr>
 [% END %]
 </table>

@@ -47,89 +47,87 @@ sub first :
     $self->view_rcheck('preedit_first') || return;
     $self->template("preedit_first");
     
-    my $d = $self->d;
     my $afterid = $self->req->param_dig('afterid');
-    my ($pre) = (($d->{pre}) = 
-        map { _item($self, $_) } 
+    my ($pre) = 
         $self->model('Preedit')->search(
             { modered => 0, $afterid ? (id => { '>' => $afterid }) : () },
             { order_by => 'id', prefetch => 'user', limit => 1 }
-        ));
+        );
     
-    $d->{type} = $pre ? lc $pre->{tbl} : '';
     $pre || return;
     
-    $d->{subtmpl_name} = "preedit_$d->{type}.tt";
-    $d->{field} = $pre->{field};
-    $d->{field_exists} = sub { exists $d->{field}->()->{$_[0]} };
+    my $field = $self->model('PreeditField')->get_value($pre);
     
-    $d->{href_skipitem} = $self->href($::disp{PreeditShowItem})."?afterid=$pre->{id}";
-    $d->{href_op} = $self->href($::disp{PreeditOp}, $pre->{id});
-    
+    my %d = ();
     if ($pre->{tbl} eq 'Ausweis') {
-        ($d->{rec}) = map { C::Ausweis::_item($self, $_) }
+        $d{file_photo} = 'photo.site.jpg';
+        ($d{aus}) =
             $self->model('Ausweis')->search({ id => $pre->{recid} }, { prefetch => [qw/command blok/] });
-        $d->{nick_exists} = sub {
-            my $nick = $d->{field}->()->{nick};
-            return [] unless defined $nick;
-            return $d->{_nick_exists} ||= [
-                map { C::Ausweis::_item($self, $_) }
+        $d{field_exists} = {
+            map { ($_ => exists $field->{$_}) }
+            $d{aus} ?
+                (keys %{ $d{aus} }) :
+                (keys %{ $self->model('Ausweis')->columns })
+        };
+        $d{cmd} = $self->model('Command')->byId($field->{cmdid}) if $field->{cmdid};
+        $d{nick_exists} = [
                 $self->model('Ausweis')->search(
                     { 
                         blocked => 0, 
-                        nick => { LIKE => "\%$nick\%" },
-                        $d->{rec} ? (id => { '!=' => $d->{rec}->{id} }) : (),
+                        nick => { LIKE => "\%$field->{nick}\%" },
+                        $d{aus} ? (id => { '!=' => $d{aus}->{id} }) : (),
                     }, 
                     { prefetch => 'command' }
                 )
             ];
-        };
-        $d->{fio_exists} = sub {
-            my $fio = $d->{field}->()->{fio};
-            return [] unless defined $fio;
-            return $d->{_fio_exists} ||= [
+        $d{fio_exists} = [
                 map { C::Ausweis::_item($self, $_) }
                 $self->model('Ausweis')->search(
                     { 
                         blocked => 0, 
-                        fio => { LIKE => "\%$fio\%" },
-                        $d->{rec} ? (id => { '!=' => $d->{rec}->{id} }) : (),
+                        fio => { LIKE => "\%$field->{fio}\%" },
+                        $d{aus} ? (id => { '!=' => $d{aus}->{id} }) : (),
                     }, 
                     { prefetch => 'command' }
                 )
             ];
-        };
     }
+    
+    return
+        pre => $pre,
+        field => $field,
+        %d
 }
 
-sub file {
-    my ($self, $eid, $field) = @_;
+sub file :
+    ParamObj('pre', 0)
+    ParamRegexp('[a-zA-Z\d]+')
+    ReturnPatt
+{
+    my ($self, $pre, $field) = @_;
 
+    $pre || return $self->notfound;
+    
+    my ($pf) = 
+        $self->model('PreeditField')->search({ eid => $pre->{id}, param => $field });
+    $pf || return $self->notfound;
+    
     my $d = $self->d;
-    
-    my ($rec) = 
-        $self->model('PreeditField')->search({ eid => $eid, param => $field });
-    $rec || return $self->state(-000105, '');
-    
-    my $file = $rec->{value};
-    
     $self->view_select('File');
     
-    $d->{file} = Func::CachDir('preedit', $rec->{eid})."/$file";
+    my $file = $pf->{value};
+    $d->{file} = Func::CachDir('preedit', $pre->{id})."/$file";
 }
 
-sub op {
-    my ($self, $eid) = @_;
+sub op :
+    ParamObj('pre', 0)
+    ReturnOperation
+{
+    my ($self, $pre) = @_;
     
-    return unless $self->rights_exists_event($::rPreedit);
-    
-    $self->can_edit() || return;
-    
-    my $d = $self->d;
-    
-    my ($pre) = 
-        $self->model('Preedit')->search({ id => $eid, modered => 0 });
-    $pre || return $self->state(-000105, '');
+    $self->rcheck('preedit_op') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
+    $pre || return $self->nfound();
     
     my %p = (visibled => 1);
     $p{modered} = $self->req->param_dig('modered')
@@ -138,8 +136,8 @@ sub op {
         
     my $ret;
     if ($p{modered} > 0) {
-        my $fields = $self->model('PreeditField')->get_value($pre->{id})
-            if ($pre->{op} eq 'C') || ($pre->{op} eq 'E');
+        my $fields = ($pre->{op} eq 'C') || ($pre->{op} eq 'E') ?
+            $self->model('PreeditField')->get_value($pre->{id}) : undef;
         if ($pre->{op} eq 'C') {
             $ret = $self->model($pre->{tbl})->create($fields);
             $pre->{recid} = $self->model($pre->{tbl})->insertid;
@@ -153,11 +151,11 @@ sub op {
         # Çàãğóçêà ôàéëîâ
         if (($pre->{tbl} eq 'Ausweis') && $fields && $fields->{photo}) {
             Func::MakeCachDir('ausweis', $pre->{recid})
-                || return $self->state(-900102, '');
+                || return (error => 900102, href => '');
             my $photo = Func::ImgCopy($self, 
                 Func::CachDir('preedit', $pre->{id})."/".$fields->{photo},
                 Func::CachDir('ausweis', $pre->{recid}), 'photo')
-                    || return $self->state(-900102, '');
+                    || return (error => 900102, href => '');
             my $regen = (1<<($::regen{photo}-1));
             $self->model('Ausweis')->update(
                 { 
@@ -165,69 +163,64 @@ sub op {
                     photo   => $photo,
                 },
                 { id => $pre->{recid} }
-            ) || return $self->state(-000104, '');
+            ) || return (error => 000104, href => '');
         }
     }
     else {
         $ret = 1;
     }
-    $ret || return $self->state(-000104, '');
+    $ret || return (error => 000104, href => '');
     
     # Îáíîâëÿåì ñòàòóñ Preedit
-    $self->model('Preedit')->update(\%p, { id => $eid })
-        || return $self->state(-000104, '');
+    $self->model('Preedit')->update(\%p, { id => $pre->{id} })
+        || return (error => 000104, href => '');
     
-    return $self->state($ret > 0 ? 950100 : -000106, '');
+    return ($ret > 0 ? (ok => 950100) : (error => 000106), href => '');
 }
 
 
 
-sub hide {
-    my ($self, $eid) = @_;
-    my $d = $self->d;
+sub hide :
+    ParamObj('pre', 0)
+    ReturnOperation
+{
+    my ($self, $pre) = @_;
     
-    return unless $self->rights_exists_event($::rCommandInfo);
+    $self->rcheck('preedit_hide') || return $self->rdenied;
+    $pre || return $self->nfound();
+    return $self->rdenied() if $pre->{uid} != $self->user->{id};
+    $self->d->{read_only} && return $self->cantedit();
     
-    $self->can_edit() || return;
+    $self->model('Preedit')->update({ visibled => 0 }, { id => $pre->{id} })
+        || return (error => 000104, href => '');
     
-    my ($pre) = 
-        $self->model('Preedit')->search({ id => $eid });
-    $pre || return $self->state(-000105);
-    return $self->rights_denied() if $pre->{uid} != $self->user->{id};
-    
-    $self->model('Preedit')->update({ visibled => 0 }, { id => $eid })
-        || return $self->state(-000104);
-    
-    return $self->state(950400, '');
+    return (ok => 950400, href => '');
 }
 
-sub cancel {
-    my ($self, $eid) = @_;
-    my $d = $self->d;
+sub cancel :
+    ParamObj('pre', 0)
+    ReturnOperation
+{
+    my ($self, $pre) = @_;
     
-    return unless $self->rights_check_event($::rPreeditCancel, $::rMy, $::rAll);
-    
-    $self->can_edit() || return;
-    
-    my ($pre) = 
-        $self->model('Preedit')->search({ id => $eid });
-    $pre || return $self->state(-000105);
-    
+    $self->rcheck('preedit_cancel') || return $self->rdenied;
+    $pre || return $self->nfound();
     if ($pre->{uid} != $self->user->{id}) {
-        return unless $self->rights_check_event($::rPreeditCancel, $::rAll);
+        $self->rcheck('preedit_cancel_all') || return $self->rdenied;
     }
+    $self->d->{read_only} && return $self->cantedit();
     
-    return $self->state(-950501, '') if $pre->{modered} != 0;
+    return (error => 950501, href => '') if $pre->{modered} != 0;
     
     $self->model('Preedit')->update(
         { 
             modered => $pre->{uid} == $self->user->{id} ? -2 : -1,
             visibled=> 1,
         }, 
-        { id => $eid }
-    ) || return $self->state(-000104);
+        { id => $pre->{id} }
+    ) || return (error => 000104, href => '');
     
-    return $self->state(950500, '');
+    return (ok => 950500, href => '');
 }
 
 

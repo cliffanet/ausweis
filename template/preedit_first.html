@@ -1,9 +1,9 @@
 [% BLOCK TITLE %]Премодерация изменений в базе[% END %]
 [% BLOCK CONTENT %]
-[% IF type %]
+[% IF pre %]
 <h3>
-[% IF pre.op == 'C' %]Создание[% ELSIF pre.op == 'E' %]Изменение[% ELSIF pre.op == 'D' %]Удаление[% END -%]
- [% IF type == 'ausweis' %]аусвайса[% END %]
+[% IF pre.op eq 'C' %]Создание[% ELSIF pre.op eq 'E' %]Изменение[% ELSIF pre.op eq 'D' %]Удаление[% END -%]
+ [% IF pre.tbl == 'Ausweis' %]аусвайса[% END %]
 </h3>
 
 <table class="tbl">
@@ -16,15 +16,15 @@
     </tr>
     <tr class="title">
         <td></td>
-        [% IF (pre.op == 'C') || (pre.op == 'E') %]
-        <td[% IF pre.op == 'E' %] width="250"[% END %]>Новое значение</td>
+        [% IF (pre.op eq 'C') || (pre.op eq 'E') %]
+        <td[% IF pre.op eq 'E' %] width="250"[% END %]>Новое значение</td>
         [% END %]
-        [% IF (pre.op == 'E') || (pre.op == 'D') %]
+        [% IF (pre.op eq 'E') || (pre.op eq 'D') %]
         <td>Текущее значение</td>
         [% END %]
     </tr>
-[% INCLUDE preedit_ausweis %]
-    <form action="[% href_op %]" method="post">
+[% IF pre.tbl == 'Ausweis' %][% INCLUDE preedit_ausweis %][% END %]
+    <form action="[% PREF preedit/op: pre.id %]" method="post">
     <tr>
         <td class="ltitle">Действие:</td>
         <td colspan="2">
@@ -37,13 +37,13 @@
     </form>
     <tr>
         <td class="submit" colspan="3">
-            <a href="[% href_skipitem %]">пропустить</a>
+            <a href="[% PREF preedit/first %]?afterid=[% pre.id %]">пропустить</a>
         </td>
     </tr>
 </table>
 
-[% ELSE # IF type %]
+[% ELSE # IF pre %]
 <h3>Нет элементов для модерации</h3>
-[% END # IF type %]
+[% END # IF pre %]
 
 [% END %]
