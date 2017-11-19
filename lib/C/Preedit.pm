@@ -5,6 +5,7 @@ use warnings;
 
 #use Image::Magick;
 use Clib::Mould;
+use Encode '_utf8_on', 'encode';
 
 ##################################################
 ###     Основной список
@@ -133,6 +134,7 @@ sub op :
     $p{modered} = $self->req->param_dig('modered')
         || return $self->state(-000101, '');
     $p{comment} = $self->req->param_str('comment');
+    _utf8_on($p{comment});
         
     my $ret;
     if ($p{modered} > 0) {
@@ -149,13 +151,13 @@ sub op :
         }
         
         # Загрузка файлов
-        if (($pre->{tbl} eq 'Ausweis') && $fields && $fields->{photo}) {
+        if (($pre->{tbl} eq 'Ausweis') && $fields && $fields->{photo} && $ret) {
             Func::MakeCachDir('ausweis', $pre->{recid})
-                || return (error => 900102, href => '');
+                || return (error => 900102, href => '', errlog => ['Can\'t make ausweis dir: %s', $!]);
             my $photo = Func::ImgCopy($self, 
                 Func::CachDir('preedit', $pre->{id})."/".$fields->{photo},
                 Func::CachDir('ausweis', $pre->{recid}), 'photo')
-                    || return (error => 900102, href => '');
+                    || return (error => 900102, href => '', errlog => ['Can\'t copy ausweis photo: %s', $!]);
             my $regen = (1<<($::regen{photo}-1));
             $self->model('Ausweis')->update(
                 { 

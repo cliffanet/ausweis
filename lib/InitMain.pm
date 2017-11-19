@@ -488,6 +488,10 @@ sub return_operation {
     
     %p || return;
     
+    if (my $errlog = $p{errlog}) {
+        $self->error(ref($errlog) eq 'ARRAY' ? @$errlog : $errlog);
+    }
+    
     my $ajax_redirect;
     if ($self->req->param_bool('is_ajax') || $self->req->param_bool('to_ajax')) {
         if (my $href = $p{redirect}) {
