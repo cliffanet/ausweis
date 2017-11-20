@@ -1,0 +1,35 @@
+[% BLOCK TITLE %]Мероприятие: "[% ev.name %]"[% END %]
+[% BLOCK CONTENT %]
+    <h3>Мероприятие</h3>
+    <table class="tbl">
+        <tr>
+            <td class="ltitle">Название:</td>
+            <td><b><big>[% ev.name %]</big></b></td>
+        </tr>
+        <tr>
+            <td class="ltitle">Дата проведения:</td>
+            <td>[% DATE ev.date %]</td>
+        </tr>
+        <tr>
+            <td class="ltitle">Статус:</td>
+            <td>[% IF ev.status eq 'O' %]Открыто[% ELSIF ev.status eq 'Z' %]Закрыто[% END %]</td>
+        </tr>
+        <tr>
+            <td class="ltitle">Цена с участника:</td>
+            <td>[% ev.price1 %] / [% ev.price2 %]</td>
+        </tr>
+        <tr>
+            <td class="ltitle">Дополнительно:</td>
+            <td>
+                <a href="[% PREF event/command: ev.id %]">Допущенные команды</a><br />
+                <a href="[% PREF event/ausweis: ev.id %]">Прошедшие аусвайсы</a><br />
+                <a href="[% PREF event/necombat: ev.id %]">Прошедшие некомбатанты</a>
+            </td>
+        </tr>
+        <tr>
+            <td class="submit" colspan="2">
+                <a href="[% PREF event/edit: ev.id %]">изменить мероприятие</a>
+            </td>
+        </tr>
+    </table>
+[% END %]

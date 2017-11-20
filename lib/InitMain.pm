@@ -330,7 +330,7 @@ sub http_after_init {
         preedit_cancel_all=>sub{ rights_Check($_[0],    $num{PreeditCancel}, $val{All}); },
         
         event_read      => sub { rights_Exists($_[0],   $num{Event}); },
-        event_edit      => sub { rights_Check($_[0],    $num{Event}, $val{Write}); },
+        event_edit      => sub { rights_Check($_[0],    $num{Event}, $val{Write}, $val{Advanced}); },
         event_advanced  => sub { rights_Check($_[0],    $num{Event}, $val{Advanced}); },
     };
 }
@@ -472,6 +472,15 @@ sub template { #  Выбор шаблона, так же проверяется
     $view->template($template);
     $view->block($block) if $block && ($self->req->param_int('is_modal') == 2);
     $self->setbasetemplate($view);
+}
+
+sub excel {
+    my ($self, $tmpl, $fname, %patt) = @_;
+    
+    $self->view_select('Excel', $tmpl, $fname);
+    my $xls = ($self->d->{excel} = {});
+    $xls->{$_} = $patt{$_} foreach keys %patt;
+    return %$xls;
 }
 
 #### ------------------------------------
@@ -706,6 +715,15 @@ sub obj_pre {
         #param => { order_by => 'numid', '+columns' => [$xname] }
     )
 }
+sub obj_event {
+    my $self = shift;
+    
+    $self->object_by_model(
+        'Event',
+        #where => { deleted => 0 },
+        #param => { order_by => 'numid', '+columns' => [$xname] }
+    )
+}
 
 
 
@@ -713,6 +731,27 @@ sub obj_pre {
 
 
 
+
+sub http_accept {
+    my $self = shift;
+    
+    $self->{_run_count} ||= 0;
+    $self->{_run_count} ++;
+}
+
+sub FormError {
+    my $self = shift;
+    my $err = $self->req->param_str('field_error') || return {};
+    
+    my %err =
+        map {
+            my ($f, $code) = split /-/;
+            my $err = $self->c(form_errors => $code) || sprintf($self->c(form_errors => 'unknown')||'[%d]', $code);
+            ($f => $err);
+        }
+        split /,/, $err;
+    return \%err;
+}
 
 
 
@@ -925,19 +964,6 @@ sub ParamParse {
     }
     
     return $ret;
-}
-sub FormError {
-    my $self = shift;
-    my $err = $self->req->param_str('field_error') || return {};
-    
-    my %err =
-        map {
-            my ($f, $code) = split /-/;
-            my $err = $self->c(form_errors => $code) || sprintf($self->c(form_errors => 'unknown')||'[%d]', $code);
-            ($f => $err);
-        }
-        split /,/, $err;
-    return \%err;
 }
 
 sub can_edit {

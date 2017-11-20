@@ -3,6 +3,8 @@ package C::Event;
 use strict;
 use warnings;
 
+use Encode '_utf8_on', 'encode';
+
 ##################################################
 ###     Мероприятия
 ###     Код модуля: 94
@@ -102,332 +104,206 @@ sub list :
         list => \@list,
 }
 
-sub show {
-    my ($self, $evid, $type) = @_;
-    my $d = $self->d;
-    
-    $type = 'info' if !$type || ($type !~ /^(edit|info|money|ausweis(_xls)?|necombat(_xls)?|command(_xls)?)$/);
+sub info :
+    ParamObj('event', 0)
+    ReturnPatt
+{
+    my ($self, $ev) = @_;
 
-    return unless $self->rights_exists_event($::rEvent);
-    if ($type =~ /^(edit|ausweis(_xls)?|necombat(_xls)?|command(_xls)?)$/) {
-        return unless $self->rights_check_event($::rEvent, $::rAdvanced);
+    $self->view_rcheck('event_read') || return;
+    $ev || return $self->notfound;
+    $self->template("event_info");
+    
+    return
+        ev => $ev,
+}
+
+sub command :
+    ParamObj('event', 0)
+    ReturnPatt
+{
+    my ($self, $ev) = @_;
+
+    $self->view_rcheck('event_advanced') || return;
+    $ev || return $self->notfound;
+    $self->template("event_command");
+    
+    my %count_ausweis =
+        map { ($_->{cmdid} => $_->{count}) }
+        $self->model('EventAusweis')->search(
+            { evid => $ev->{id} },
+            { group_by => 'cmdid',
+                columns => ['cmdid'], '+columns' => ['COUNT(*) as `count`'] }
+        );
+    
+    my %count_necombat =
+        map { ($_->{cmdid} => $_->{count}) }
+        $self->model('EventNecombat')->search(
+            { evid => $ev->{id} },
+            { group_by => 'cmdid',
+                columns => ['cmdid'], '+columns' => ['COUNT(*) as `count`'] }
+        );
+    
+    my @cmd =
+        map {
+            my $cmd = $_;
+            $cmd->{count_ausweis} = $count_ausweis{$cmd->{id}} || 0;
+            $cmd->{count_necombat} = $count_necombat{$cmd->{id}} || 0;
+            $cmd;
+        }
+        $self->model('Command')->search(
+            { 'money.allowed' => 1 },
+            { 
+                prefetch => 'money',
+                join_cond => { money => { 'money.evid' => $ev->{id} } },
+                order_by => 'name',
+            }
+        );
+    
+    $self->req->param_bool('xls') &&
+        return $self->excel("event_command", "event_$ev->{id}_command.xls",
+                    event   => $ev,
+                    list    => \@cmd,
+                );
+    
+    return
+        ev => $ev,
+        command_list => \@cmd,
+}
+
+sub ausweis :
+    ParamObj('event', 0)
+    ReturnPatt
+{
+    my ($self, $ev) = @_;
+
+    $self->view_rcheck('event_advanced') || return;
+    $ev || return $self->notfound;
+    $self->template("event_ausweis");
+    
+    my $cmdid = $self->req->param_dig('cmdid');
+    
+    my @aus =
+        map { 
+            my $aus = delete $_->{ausweis};
+            $aus->{command} = delete $_->{command};
+            $aus->{event} = $_;
+            $aus->{event}->{dtadd_format} = Func::dt_datetime($aus->{event}->{dtadd});
+            $aus;
+        }
+        $self->model('EventAusweis')->search(
+            { 'evid' => $ev->{id}, $cmdid ? (cmdid=>$cmdid) : () },
+            { 
+                prefetch => [qw/ausweis command/],
+                order_by => [qw/command.name nick/],
+            }
+        );
+    
+    $self->req->param_bool('xls') &&
+        return $self->excel("event_ausweis", "event_$ev->{id}_ausweis.xls",
+                    event   => $ev,
+                    list    => \@aus,
+                );
+    
+    return
+        ev => $ev,
+        $cmdid ? (cmdid => $cmdid) : (),
+        ausweis_list => \@aus,
+}
+
+sub necombat :
+    ParamObj('event', 0)
+    ReturnPatt
+{
+    my ($self, $ev) = @_;
+
+    $self->view_rcheck('event_advanced') || return;
+    $ev || return $self->notfound;
+    $self->template("event_necombat");
+    
+    my $cmdid = $self->req->param_dig('cmdid');
+    
+    my @nec =
+        map { 
+            my $ncmb = $_;
+            $ncmb->{dtadd_format} = Func::dt_datetime($ncmb->{dtadd});
+            $ncmb;
+        }
+        $self->model('EventNecombat')->search(
+            { evid => $ev->{id}, $cmdid ? (cmdid=>$cmdid) : () },
+            { 
+                prefetch => [qw/command/],
+                order_by => [qw/command.name name/],
+            }
+        );
+    
+    $self->req->param_bool('xls') &&
+        return $self->excel("event_necombat", "event_$ev->{id}_necombat.xls",
+                    event   => $ev,
+                    list    => \@nec,
+                );
+    
+    return
+        ev => $ev,
+        $cmdid ? (cmdid => $cmdid) : (),
+        necombat_list => \@nec,
+}
+
+sub money :
+    ParamObj('event', 0)
+    ReturnPatt
+{
+    my ($self, $ev) = @_;
+
+    $self->view_rcheck('event_edit') || return;
+    $ev || return $self->notfound;
+    if ($ev->{status} ne 'O') {
+        $self->template('rdenied');
+        return;
     }
-    if ($type eq 'edit') {
-        $self->can_edit() || return;
-    }
-    if ($type eq 'money') {
-        return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
-    }
-    
-    # Чтобы строки не конвертировались в html-вид
-    $d->{excel} = {} if $type =~ /_xls$/;
-    
-    my ($rec) = (($self->d->{rec}) = 
-        map { _item($self, $_) }
-        $self->model('Event')->search({ id => $evid }));
-    $rec || return $self->state(-000105);
-    
-    if ($rec->{status} ne 'O') {
-        return unless $self->rights_check_event($::rEvent, $::rAdvanced);
-    }
-    
-    return $self->state(-000105)
-        if ($type eq 'money') && ($rec->{status} ne 'O');
-    
-    $d->{form} = $rec || {};
-    
-    # Тип вывода
-    if ($type =~ /^([a-z]+)_xls$/) {
-        my $p = $1;
-        $self->view_select('Excel', "event_$p", "event_${evid}_$p.xls");
-    }
-    else {
-        $self->patt(TITLE => sprintf($text::titles{"event_$type"}, $rec->{name}));
-        $self->view_select->subtemplate("event_$type.tt");
-    }
-    
-    # Ссылки
-    $d->{href_set} = $self->href($::disp{EventSet}, $evid);
-    $d->{href_money_set} = $self->href($::disp{EventMoneyListSet}, $evid);
+    $self->d->{read_only} && return $self->cantedit();
+    $self->template("event_money");
     
     # Покомандные списки
-    $d->{command_all_list} = sub {
-        return $d->{"_command_all_list"} ||= [
-            map {
-                $_ = C::Command::_item($self, $_);
-                my $m = $_->{money};
-                if (!$m->{id}) {
-                    $m->{id} = 0;
-                    foreach my $k (keys %$m) { $m->{$k} = '' };
-                    $m->{price1} = $rec->{price1};
-                    $m->{price2} = $rec->{price2};
-                }
-                $_;
+    my @cmd =
+        map {
+            my $m = $_->{money};
+            if (!$m->{id}) {
+                $m->{id} = 0;
+                foreach my $k (keys %$m) { $m->{$k} = '' };
+                $m->{price1} = $ev->{price1};
+                $m->{price2} = $ev->{price2};
             }
-            $self->model('Command')->search(
-                {}, 
-                { 
-                    prefetch => 'money',
-                    join_cond => { money => { 'money.evid' => $evid } },
-                    order_by => 'name',
-                }
-            )
-        ];
-    };
-    
-    $d->{command_list} = sub {
-        return $d->{_command_list} ||= [
-            map {
-                my $cmd = C::Command::_item($self, $_);
-                $cmd->{count_ausweis} = sub {
-                    $d->{_aus_count} ||= {
-                        map { ($_->{cmdid} => $_->{count}) }
-                        $self->model('EventAusweis')->search(
-                            { evid => $evid },
-                            { group_by => 'cmdid',
-                                columns => ['cmdid'], '+columns' => ['COUNT(*) as `count`'] }
-                        )
-                    };
-                    return $d->{_aus_count}->{$cmd->{id}} || 0;
-                };
-                $cmd->{count_necombat} = sub {
-                    $d->{_ncmb_count} ||= {
-                        map { ($_->{cmdid} => $_->{count}) }
-                        $self->model('EventNecombat')->search(
-                            { evid => $evid },
-                            { group_by => 'cmdid',
-                                columns => ['cmdid'], '+columns' => ['COUNT(*) as `count`'] }
-                        )
-                    };
-                    return $d->{_ncmb_count}->{$cmd->{id}} || 0;
-                };
-                $cmd->{href_event_ausweis} = $self->href($::disp{EventShow}, $evid, 'ausweis')."?cmdid=$cmd->{id}";
-                $cmd->{href_event_necombat}= $self->href($::disp{EventShow}, $evid, 'necombat')."?cmdid=$cmd->{id}";
-                $cmd;
-            }
-            $self->model('Command')->search(
-                { 'money.allowed' => 1 },
-                { 
-                    prefetch => 'money',
-                    join_cond => { money => { 'money.evid' => $evid } },
-                    order_by => 'name',
-                }
-            )
-        ];
-    };
-    
-    # Поименные списки
-    my $cmdid;
-    if ($cmdid = $self->req->param_dig('cmdid')) {
-        $rec->{"href_$_"} .= "?cmdid=$cmdid"
-            foreach qw/ausweis ausweis_xls necombat necombat_xls/;
-    }
-    
-    $d->{ausweis_list} = sub {
-        $d->{_ausweis_list} ||= [
-            map { 
-                my $aus = delete $_->{ausweis};
-                $aus->{command} = delete $_->{command};
-                $aus->{event} = $_;
-                $aus->{event}->{dtadd_format} = Func::dt_datetime($aus->{event}->{dtadd});
-                C::Ausweis::_item($self, $aus);
-            }
-            $self->model('EventAusweis')->search(
-                { 'evid' => $evid, $cmdid ? (cmdid=>$cmdid) : () },
-                { 
-                    prefetch => [qw/ausweis command/],
-                    order_by => [qw/command.name nick/],
-                }
-            )
-        ];
-    };
-    
-    $d->{necombat_list} = sub {
-        $d->{_necombat_list} ||= [
-            map { 
-                my $ncmb = $_;
-                $ncmb->{dtadd_format} = Func::dt_datetime($ncmb->{dtadd});
-                my $cmd = C::Command::_item($self, delete $ncmb->{command});
-                $ncmb = $self->ToHtml($ncmb) if !$d->{excel};
-                $ncmb->{command} = $cmd;
-                $ncmb;
-            }
-            $self->model('EventNecombat')->search(
-                { evid => $evid, $cmdid ? (cmdid=>$cmdid) : () },
-                { 
-                    prefetch => [qw/command/],
-                    order_by => [qw/command.name name/],
-                }
-            )
-        ];
-    };
-    
-    # Список для екселя
-    if ($type =~ /^([a-z]+)_xls$/) {
-        my $p = $1;
-        $d->{excel} = {
-            event       => $rec,
-            list        => $d->{"${p}_list"}->(),
-        };
-        if ($p eq 'command') {
-            map {
-                $_->{count_ausweis} = $_->{count_ausweis}->();
-                $_->{count_necombat} = $_->{count_necombat}->();
-            } @{ $d->{excel}->{list} }
+            $_;
         }
-    }
+        $self->model('Command')->search(
+            {}, 
+            { 
+                prefetch => 'money',
+                join_cond => { money => { 'money.evid' => $ev->{id} } },
+                order_by => 'name',
+            }
+        );
+    
+    return
+        ev => $ev,
+        command_list => \@cmd,
 }
 
-sub edit {
-    my ($self, $id) = @_;
+sub money_set :
+    ParamObj('event', 0)
+    ReturnOperation
+{
+    my ($self, $ev) = @_;
     
-    show($self, $id, 'edit');
-    
-    $self->can_edit() || return;
-    
-    my $d = $self->d;
-    my $rec = $d->{rec} || return;
-    $d->{form} = { map { ($_ => $rec->{$_}) } grep { !ref $rec->{$_} } keys %$rec };
-    if ($self->req->params()) {
-        my $fdata = $self->ParamData;
-        $fdata || return;
-        $d->{form}->{$_} = $self->ToHtml($fdata->{$_}) foreach keys %$fdata;
+    $self->rcheck('event_edit') || return $self->rdenied;
+    $ev || return $self->nfound();
+    if ($ev->{status} ne 'O') {
+        return $self->rdenied;
     }
-}
-
-sub adding {
-    my ($self) = @_;
-
-    return unless $self->rights_check_event($::rEvent, $::rAdvanced);
+    $self->d->{read_only} && return $self->cantedit();
     
-    $self->can_edit() || return;
-    
-    $self->patt(TITLE => $text::titles{"event_add"});
-    $self->view_select->subtemplate("event_add.tt");
-    
-    my $d = $self->d;
-    $d->{href_add} = $self->href($::disp{EventAdd});
-    
-    # Автозаполнение полей, если данные из формы не приходили
-    $d->{form} =
-        { map { ($_ => '') } qw/date status name price1 price2/ };
-    if ($self->req->params()) {
-        # Данные из формы - либо после ParamParse, либо напрямую данные
-        my $fdata = $self->ParamData(fillall => 1);
-        if (keys %$fdata) {
-            $d->{form} = { %{ $d->{form} }, %$fdata };
-        } else {
-            $d->{form}->{$_} = $self->req->param($_) foreach $self->req->params();
-        }
-    }
-}
-
-sub set {
-    my ($self, $id) = @_;
-    my $is_new = !defined($id);
-    
-    return unless $self->rights_check_event($::rEvent, $::rAdvanced);
-    
-    $self->can_edit() || return;
-    
-    # Кэшируем заранее данные
-    my ($rec) = (($self->d->{rec}) = $self->model('Event')->search({ id => $id })) if $id;
-    if (!$is_new && (!$rec || !$rec->{id})) {
-        return $self->state(-000105, '');
-    }
-    
-    # Проверяем данные из формы
-    if (!$self->ParamParse(model => 'Event', is_create => $is_new)) {
-        $self->state(-000101);
-        return $is_new ? adding($self) : edit($self, $id);
-    }
-    
-    my $fdata = $self->ParamData;
-    
-    # Сохраняем данные
-    my $ret = $self->ParamSave( 
-        model           => 'Event', 
-        $is_new ?
-            ( insert => \$id ) :
-            ( 
-                update => { id => $id }, 
-                preselect => $rec
-            ),
-    );
-    if (!$ret) {
-        $self->state(-000104);
-        return $is_new ? adding($self) : edit($self, $id);
-    }
-    
-    # Статус с редиректом
-    return $self->state($is_new ? 940100 : 940200,  $self->href($::disp{EventShow}, $id, 'info') );
-}
-
-sub del {
-    my ($self, $id) = @_;
-    
-    return unless $self->rights_check_event($::rEvent, $::rAdvanced);
-    
-    $self->can_edit() || return;
-    
-    my ($rec) = $self->model('Event')->search({ id => $id });
-    $rec || return $self->state(-000105);
-    
-    my $item;
-    ($item) = $self->model('EventAusweis')->search({ evid => $id }, { limit => 1 });
-    return $self->state(-940301, '') if $item;
-    ($item) = $self->model('EventMoney')->search({ evid => $id }, { limit => 1 });
-    return $self->state(-940301, '') if $item;
-    
-    $self->model('Event')->delete({ id => $id })
-        || return $self->state(-000104, '');
-    
-    # статус с редиректом
-    $self->state(940300, $self->href($::disp{EventList}) );
-}
-
-
-sub money_set {
-    my ($self, $evid, $cmdid) = @_;
-    my $d = $self->d;
     my $q = $self->req;
-    
-    return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
-    
-    $self->can_edit() || return;
-    
-    my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
-    $rec || return $self->state(-000105);
-    my ($cmd) = $self->model('Command')->search({ id => $cmdid });
-    $cmd || return $self->state(-000105);
-    
-    my %m;
-    $m{allowed} = $q->param_bool('allowed')     if defined $q->param('allowed');
-    $m{summ}    = $q->param_float('summ')       if defined $q->param('summ');
-    $m{price1}  = $q->param_float('price1')     if defined $q->param('price1');
-    $m{price2}  = $q->param_float('price2')     if defined $q->param('price2');
-    $m{comment} = $q->param_str('comment')      if defined $q->param('comment');
-    
-    $self->model('EventMoney')->set($evid, $cmdid, \%m)
-        || return $self->state(-000104, '');
-        
-    # статус с редиректом
-    $self->state(940400, '');
-}
-
-sub money_list_set {
-    my ($self, $evid) = @_;
-    my $d = $self->d;
-    my $q = $self->req;
-    
-    return unless $self->rights_check_event($::rEvent, $::rWrite, $::rAdvanced);
-    
-    $self->can_edit() || return;
-    
-    # Событие
-    my ($rec) = $self->model('Event')->search({ id => $evid, status => 'O' });
-    $rec || return $self->state(-000105);
-    $evid = $rec->{id};
     
     # Команды
     my %cmd = (
@@ -438,7 +314,7 @@ sub money_list_set {
     # Привязка команд к событию
     my %money = (
         map { ($_->{cmdid} => $_) }
-        $self->model('EventMoney')->search({ evid => $evid })
+        $self->model('EventMoney')->search({ evid => $ev->{id} })
     );
     
     # Парсим входные данные
@@ -452,17 +328,18 @@ sub money_list_set {
         $d{price1}      = sprintf('%0.2f', $q->param_float('price1.'.$cmdid));
         $d{price2}      = sprintf('%0.2f', $q->param_float('price2.'.$cmdid));
         $d{comment}     = $q->param_str('comment.'.$cmdid);
+        _utf8_on($d{comment});
         
         # Данные все стандартные или особенные
         my $isnull = !$d{allowed} && ($d{summ}<=0) && !$d{comment} &&
-            ($d{price1} == $rec->{price1}) && ($d{price2} == $rec->{price2}) ?
+            ($d{price1} == $ev->{price1}) && ($d{price2} == $ev->{price2}) ?
             1 : 0;
             
         # Если уже прописаны особенные данные
         if (my $m = $money{$cmdid}) {
             if ($isnull) { # Но введенные не уникальны
                 $self->model('EventMoney')->delete({ id => $m->{id} })
-                    || return $self->state(-000104);
+                    || return (error => 000104, href => '');
             }
             else { # Проверяем, изменилось ли какое-то поле
                 foreach my $k (qw/allowed summ price1 price2 comment/) {
@@ -470,22 +347,146 @@ sub money_list_set {
                 }
                 if (%d) { # Меняем, если есть, что менять
                     $self->model('EventMoney')->update(\%d, { id => $m->{id} })
-                        || return $self->state(-000104);
+                        || return (error => 000104, href => '');
                 }
             }
         }
         # Создаем новую привязку, если данные уникальны
         elsif (!$isnull) { 
             $self->model('EventMoney')->create({
-                evid    => $evid,
+                evid    => $ev->{id},
                 cmdid   => $cmdid,
                 %d,
-            }) || return $self->state(-000104);
+            }) || return (error => 000104, href => '');
         }
     }
         
     # статус с редиректом
-    $self->state(940400, $self->href($::disp{EventShow}, $evid, 'info'));
+    return (ok => 940400, pref => ['event/info', $ev->{id}]);
+}
+
+
+
+sub edit :
+    ParamObj('event', 0)
+    ReturnPatt
+{
+    my ($self, $ev) = @_;
+
+    $self->view_rcheck('event_advanced') || return;
+    $ev || return $self->notfound;
+    $self->view_can_edit() || return;
+    $self->template("event_edit");
+    
+    my %form = %$ev;
+    if ($self->req->params() && (my $fdata = $self->ParamData)) {
+        if (keys %$fdata) {
+            $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
+        } else {
+            _utf8_on($form{$_} = $self->req->param($_)) foreach $self->req->params();
+        }
+    }
+    
+    return
+        ev => $ev,
+        form => \%form,
+        ferror => $self->FormError(),
+}
+
+sub adding :
+    ReturnPatt
+{
+    my ($self) = @_;
+
+    $self->view_rcheck('event_advanced') || return;
+    $self->view_can_edit() || return;
+    $self->template("event_add");
+    
+    # Автозаполнение полей, если данные из формы не приходили
+    my $form =
+        { map { ($_ => '') } qw/date status name price1 price2/ };
+    if ($self->req->params()) {
+        # Данные из формы - либо после ParamParse, либо напрямую данные
+        my $fdata = $self->ParamData(fillall => 1);
+        if (keys %$fdata) {
+            $form->{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %$form;
+        } else {
+            _utf8_on($form->{$_} = $self->req->param($_)) foreach $self->req->params();
+        }
+    }
+    return
+        form => $form,
+        ferror => $self->FormError(),
+}
+
+sub add :
+    ReturnOperation
+{
+    my ($self) = @_;
+    
+    $self->rcheck('event_advanced') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
+    
+    # Проверяем данные из формы
+    $self->ParamParse(model => 'Event', is_create => 1, utf8 => 1)
+        || return (error => 000101, pref => 'event/adding', upar => $self->ParamData);
+    
+    # Сохраняем данные
+    my $evid;
+    $self->ParamSave( 
+        model   => 'Event', 
+        insert  => \$evid,
+    ) || return (error => 000104, pref => 'event/adding', upar => $self->ParamData);
+    
+    return (ok => 940100, pref => ['event/info', $evid]);
+}
+
+sub set :
+    ParamObj('event', 0)
+    ReturnOperation
+{
+    my ($self, $ev) = @_;
+    
+    $self->rcheck('event_advanced') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
+    $ev || return $self->nfound();
+    
+    # Проверяем данные из формы
+    $self->ParamParse(model => 'Event', utf8 => 1)
+        || return (error => 000101, pref => ['event/edit', $ev->{id}], upar => $self->ParamData);
+    
+    # Сохраняем данные
+    $self->ParamSave( 
+        model       => 'Event', 
+        update      => { id => $ev->{id} }, 
+        preselect   => $ev
+    ) || return (error => 000104, pref => ['event/edit', $ev->{id}], upar => $self->ParamData);
+    
+    # Статус с редиректом
+    return (ok => 940200, pref => ['event/info', $ev->{id}]);
+}
+
+sub del :
+    ParamObj('event', 0)
+    ReturnOperation
+{
+    my ($self, $ev) = @_;
+    
+    $self->rcheck('event_advanced') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
+    $ev || return $self->nfound();
+    
+    my $item;
+    ($item) = $self->model('EventAusweis')->search({ evid => $ev->{id} }, { limit => 1 });
+    return (error => 940301, href => '') if $item;
+    ($item) = $self->model('EventMoney')->search({ evid => $ev->{id} }, { limit => 1 });
+    return (error => 940301, href => '') if $item;
+    
+    $self->model('Event')->delete({ id => $ev->{id} })
+        || return (error => 000104, href => '');
+    
+    # статус с редиректом
+    return (ok => 940300, pref => 'event/list');
 }
 
 

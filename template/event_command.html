@@ -1,0 +1,55 @@
+[% BLOCK TITLE %]Допущенные команды - "[% ev.name %]"[% END %]
+[% BLOCK CONTENT %]
+    <h3>Мероприятие</h3>
+    <table class="tbl">
+        <tr>
+            <td class="ltitle">Название:</td>
+            <td><a href="[% PREF event/info: ev.id %]"><b><big>[% ev.name %]</big></b></a></td>
+        </tr>
+        <tr>
+            <td class="ltitle">Дополнительно:</td>
+            <td>
+                <a href="[% PREF event/info: ev.id %]">Инфо</a><br />
+                <a href="[% PREF event/ausweis: ev.id %]">Прошедшие аусвайсы</a><br />
+                <a href="[% PREF event/necombat: ev.id %]">Прошедшие некомбатанты</a>
+            </td>
+        </tr>
+    </table>
+    
+    <br />
+    <h3>Допущенные команды (<a href="[% PREF event/command: ev.id %]?xls=1">xls</a>)</h3>
+    <table class="tbl">
+        <tr class="title">
+            <td width="250">Название</td>
+            <td width="70">Прошло КПП</td>
+            <td width="70">Взносы</td>
+            <td width="70">Цена заранее</td>
+            <td width="70">Цена на КПП</td>
+            <td>Комментарии</td>
+        </tr>
+    [% IF size(command_list) > 0 %]
+    [% FOREACH cmd = command_list %]
+        <tr>
+            <td width="250"><a title="Просмотр команды" alt="Просмотр команды" href="[% PREF command/info: cmd.id %]">[% cmd.name %]</a></td>
+            <td>
+                [% IF cmd.count_ausweis > 0 %]<a href="[% PREF event/ausweis: ev.id %]?cmdid=[% cmd.id %]">[% cmd.count_ausweis %]</a>[% ELSE %]0[% END %]
+                [% IF cmd.count_necombat > 0 %] / <a href="[% PREF event/necombat: ev.id %]?cmdid=[% cmd.id %]">[% cmd.count_necombat %]</a>[% END %]
+            </td>
+            <td align="right">[% cmd.money.summ %]</td>
+            <td align="right">[% cmd.money.price1 %]</td>
+            <td align="right">[% cmd.money.price2 %]</td>
+            <td>[%  cmd.money.comment %]</td>
+        </tr>
+    [% END %]
+    [% ELSE %]
+        <tr><td colspan="6" style="height:50px;text-align:center;vertical-align:middle;">
+            нет допущенных команд
+        </td></tr>
+    [% END %]
+    [% IF ev.status == 'O' %]
+        <tr><td colspan="6" class="submit">
+            <a href="[% PREF event/money: ev.id %]">изменить список</a>
+        </td></tr>
+    [% END %]
+    </table>
+[% END %]

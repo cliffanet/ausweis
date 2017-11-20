@@ -1,0 +1,43 @@
+[% BLOCK TITLE %]Прошедшие аусвайсы - "[% ev.name %]"[% END %]
+[% BLOCK CONTENT %]
+    <h3>Мероприятие</h3>
+    <table class="tbl">
+        <tr>
+            <td class="ltitle">Название:</td>
+            <td><a href="[% PREF event/info: ev.id %]"><b><big>[% ev.name %]</big></b></a></td>
+        </tr>
+        <tr>
+            <td class="ltitle">Дополнительно:</td>
+            <td>
+                <a href="[% PREF event/info: ev.id %]">Инфо</a><br />
+                <a href="[% PREF event/command: ev.id %]">Допущенные команды</a><br />
+                <a href="[% PREF event/necombat: ev.id %][% IF cmdid %]?cmdid=[% cmdid %][% END %]">Прошедшие некомбатанты</a>
+            </td>
+        </tr>
+    </table>
+    
+    <br />
+    <h3>Прошедшие аусвайсы (<a href="[% PREF event/ausweis: ev.id %]?xls=1[% IF cmdid %]&cmdid=[% cmdid %][% END %]">xls</a>)</h3>
+    <table class="tbl">
+        <tr class="title">
+            <td width="120">Дата/Время</td>
+            <td width="250">Команда</td>
+            <td width="150">Номер</td>
+            <td>Ник</td>
+        </tr>
+    [% IF size(ausweis_list) > 0 %]
+    [% FOREACH aus = ausweis_list %]
+        <tr>
+            <td align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% DATETIME aus.event.dtadd %]</a></td>
+            <td><a title="Просмотр команды" alt="Просмотр команды" href="[% PREF command/info: aus.command.id %]">[% aus.command.name %]</a></td>
+            <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% aus.numid %]</a></td>
+            <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% aus.nick %]</a></td>
+        </tr>
+    [% END %]
+    [% ELSE %]
+        <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+            нет прошедших аусвайсов
+        </td></tr>
+    [% END %]
+    </table>
+[% END %]

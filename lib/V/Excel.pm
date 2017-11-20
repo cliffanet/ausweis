@@ -1,7 +1,7 @@
 package V::Excel;
 
 use strict;
-use base 'Clib::View::Excel';
+use base 'Clib::View::ExcelUTF8';
 
 =head2
     Стандартная инициализация

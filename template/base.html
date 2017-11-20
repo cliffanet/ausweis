@@ -186,11 +186,6 @@
           <!-- Белая нижняя строчка copiryghts -->
           <tr>
             <td height="20" class="footer_copy" colspan="2">
-                [% IF IS_DEVEL %]
-                <a href="javascript:void();"
-                    onClick="document.getElementById('dpre').style.display = document.getElementById('dpre').style.display == 'none' ? 'inline' : 'none'"
-                    >debug</a>
-                [% END %]
                 <span class="hidecopy">developing by Cliff / Time: [% SCRIPT_TIME %] ([% RUNCOUNT %])</span>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 ver. [% version %] &copy;2011 Cliff.&nbsp;&nbsp;
@@ -198,14 +193,6 @@
           </tr>
 
 </table>
-
-[% IF IS_DEVEL %]
-<div id="dpre" style="display: none">
-<pre>
-[% PRE %]
-</pre>
-</div>
-[% END %]
 
 
 <!-- Time: [% SCRIPT_TIME %] ([% RUNCOUNT %]) -->
