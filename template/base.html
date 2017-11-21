@@ -60,29 +60,23 @@
     </td>
 </tr>
 
-[% IF authenticate.uid %]
-
 <tr>
+[% IF user && user.ok && !user.denied %]
     <td width="200" valign="top" class="menu">
 
-[% IF !user.denied %]
 <!-- Авторизация -->
     <div class="auth">
-[% IF user.ok %]
     Вы вошли как: <b>[% user.login %]</b><br />
     Группа: [% IF user.group %][% user.group %][% ELSE %]<i>(Без групппы)</i>[% END %]<br />
     [% IF mycmd %]Команда: [% mycmd.name %]<br />[% END %]
     <small>Ваш IP: [% authenticate.ip %]<br />
     [% TIME %] </small><br />
-    <a href="[% authenticate.href_password_change_form %]">Изменить пароль</a>
-    :: <a href="[% authenticate.href_logout %]">Выйти</a>
-[% END %]
+    <a href="[% PREF auth/pass %]">Изменить пароль</a>
+    :: <a href="[% PREF auth/logout %]">Выйти</a>
     </div>
     <br />
 <!-- // Авторизация -->
-[% END # IF !denied %]
 
-[% IF authenticate.uid && !denied %]
                     <!-- Меню -->
 [% IF size(menu) > 0 %]
     <!--  Блок-меню -->
@@ -107,7 +101,6 @@
     </table>
     <!-- // Блок-меню -->
 [% END %]
-[% END # IF authenticate.uid && !denied %]
 
 [% IF allow_ausweis_list %]
 <br />
@@ -124,73 +117,28 @@
     </script>
 [% END %]
 
-[% IF event.view %]
-[% FOREACH event.open_list %]
-<br />
-<h3>[% name %]</h3>
-<table class="tbl">
-    <tr><td width="100"><b>Прошло КПП:</b></td>    <td><a href="[% href_ausweis %]">[% count_ausweis %]</a></td></tr>
-    <tr><td width="100"><b>Некомбатов:</b></td>    <td><a href="[% href_necombat %]">[% count_necombat %]</a></td></tr>
-</table>
-[% END %]
-[% END %]
-
     </td>
+[% END # IF user && !user.denied %]
     <td valign="top" class="content">
 [% IF read_only %]
     <div class="title" style="color: red">База в режиме "только чтение"</div>
 [% END %]
-[% IF !event.view %]
                     <!-- Заголовок -->
     <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %][% BLOCKDUP TITLE %]</div>
-[% END # IF !event.view %]
                     <!-- Контент -->
 [% BLOCK CONTENT %][% END %]
                     <!-- Конец контента -->
-[% IF !event.view %]
-    <br />
-[% END %]
     </td>
 </tr>
-[% ELSE # authenticate.uid %]
-<tr>
-    <td colspan="2" valign="top" class="content">
-        [% DUMPER patt %]
-                    <!-- Заголовок -->
-                    <div class="title">[% IF IS_DEVEL %][DEVELOPER] [% END %]Требуется авторизация</div>
-                    <!-- Контент -->
-                    <table width="100%" height="250" border="0" align="center" cellpadding="0" cellspacing="0">
-                    <tr><td align="center" valign="middle">
-    Для продолжения требуется авторизация на сервере!
-    <form action="[% authenticate.href_login %]" method="post">
-        [% IF auth_failed %]<div style="color:red; text-weight:bold;">
-            [% IF auth_failed == 2 %]Необходимо указать логин
-            [% ELSIF auth_failed == 3 %]Неверно указан логин или пароль
-            [% ELSE %]Ошибка входа ([% auth_failed %])[% END %]
-        </div>[% END %]
-        <input type="hidden" name="redirect" value="[% redirect %]">
-        <br />
-        Логин:<br />
-        <input type="text" name="login" /><br />
-        Пароль:<br />
-        <input type="password" name="password" /><br />
-        <center><input type="submit" value=" Войти " /> </center>
-    </form>
-                    </td></tr>
-                    </table>
-                    <!-- Конец контента -->
-    </td>
-</tr>
-[% END # authenticate.uid %]
 
-          <!-- Белая нижняя строчка copiryghts -->
-          <tr>
-            <td height="20" class="footer_copy" colspan="2">
-                <span class="hidecopy">developing by Cliff / Time: [% SCRIPT_TIME %] ([% RUNCOUNT %])</span>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                ver. [% version %] &copy;2011 Cliff.&nbsp;&nbsp;
-            </td>
-          </tr>
+<!-- Белая нижняя строчка copiryghts -->
+<tr>
+  <td height="20" class="footer_copy" colspan="2">
+      <span class="hidecopy">developing by Cliff / Time: [% SCRIPT_TIME %] ([% RUNCOUNT %])</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      ver. [% version %] &copy;2011 Cliff.&nbsp;&nbsp;
+  </td>
+</tr>
 
 </table>
 

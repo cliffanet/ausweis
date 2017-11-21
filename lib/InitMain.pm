@@ -26,6 +26,12 @@ __PACKAGE__->config(
     controller_extended => 1,
     dispatcher  => {
         default                         => 'C::Misc::default',
+    },
+    
+    return_custom => [qw/Operation/],
+);
+
+=pod
 
         #$::disp{AusweisFindRepeat}      => 'C::Ausweis::find_repeat',
         
@@ -52,9 +58,6 @@ __PACKAGE__->config(
         #$::disp{EventNecombatCommit}    => 'C::Event::necombat_commit',
         #$::disp{EventNecombatDeCommit}  => 'C::Event::necombat_decommit',
     },
-    
-    return_custom => [qw/Operation/],
-    
     plugins => [qw/ScriptTime
                     Session Authenticate Session::State Admin 
                     Admin::Edit 
@@ -81,6 +84,7 @@ __PACKAGE__->config(
         list_prefetch           => [qw/command group/],
     },
 );
+=cut
 
 __PACKAGE__->run();
 
@@ -90,6 +94,23 @@ sub const_init {
     versionDate => '2017-10-29',
     
     db => {},
+    
+    userError => {
+        1   => 'Неверно указано имя пользователя или пароль',
+        2   => 'Ошибка сохранения сессии в БД',
+        3   => 'Ошибка изменения сессии в БД',
+        4   => 'Логин не может быть пустым',
+        5   => 'Неизвестная ошибка авторизации',
+        6   => 'Недостаточно прав для выполнения операции',
+        7   => 'Недостаточно прав для отображения информации',
+        8   => 'Элемента не существует',
+        11  => 'Сессия не найдена',
+        12  => 'Изменился IP сессии',
+        13  => 'Произведен вход из другого места',
+        14  => 'Аккаунт заблокирован',
+        15  => 'Превышен интервал бездействия',
+        16  => 'Закончилось максимальное время сессии',
+    },
     
     rtypes    => [
         [Read       => 'r'  => "Чтение"],
@@ -336,6 +357,20 @@ sub http_after_init {
 }
 
 
+sub user { @_ > 1 ? $_[0]->data(user => $_[1]) : $_[0]->data->{user} }
+sub admin { @_ > 1 ? $_[0]->data(admin => $_[1]) : $_[0]->data->{admin} }
+
+
+sub http_accept {
+    my ($self, $path) = @_;
+    
+    $self->{_run_count} ||= 0;
+    $self->{_run_count} ++;
+    
+    C::Auth::init($self, $path)
+        || return $self->disable_dispatcher;
+}
+
 sub http_patt {
     my $self = shift;
     
@@ -392,14 +427,14 @@ sub http_patt {
         @{ $self->c('menu') || [] };
     
     my $state = 0;
-    if (my $st = $self->session_state) {
-        $state = {
-            code    => $st,
-            codeabs => abs($st),
-            msg     => $self->c(opstate => abs $st),
-        };
-        $self->session_state(0);
-    }
+    #if (my $st = $self->session_state) {
+    #    $state = {
+    #        code    => $st,
+    #        codeabs => abs($st),
+    #        msg     => $self->c(opstate => abs $st),
+    #    };
+    #    $self->session_state(0);
+    #}
     
     return {
         IS_DEVEL        => $self->c('isDevel') ? 1 : 0,
@@ -424,7 +459,7 @@ sub http_patt {
 sub setbasetemplate {
     my $self = shift;
     my $view = shift;
-    $view ||= $self->view_select('Main2'); # После переезда надо убрать ('Main2')
+    $view ||= $self->view_select;
     
     if ($self->req->param_bool('is_modal')) {
         $view->basetemplate('base_modal');
@@ -436,7 +471,7 @@ sub setbasetemplate {
 sub notfound {
     my $self = shift;
     
-    my $view = $self->view_select('Main2'); # После переезда надо убрать ('Main2')
+    my $view = $self->view_select;
     $view->template('notfound');
     $self->setbasetemplate($view);
     return (error => 000105) if $self->req->param_bool('is_ajax');
@@ -468,7 +503,7 @@ sub cantedit { # Возврат ошибки прав доступа для об
 sub template { #  Выбор шаблона, так же проверяется способ отображения - модальное окно или страница целиком
     my ($self, $template, $block) = @_;
     
-    my $view = $self->view_select('Main2'); # После переезда надо убрать ('Main2')
+    my $view = $self->view_select;
     $view->template($template);
     $view->block($block) if $block && ($self->req->param_int('is_modal') == 2);
     $self->setbasetemplate($view);
@@ -730,14 +765,6 @@ sub obj_event {
 
 
 
-
-
-sub http_accept {
-    my $self = shift;
-    
-    $self->{_run_count} ||= 0;
-    $self->{_run_count} ++;
-}
 
 sub FormError {
     my $self = shift;

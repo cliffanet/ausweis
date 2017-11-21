@@ -9,6 +9,7 @@ __PACKAGE__->table("user_list");
 __PACKAGE__->columns_array(qw/id login password gid cmdid rights menuflag family name otch phone/);
 
 __PACKAGE__->link(group => 'UserGroup', gid => 'id', {join_type => 'left'});
+__PACKAGE__->link(session => 'UserSession', id => 'uid', {join_type => 'left'});
 __PACKAGE__->link(command => 'Command', cmdid => 'id', {join_type => 'left'});
 
 sub create {

@@ -2,16 +2,23 @@ package V::Main;
 
 use strict;
 use base qw/
-        Clib::View::TT
+        Clib::View::Package
     /;
 
 =head2
-    Ñòàíäàðòíàÿ èíèöèàëèçàöèÿ
+    Ð¡Ñ‚Ð°Ð½Ð´Ð°Ñ€Ñ‚Ð½Ð°Ñ Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ
 =cut
 __PACKAGE__->config(
-    mould       => "base.tt",
-    INCLUDE_PATH=> "$::pathRoot/tt",
+    basetemplate        => "base",
+    FILE_DIR_RELATIVE   => "template",
+    $::isDevel ? (
+        MODULE_DIR_RELATIVE => "../../template.cach/ausweis",
+        FORCE_REBUILD       => 1,
+    ) : (),
+    PLUGIN              => [qw/Block Misc/],
+    JQUERY              => 1,
+    USE_UTF8            => 1,
+    'Content-type'      => 'text/html; charset=utf-8',
 );
-
 
 1;
