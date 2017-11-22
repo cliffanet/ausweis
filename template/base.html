@@ -69,9 +69,9 @@
     Вы вошли как: <b>[% user.login %]</b><br />
     Группа: [% IF user.group %][% user.group %][% ELSE %]<i>(Без групппы)</i>[% END %]<br />
     [% IF mycmd %]Команда: [% mycmd.name %]<br />[% END %]
-    <small>Ваш IP: [% authenticate.ip %]<br />
+    <small>Ваш IP: [% ip %]<br />
     [% TIME %] </small><br />
-    <a href="[% PREF auth/pass %]">Изменить пароль</a>
+    <a href="[% PREF auth/pform %]">Изменить пароль</a>
     :: <a href="[% PREF auth/logout %]">Выйти</a>
     </div>
     <br />

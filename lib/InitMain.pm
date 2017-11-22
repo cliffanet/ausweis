@@ -427,14 +427,14 @@ sub http_patt {
         @{ $self->c('menu') || [] };
     
     my $state = 0;
-    #if (my $st = $self->session_state) {
-    #    $state = {
-    #        code    => $st,
-    #        codeabs => abs($st),
-    #        msg     => $self->c(opstate => abs $st),
-    #    };
-    #    $self->session_state(0);
-    #}
+    if (my $st = $self->session_state) {
+        $state = {
+            code    => $st,
+            codeabs => abs($st),
+            msg     => $self->c(opstate => abs $st),
+        };
+        $self->session_state(0);
+    }
     
     return {
         IS_DEVEL        => $self->c('isDevel') ? 1 : 0,
@@ -524,7 +524,7 @@ sub excel {
 sub return_operation {
     my ($self, %p) = @_;
     
-    $self->disable_view();
+    $self->disable_view() if !delete($p{view});
     
     %p || return;
     
@@ -705,6 +705,20 @@ sub view_can_edit {
     }
     
     1;
+}
+
+sub session_state {
+    my $self = shift;
+    my $user = $self->user || return;
+    my $sess = $user->{session} || return;
+    
+    if ($sess->{id} && @_) {
+        my $state = shift;
+        $self->model('UserSession')->update({ state => $state }, { id => $sess->{id} });
+        $sess->{state} = $state;
+    }
+    
+    return $sess->{state};
 }
 
 #### ------------------------------------

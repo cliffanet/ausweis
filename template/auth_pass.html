@@ -1,0 +1,28 @@
+[% BLOCK TITLE %]Изменение пароля[% END %]
+[% BLOCK CONTENT %]
+    <form action="[% PREF auth/pass %]" method="post">
+    
+    <h3>Изменение пароля</h3>
+    <table class="tbl">
+    <tr>
+        <td class="ltitle">Старый пароль:</td>
+        <td><input type="password" name="p" class="stdin" value="" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Новый пароль:</td>
+        <td><input type="password" name="pn" class="stdin" value="" /></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Новый пароль еще раз:</td>
+        <td><input type="password" name="p2" class="stdin" value="" /></td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+            <input type="submit" value="Изменить">
+            <input type="button" value="Отмена" onClick="history.go(-1)">
+        </td>
+    </tr>
+    </table>
+    
+    </form>
+[% END %]

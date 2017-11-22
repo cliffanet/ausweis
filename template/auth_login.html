@@ -4,13 +4,13 @@
                     <tr><td align="center" valign="middle">
     Для продолжения требуется авторизация на сервере!
     <form action="[% PREF auth/login %]" method="post">
-        [% IF errno %]<div style="color:red; font-weight:bold;">[Ошибка [% errno %]] [% ERROR %]</div>[% END %]
-        [% IF redirect %]<input type="hidden" name="redirect" value="[% redirect %]">[% END %]
+        [% IF errno %]<div style="color:red; font-weight:bold;">[Ошибка [% errno %]] [% error %]</div>[% END %]
+        [% IF redirect %]<input type="hidden" name="r" value="[% redirect %]">[% END %]
         <br />
         Логин:<br />
-        <input type="text" name="login" /><br />
+        <input type="text" name="l" /><br />
         Пароль:<br />
-        <input type="password" name="password" /><br />
+        <input type="password" name="p" /><br />
         <center><input type="submit" value=" Войти " /> </center>
     </form>
                     </td></tr>
