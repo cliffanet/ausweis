@@ -126,7 +126,7 @@ sub const_init {
     
     rights => [
         "Доступ к системе",
-        [Main               => 1    => "Глобальный доступ"                  => qw/Lite Advanced/],
+        [Main               => 1    => "Глобальный доступ"                  => qw/Yes/],
         [Admins             => 2    => "Пользователи"                       => qw/Read Write/],
         'База аусвайсов',
         [BlokList           => 11   => "Блоки: список"                      => qw/Read/],
@@ -152,14 +152,14 @@ sub const_init {
     ],
     
     menu    => [
-        #"Администрирование",
-        #["Аккаунты"         =>  admin_read      => 'admin'],
-        'Администрирование',
+        "Администрирование",
+        ["Аккаунты"         =>  admin_read      => 'admin'],
+        #'Администрирование',
         #[ 'Аккаунты',           sub { shift->d->{admin}->{href_list} },
         #                        sub { $_[0]->rights_exists($rAdmins) } ],
         #[ 'Группы',             sub { shift->d->{admin_group}->{href_list} },
         #                        sub { $_[0]->rights_exists($rAdmins) } ],
-        #undef,
+        undef,
         #[ 'Печать',             sub { shift->href($::disp{PrintList}) },
         #                        sub { $_[0]->rights_exists($rPrint) } ],
         [ 'Модерация',      => preedit_first    => 'preedit/first' ],
@@ -199,13 +199,13 @@ sub const_init {
         11102       => 'Ошибочная попытка входа под Вашим аккаунтом из другого места',
         11103       => 'Был произведен вход под этим же аккаунтом из другого места',
             
-        20100       => 'Добавление администратора',
+        20100       => 'Добавление пользователя',
         20101       => 'Ошибка подтверждения пароля',
         20200       => 'Добавлние группы',
-        20300       => 'Изменение администратора',
+        20300       => 'Изменение пользователя',
         20301       => 'Ошибка подтверждения пароля',
         20400       => 'Изменение группы',
-        20500       => 'Удаление администратора',
+        20500       => 'Удаление пользователя',
         20600       => 'Удаление группы',
         
         # аусвайсы
@@ -288,7 +288,7 @@ sub http_after_init {
             ref($r) || next;
             my ($name, $num, $title, @variant) = @$r;
             $num{$name} = $num;
-            eval "\$\::r$name = $num;";
+            #eval "\$\::r$name = $num;";
         }
     }
     my %val = ();
@@ -297,7 +297,7 @@ sub http_after_init {
             ref($r) || next;
             my ($name, $val, $title) = @$r;
             $val{$name} = $val;
-            eval "\$\::$name = $val;";
+            #eval "\$\::$name = $val;";
         }
     }
     
@@ -594,6 +594,7 @@ sub return_operation {
         # Ошибка после формы редактирования
         my $form = $p{upar};
         if ($form && %$form) {
+            # Старая форма редактирования через ParamParse
             my @form =
                 map {
                     my $val = $form->{$_};
@@ -610,6 +611,23 @@ sub return_operation {
                     map { $_ .  '-' . $form->{$_}->[0]->{num} }
                     grep { $form->{$_} && $form->{$_}->[0] }
                     keys %$form;
+                if (@f) {
+                    push @form, 'field_error=' . join(',', @f);
+                }
+            }
+            $formpar = join '&', @form;
+        }
+        elsif ($p{fpar}) {
+            # Новая форма редактирования, где мы параметры парсим прям в методе и ошибки формируем там же
+            my @form =
+                map { $_ . '=' . Clib::Mould->ToUrl($self->req->param($_)) }
+                grep { defined $self->req->param($_) }
+                @{ $p{fpar} };
+            if ($p{ferr}) {
+                my @f =
+                    map { $_ .  '-' . $p{ferr}->{$_} }
+                    grep { $p{ferr}->{$_} }
+                    @{ $p{fpar} };
                 if (@f) {
                     push @form, 'field_error=' . join(',', @f);
                 }
@@ -728,6 +746,20 @@ sub session_state {
 #    'CONCAT(`abon_profile`.`jur_forma`, \' \', `abon_profile`.`jur_name`), '.
 #    'CONCAT(`abon_profile`.`family`, \' \', '.
 #    '`abon_profile`.`name`, \' \', `abon_profile`.`otch`)) as `xname`';
+sub obj_user {
+    my $self = shift;
+    
+    $self->object_by_model(
+        'UserList',
+    )
+}
+sub obj_grp {
+    my $self = shift;
+    
+    $self->object_by_model(
+        'UserGroup',
+    )
+}
 sub obj_blok {
     my $self = shift;
     

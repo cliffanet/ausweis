@@ -1,0 +1,63 @@
+[% BLOCK TITLE %]Пользователи[% END %]
+[% BLOCK CONTENT %]
+    <table class="tbl">
+        <tr class="title">
+            <td width="200">Группы</td>
+            <td></td>
+        </tr>
+    [% FOREACH grp = glist %]
+        <tr>
+            <td>[% grp.name %]</td>
+            <td>
+                <a href="[% PREF admin/gedit: grp.id %]">Изменить</a>
+            </td>
+        </tr>
+    [% END %]
+        <tr><td colspan="2" class="submit">
+            <a href="[% PREF admin/gadding %]">добавить группу</a>
+        </td></tr>
+    </table>
+    
+    <br />
+    <!-- Поиск -->
+    <h3>Поиск пользователей</h3>
+    <form action="[% PREF admin %]">
+    <table class="tbl">
+        <tr>
+            <td class="ltitle">Логин / Команда:</td>
+            <td><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
+        </tr>
+        <tr><td colspan="2" class="submit">
+            <a href="[% PREF admin/uadding %]">добавить пользователя</a>
+        </td></tr>
+    </table>
+   </form>
+    
+    <div id="search-result">
+    [% BLOCK result %]
+    [% IF ulist %]
+    <h3>Пользователи ([% count %][% IF countall != count %] из [% countall %][% END %])</h3>
+    <table class="tbl">
+        <tr class="title">
+            <td width="200">Логин</td>
+            <td width="300">Команда</td>
+            <td></td>
+        </tr>
+    [% IF size(ulist) > 0 %]
+    [% FOREACH u = ulist %]
+        <tr>
+            <td>[% u.login %]</td>
+            <td>[% IF u.command.id %]<a href="[% PREF command/info: u.command.id %]">[% u.command.name %]</a>[% ELSE %]- нет команды -[% END %]</td>
+            <td><a href="[% PREF admin/uedit: u.id %]">Изменить</a></td>
+        </tr>
+    [% END %]
+    [% ELSE %]
+        <tr><td colspan="3" style="height:50px;text-align:center;vertical-align:middle;">
+            ничего не найдено
+        </td></tr>
+    [% END %]
+    </table>
+    [% END %]
+    [% END %]
+    </div>
+[% END %]

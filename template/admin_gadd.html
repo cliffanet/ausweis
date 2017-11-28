@@ -1,0 +1,19 @@
+[% BLOCK TITLE %]Добавление группы[% END %]
+[% BLOCK CONTENT %]
+    <form action="[% PREF admin/gadd %]" method="post">
+    <h3>Инфо</h3>
+    <table class="tbl">
+    <tr>
+        <td class="ltitle" style="width:250px">Название:   [% BLOCK ferr: e=ferror.name %][% IF e %]<div class="form_error">[% e %]</div>[% END %][% END %]</td>
+        <td><input type="text"  class="stdin" name="name" value="[% form.name %]"></td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+        <input type="submit" value="Сохранить">
+        <input type="button" value="Отмена" onClick="history.go(-1)">
+        </td>
+    </tr>
+    </table>
+    
+    </form>
+[% END %]

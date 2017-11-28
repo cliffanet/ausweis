@@ -1,0 +1,53 @@
+[% BLOCK TITLE %][% grp.name %] - Группы пользователей[% END %]
+[% BLOCK CONTENT %]
+    <form action="[% PREF admin/gset: grp.id %]" method="post">
+    <h3>Инфо</h3>
+    <table class="tbl">
+    <tr>
+        <td class="ltitle" style="width:250px">Логин:   [% BLOCK ferr: e=ferror.name %][% IF e %]<div class="form_error">[% e %]</div>[% END %][% END %]</td>
+        <td><input type="text"  class="stdin" name="name" value="[% form.name %]"></td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+        <input type="submit" value="Сохранить">
+        <input type="button" value="Отмена" onClick="history.go(-1)">
+    <br />
+    <a href="[% PREF admin/gdel: grp.id %]"
+        onClick="return confirm('Удаление Группы: [% grp.name %]\nПродолжать?');"
+        >удалить</a>
+        </td>
+    </tr>
+    </table>
+    
+    <br />
+    
+    <h3>Права</h3>
+    <table class="tbl">
+    [% FOREACH r = rights_list %]
+        [% IF r %]
+        <tr>
+            <td class="ltitle" style="width:250px">[% r.name %]</td>
+            <td>
+                <select name="[% r.fname %]" class="stdin">
+                    <option value="[% dcode %]">&lt;- нет -&gt;</option>
+                [% FOREACH v = r.var_list %]
+                    <option value="[% v.code %]"[% IF r.gcode eq v.code %] selected[% END %]>[% v.name %]</option>
+                [% END %]
+                </select>
+            </td>
+        </tr>
+        [% ELSE %]
+        <tr><td colspan="2">&nbsp;</td></tr>
+        [% END %]
+    [% END %]
+    <tr>
+        <td class="submit" colspan="2">
+            <input type="submit" value="Сохранить">
+            <input type="button" value="Отмена" onClick="history.go(-1)">
+        </td>
+    </tr>
+    </table>
+
+    
+    </form>
+[% END %]

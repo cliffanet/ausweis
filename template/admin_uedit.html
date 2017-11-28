@@ -1,0 +1,84 @@
+[% BLOCK TITLE %][% user.login %] - Аккаунты пользователей[% END %]
+[% BLOCK CONTENT %]
+    <form action="[% PREF admin/uset: user.id %]" method="post">
+    <h3>Инфо</h3>
+    <table class="tbl">
+    <tr>
+        <td class="ltitle" style="width:250px">Логин:   [% BLOCK ferr: e=ferror.login %][% IF e %]<div class="form_error">[% e %]</div>[% END %][% END %]</td>
+        <td><input type="text"  class="stdin" name="login" value="[% form.login %]"></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Пароль:</td>
+        <td><input type="password" class="stdin" name="ps" value=""></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Подтверждение:               [% BLOCKDUP ferr(ferror.password) %]</td>
+        <td><input type="password" class="stdin" name="p2" value=""></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Группа:                      [% BLOCKDUP ferr(ferror.gid) %]</td>
+        <td>
+                <select name="gid" class="stdin">
+                    <option value="0"> &lt;- выбрать -&gt; </option>
+    [% FOREACH group = group_list %]
+                    <option value="[% group.id %]"[% IF group.id == form.gid %] selected[% END %]>
+                        [% group.name %]</option>
+    [% END %]
+                </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="ltitle">Команда:                     [% BLOCKDUP ferr(ferror.cmdid) %]</td>
+        <td>
+            <select name="cmdid" class="stdin">
+                <option value="0"> &lt;- нет привязки -&gt; </option>
+                [% FOREACH cmd = cmd_list %]<option value="[% cmd.id %]"[% IF cmd.id == form.cmdid %] selected[% END %]>[% cmd.name %][% IF cmd.blok.id %] ([% cmd.blok.name %])[% END %]</option>[% END %]
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td class="submit" colspan="2">
+        <input type="submit" value="Сохранить">
+        <input type="button" value="Отмена" onClick="history.go(-1)">
+    <br />
+    <a href="[% PREF admin/udel: user.id %]"
+        onClick="return confirm('Удаление Администратора: [% user.login %]\nПродолжать?');"
+        >удалить</a>
+        </td>
+    </tr>
+    </table>
+    
+    <br />
+    
+    <h3>Права</h3>
+    <table class="tbl">
+    [% FOREACH r = rights_list %]
+        [% IF r %]
+        <tr>
+            <td class="ltitle" style="width:250px">[% r.name %]</td>
+            <td>
+                <select name="[% r.fname %]" class="stdin">
+                    <option value="[% dcode %]">&lt;- нет -&gt;</option>
+                    <option value="[% gcode %]"[% IF r.ucode eq gcode %] selected[% END %]
+                        >&lt;- как у группы ([% IF user.gid %][% r.gvar.name %][% ELSE %]нет группы[% END %]) -&gt;</option>
+                [% FOREACH v = r.var_list %]
+                    <option value="[% v.code %]"[% IF r.ucode eq v.code %] selected[% END %]>[% v.name %]</option>
+                [% END %]
+                </select>
+            </td>
+        </tr>
+        [% ELSE %]
+        <tr><td colspan="2">&nbsp;</td></tr>
+        [% END %]
+    [% END %]
+    <tr>
+        <td class="submit" colspan="2">
+            <input type="submit" value="Сохранить">
+            <input type="button" value="Отмена" onClick="history.go(-1)">
+        </td>
+    </tr>
+    </table>
+
+    
+    </form>
+[% END %]

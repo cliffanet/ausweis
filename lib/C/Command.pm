@@ -151,11 +151,11 @@ sub info :
     
     my @ausweis_preedit_list =
         map { 
-            $_->{allow_cancel} = 
-                $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
-                    $self->rights_check($::rPreeditCancel, $::rMy) ?
-                        ($_->{uid} == $self->user->{id} ? 1 : 0) : 0
-                );
+            #$_->{allow_cancel} = 
+            #    $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
+            #        $self->rights_check($::rPreeditCancel, $::rMy) ?
+            #            ($_->{uid} == $self->user->{id} ? 1 : 0) : 0
+            #    );
             #$p->{href_show} = $self->href($::disp{CommandHistory}.'#pre%d', $rec->{id}, $p->{id});
             #$p->{href_cancel} = $self->href($::disp{PreeditCancel}, $p->{id});
             $_;
