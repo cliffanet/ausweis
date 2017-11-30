@@ -13,6 +13,7 @@ use Clib::Mould;
 ###     Код модуля: 99
 #############################################
 
+=pod
 sub _item {
     my $self = shift;
     
@@ -53,6 +54,7 @@ sub _item {
     
     return $item;
 }
+=cut
 
 sub list :
     ReturnPatt

@@ -12,6 +12,7 @@ use Encode '_utf8_on', 'encode';
 ###     Код модуля: 95
 #############################################
 
+=pod
 sub _item {
     my $self = shift;
     
@@ -39,6 +40,7 @@ sub _item {
     
     return $item;
 }
+=cut
 
 sub first :
     ReturnPatt
@@ -82,7 +84,6 @@ sub first :
                 )
             ];
         $d{fio_exists} = [
-                map { C::Ausweis::_item($self, $_) }
                 $self->model('Ausweis')->search(
                     { 
                         blocked => 0, 
