@@ -7,16 +7,13 @@ use warnings;
 
 sub default {
     my ($self) = @_;
-    return if $self->d->{denied};
-    #$self->patt(TITLE => $text::titles{default});
-    #$self->view_select->subtemplate("default.tt");
 
-        if ($self->rights_exists($::rAusweisList)) {
-            $self->forward($::disp{AusweisList});
-        }
-        elsif ($self->rights_check($::rCommandInfo, $::rMy)) {
-            $self->forward(sprintf($::disp{CommandShowMy}, 'info'));
-        }
+    if ($self->rcheck('ausweis_list')) {
+        $self->forward('ausweis/list');
+    }
+    elsif ($self->rcheck('command_info')) {
+        $self->forward('command/my');
+    }
 }
 
 sub login_er {

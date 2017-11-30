@@ -151,7 +151,7 @@ sub info :
     
     my @ausweis_preedit_list =
         map { 
-            #$_->{allow_cancel} = 
+            $_->{allow_cancel} = 1;
             #    $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
             #        $self->rights_check($::rPreeditCancel, $::rMy) ?
             #            ($_->{uid} == $self->user->{id} ? 1 : 0) : 0
@@ -254,11 +254,11 @@ sub history :
             map {
                 $eid{$_->{id}}=$_;
                 $_->{field_list} = [];
-                $_->{allow_cancel} = 
-                    $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
-                        $self->rights_check($::rPreeditCancel, $::rMy) ?
-                            ($_->{uid} == $self->user->{id} ? 1 : 0) : 0
-                    );
+                $_->{allow_cancel} = 1;
+                    #$self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
+                    #    $self->rights_check($::rPreeditCancel, $::rMy) ?
+                    #        ($_->{uid} == $self->user->{id} ? 1 : 0) : 0
+                    #);
                 $_;
             }
             $self->model('Preedit')->search([
