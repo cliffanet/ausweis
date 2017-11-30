@@ -115,6 +115,10 @@ sub login :
     
     my %error = ( login => $login, $redirect ? (redirect => $redirect) : () );
     
+    foreach my $s ($login, $password) {
+        Encode::_ut8_on(_utf8_on($s));
+    }
+    
     # Проверяем логин и пароль
     if (!$login) {
         $self->log("Empty login");
