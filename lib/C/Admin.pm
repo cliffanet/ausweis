@@ -125,7 +125,7 @@ sub uadd :
     if (defined($pass) && ($pass ne '')) {
         my $pass2 = $q->param('p2');
         foreach my $s ($pass, $pass2) {
-            Encode::_ut8_on(_utf8_on($s));
+            _utf8_on($s);
         }
         if (!defined($pass2) || ($pass eq $pass2)) {
             $new{password} = { PASSWORD => $pass };
@@ -271,7 +271,7 @@ sub uset :
     if (defined($pass) && ($pass ne '')) {
         my $pass2 = $q->param('p2');
         foreach my $s ($pass, $pass2) {
-            Encode::_ut8_on(_utf8_on($s));
+            _utf8_on($s);
         }
         if (!defined($pass2) || ($pass eq $pass2)) {
             $upd{password} = { PASSWORD => $pass };

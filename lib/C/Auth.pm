@@ -2,6 +2,8 @@ package C::Auth;
 use strict;
 use warnings;
 
+use Encode '_utf8_on', 'encode';
+
 sub init {
     my ($self, $path) = @_;
     
@@ -116,7 +118,7 @@ sub login :
     my %error = ( login => $login, $redirect ? (redirect => $redirect) : () );
     
     foreach my $s ($login, $password) {
-        Encode::_ut8_on(_utf8_on($s));
+        _utf8_on($s);
     }
     
     # Проверяем логин и пароль
@@ -211,6 +213,7 @@ sub pass :
     # Сверяем старый пароль
     my $password = $self->req->param('p');
     $password = '' if !defined($password);
+    _utf8_on($password);
     my ($user1) = $self->model('UserList')->search({
         id      => $user->{id},
         password=> { 'PASSWORD' => $password },
@@ -226,6 +229,9 @@ sub pass :
     if (!defined($passnew) || !length($passnew)) {
         $self->error("New password empty");
         return (error => 10302, href => '');
+    }
+    foreach my $s ($passnew, $password2) {
+        _utf8_on($s);
     }
     if (!defined($password2) || ($passnew ne $password2)) {
         $self->error("New password not confirmed");
