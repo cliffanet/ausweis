@@ -25,31 +25,31 @@
 
 <h3>История</h3>
 <table class="tbl">
-[% FOREACH list %]
+[% FOREACH h = list %]
 <tr>
     <td class="ltitle" style="width:250px">
         <a name="pre[% id %]"></a>
-        [% IF op=='C' %]Добавление[% ELSIF op=='E' %]Редактирование[% ELSIF op=='D' %]Удаление[% END %]
-        [% IF tbl=='Ausweis' %]аусвайса[% IF ausweis.id %] (<a href="[% ausweis.href_info %]">[% ausweis.numid %]</a>)[% END %][% END %]:<br />
-        <small>[% DATETIME dtadd %]<br />
-        [% user.login %][% IF ip %] [[% ip %]][% END %]<br /></small>
-        [% IF modered > 0 %]<div style="color: green">+ [% comment %]</div>
-        [% ELSIF modered < -1 %]<div style="color: red">Отменено пользователем</div>
-        [% ELSIF modered < 0 %]<div style="color: red">Отклонено: [% comment %]</div>
+        [% IF h.op eq 'C' %]Добавление[% ELSIF h.op eq 'E' %]Редактирование[% ELSIF h.op eq 'D' %]Удаление[% END %]
+        [% IF h.tbl eq 'Ausweis' %]аусвайса[% IF h.ausweis.id %] (<a href="[% PREF ausweis/info: h.ausweis.id %]">[% h.ausweis.numid %]</a>)[% END %][% END %]:<br />
+        <small>[% DATETIME h.dtadd %]<br />
+        [% h.user.login %][% IF h.ip %] [[% h.ip %]][% END %]<br /></small>
+        [% IF h.modered > 0 %]<div style="color: green">+ [% h.comment %]</div>
+        [% ELSIF h.modered < -1 %]<div style="color: red">Отменено пользователем</div>
+        [% ELSIF h.modered < 0 %]<div style="color: red">Отклонено: [% comment %]</div>
         [% ELSE %]
             <div style="color: yellow"><i>ожидает модерации</i>
-            [% IF allow_cancel %](<a href="[% href_cancel %]">отменить</a>)[% END %]
+            [% IF h.allow_cancel %](<a href="[% PREF preedit/cancel: h.id %]">отменить</a>)[% END %]
             </div>[% END %]
     </td>
     <td>
-    [% FOREACH field_list %]
-        <a href="javascript: fld_show('fld_[% id %]');">[% param %]</a>[% IF loop.next %], [% END %]
+    [% FOREACH f = h.field_list %]
+        <a href="javascript: fld_show('fld_[% id %]');">[% f.param %]</a>
     [% END %]
         <br />
-    [% FOREACH field_list %]
-        <div id="fld_[% id %]" style="display:none; padding-left:20px;">
-            <b>[% param %]</b><br />
-            <small><u>Значение:</u> [% value %][% IF enold %]<br /><u>Старое:</u> [% old %][% END %]</small>
+    [% FOREACH f = h.field_list %]
+        <div id="fld_[% f.id %]" style="display:none; padding-left:20px;">
+            <b>[% f.param %]</b><br />
+            <small><u>Значение:</u> [% f.value %][% IF f.enold %]<br /><u>Старое:</u> [% f.old %][% END %]</small>
         </div>
     [% END %]
     </td>
