@@ -64,9 +64,11 @@ sub list :
     $self->view_rcheck('ausweis_list') || return;
     $self->template("ausweis_list", 'CONTENT_result');
     
+    my @qsrch = ();
     my $srch = {};
     my $s = $self->req->param_str('srch');
     _utf8_on($s);
+    push @qsrch, { f => 'srch', val => $s };
     if (my $text = $s) {
         $text =~ s/([%_])/\\$1/g;
         $text =~ s/\*/%/g;
@@ -82,6 +84,7 @@ sub list :
     
     my $numidnick = $self->req->param_str('numidnick');
     _utf8_on($numidnick);
+    push @qsrch, { f => 'numidnick', val => $numidnick };
     if (my $num = $numidnick) {
         if ($num =~ /^\d{10}$/) {
             $srch->{numid} = $num;
@@ -95,6 +98,7 @@ sub list :
     }
     
     my $blkid = $self->req->param_dig('blkid');
+    push @qsrch, { f => 'blkid', val => $blkid };
     my $blok;
     if ($blkid) {
         $srch->{blkid} = $blkid > 0 ? $blkid : 0;
@@ -104,6 +108,7 @@ sub list :
     }
     
     my $cmdid = $self->req->param_dig('cmdid');
+    push @qsrch, { f => 'cmdid', val => $cmdid };
     my $cmd;
     if ($cmdid) {
         $srch->{cmdid} = $cmdid > 0 ? $cmdid : 0;
@@ -135,6 +140,7 @@ sub list :
     
     return
         srch    => $s,
+        qsrch => $self->qsrch(@qsrch),
         numidnick => $numidnick,
         blkid   => $blkid,
         blok    => $blok,

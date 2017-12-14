@@ -21,17 +21,25 @@
     <table class="tbl">
         <tr class="title">
             <td>Название</td>
+            <td width="70">Команд</td>
         </tr>
     [% IF size(list) > 0 %]
     [% FOREACH bl = list %]
         <tr>
             <td><a title="Просмотр информации о блоке" alt="Просмотр информации о блоке" href="[% PREF blok/info: bl.id %]">[% bl.name %]</a></td>
+            <td align="right">[% IF bl.cmdcount %]<a href="[% PREF command/list %][% IF qsrch.full %][% qsrch.full %]&[% ELSE %]?[% END %]blkid=[% bl.id %]">[% bl.cmdcount %]</a>[% END %]</td>
         </tr>
     [% END %]
     [% ELSE %]
         <tr><td colspan="2" style="height:50px;text-align:center;vertical-align:middle;">
-            ничего не найдено
+            блоков не найдено
         </td></tr>
+    [% END %]
+    [% IF noblock_count > 0 %]
+        <tr>
+            <td>&lt;- без блока -&gt;</td>
+            <td align="right"><a href="[% PREF command/list %][% IF qsrch.full %][% qsrch.full %]&[% ELSE %]?[% END %]blkid=-1">[% noblock_count %]</a></td>
+        </tr>
     [% END %]
     </table>
     [% END %]

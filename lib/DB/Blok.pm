@@ -14,6 +14,8 @@ __PACKAGE__->columns_hash(
     photo       => { skip => 1 },
 );
 
+__PACKAGE__->link(command => 'Command', id => 'blkid', {join_type => 'left'});
+
 sub create {
     my ($self, $new) = @_;
     

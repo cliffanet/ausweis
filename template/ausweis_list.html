@@ -2,28 +2,31 @@
 [% BLOCK CONTENT %]
     <!-- Поиск -->
    <h3>Поиск</h3>
-   <form action="[% PREF ausweis/list %]">
+   <form action="[% PREF ausweis/list %][% qsrch.no_srch %]">
    <table class="tbl">
        <tr>
            <td class="ltitle">По всем полям:</td>
-           <td><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
+           <td colspan="2"><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
        </tr>
     [% IF numidnick %]
         <tr>
             <td class="ltitle">Номер / Ник:</td>
             <td>[% numidnick %]</td>
+            <td width="80"><a href="[% PREF ausweis/list %][% qsrch.no_numidnick %]">отменить</a></a></td>
         </tr>
     [% END %]
     [% IF blkid %]
         <tr>
             <td class="ltitle">Блок:</td>
             <td>[% IF blkid > 0 %][% blok.name %][% ELSE %]&lt;- без блока -&gt;[% END %]</td>
+            <td width="80"><a href="[% PREF ausweis/list %][% qsrch.no_blkid %]">отменить</a></a></td>
         </tr>
     [% END %]
     [% IF cmdid %]
         <tr>
             <td class="ltitle">Команда:</td>
             <td>[% IF cmdid > 0 %][% cmd.name %][% ELSE %]&lt;- без команды -&gt;[% END %]</td>
+            <td width="80"><a href="[% PREF ausweis/list %][% qsrch.no_cmdid %]">отменить</a></a></td>
         </tr>
     [% END %]
    </table>

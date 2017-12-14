@@ -64,9 +64,13 @@ sub list :
     $self->view_rcheck('blok_list') || return;
     $self->template("blok_list", 'CONTENT_result');
     
+    my $noblock_count = 0;
+    
+    my @qsrch = ();
     my $srch = {};
     my $s = $self->req->param_str('srch');
     _utf8_on($s);
+    push @qsrch, { f => 'srch', val => $s };
     if (my $name = $s) {
         $name =~ s/([%_])/\\$1/g;
         $name =~ s/\*/%/g;
@@ -76,17 +80,25 @@ sub list :
         #$name .= "%" if $name !~ /^(.*[^\\])?%$/;
         $srch->{name} = { LIKE => $name };
     }
+    else {
+        $noblock_count = $self->model('Command')->count({ blkid => 0 });
+    }
 
     
     my @list = $self->model('Blok')->search(
             $srch,
             {
                 order_by => 'name',
+                join => 'command',
+                '+columns' => ['COUNT(`command`.`id`) as `blok.cmdcount`'],
+                group_by => 'id',
             },
         );
     
     return
         srch => $s,
+        qsrch => $self->qsrch(@qsrch),
+        noblock_count => $noblock_count,
         list => \@list,
 }
 

@@ -833,9 +833,9 @@ sub qsrch {
     my @qsrch = grep { $_->{val} } @_;
     my %qsrch =
         map {
-            my $val = Clib::Mould->ToUrl($_->{val});
+            my $val = $_->{val};
             _utf8_off($val);
-            $_->{f} => $val;
+            $_->{f} => Clib::Mould->ToUrl($val);
         }
         @qsrch;
     
