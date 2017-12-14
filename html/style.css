@@ -14,6 +14,20 @@ h3 {
     padding: 5px;
 }
 
+.hidden {
+    display: none;
+}
+
+h3 a, h3 a:link, h3 a:visited, h3 a:active {
+    display: block;
+    margin: 0 0 0px 0;
+    background: url(/airsoftclub/title2.png) 0 0px repeat-x;
+    padding: 0;
+    font: 15px Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: #FFF;
+}
+
 div.menu_blok_title {
     //background: url('/images/title01.gif') no-repeat;
     //font-size: 14px;

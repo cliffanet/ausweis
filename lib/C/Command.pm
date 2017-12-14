@@ -146,7 +146,14 @@ sub info :
     
     my @ausweis_list =
         $self->model('Ausweis')->search(
-            { cmdid => $cmd->{id} },
+            { cmdid => $cmd->{id}, blocked => 0 },
+            {
+                order_by => 'nick',
+            },
+        );
+    my @ausweis_blocked_list =
+        $self->model('Ausweis')->search(
+            { cmdid => $cmd->{id}, blocked => 1 },
             {
                 order_by => 'nick',
             },
@@ -204,6 +211,7 @@ sub info :
         
         ausweis_list => \@ausweis_list,
         ausweis_preedit_list => \@ausweis_preedit_list,
+        ausweis_blocked_list => \@ausweis_blocked_list,
         
         cmd_account_list => \@cmd_account_list,
         ausweis_history_my => \@ausweis_history_my,
