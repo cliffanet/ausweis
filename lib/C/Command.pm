@@ -314,16 +314,26 @@ sub event :
     $blok = $self->model('Blok')->byId($cmd->{blkid}) if $cmd->{blkid};
     
     my %ev;
-    my @list =
-        map {
-            $_->{ausweis_list} = [];
-            $ev{$_->{id}} = $_;
-            $_;
-        }
+    my @event =
         $self->model('Event')->search(
             {},
-            { order_by => 'date', },
+            { order_by => '-date', },
         );
+    my %year = ();
+    my @year;
+    my $hidden = 0;
+    foreach my $ev (@event) {
+        $ev->{ausweis_list} = [];
+        $ev{$ev->{id}} = $ev;
+        my ($year) = ($ev->{date} =~ /^(\d{4})\-/);
+        $year ||= '-';
+        my $y = $year{$year};
+        if (!$y) {
+            $y = ($year{$year} = { year => $year, list => [], hidden => $hidden++ });
+            push @year, $y;
+        }
+        push @{ $y->{list} }, $ev;
+    }
         
     push(@{ $ev{ $_->{event}->{evid} }->{ausweis_list} }, $_)
         foreach
@@ -338,7 +348,8 @@ sub event :
     return
         cmd => $cmd,
         blok => $blok,
-        list => \@list,
+        event_list => \@event,
+        year_list => \@year,
 }
 
 

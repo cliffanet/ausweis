@@ -9,35 +9,36 @@
 
 <br />
 
-[% FOREACH list %]
-<h3>[% name %]</h3>
-<table class="tbl">
-    <tr class="title">
-        <td width="120">Время</td>
-        <td width="100">Номер</td>
-        <td width="200">Ник</td>
-        <td></td>
-    </tr>
-[% IF size(ausweis_list) > 0 %]
-[% FOREACH ausweis_list %]
-    <tr>
-        <td align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% DATETIME event.dtadd %]</a></td>
-        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
-        <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
-        <td>
-            [% IF cmdid != event.cmdid %]
-            Сменил команду: 
-            <a title="Просмотр информации о команде" alt="Просмотр информации о команде" href="[% command.href_info %]">[% command.name %]</a>
-            [% END %]
-        </td>
-    </tr>
-[% END %]
-[% ELSE %]
-    <tr><td colspan="5" style="height:50px;text-align:center;vertical-align:middle;">
-        Команда не участвовала в данном мероприятии
-    </td></tr>
-[% END %]
-</table>
-<br />
-[% END # foreach list %]
+[% FOREACH y = year_list %]
+<h3><a href="#" data-hide-target="#ev_year_[% y.year %]">[% y.year %]</a></h3>
+<div id="ev_year_[% y.year %]"[% IF y.hidden %] class="hidden"[% END %]>
+    [% FOREACH y.list %]
+    <table class="tbl">
+        <tr class="title">
+            <td colspan="4">[% name %]</td>
+        </tr>
+    [% IF size(ausweis_list) > 0 %]
+    [% FOREACH ausweis_list %]
+        <tr>
+            <td width="120" align="right"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% DATETIME event.dtadd %]</a></td>
+            <td width="100"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% numid %]</a></td>
+            <td width="200"><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% href_info %]">[% nick %]</a></td>
+            <td>
+                [% IF cmdid != event.cmdid %]
+                Сменил команду: 
+                <a title="Просмотр информации о команде" alt="Просмотр информации о команде" href="[% command.href_info %]">[% command.name %]</a>
+                [% END %]
+            </td>
+        </tr>
+    [% END %]
+    [% ELSE %]
+        <tr><td colspan="4" style="height:50px;text-align:center;vertical-align:middle;">
+            Команда не участвовала в данном мероприятии
+        </td></tr>
+    [% END %]
+    </table>
+    <br />
+    [% END # foreach list %]
+</div>
+[% END # FOREACH y = year_list %]
 [% END %]
