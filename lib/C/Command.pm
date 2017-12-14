@@ -73,9 +73,11 @@ sub list :
     $self->view_rcheck('command_list') || return;
     $self->template("command_list", 'CONTENT_result');
     
+    my @qsrch = ();
     my $srch = {};
     my $s = $self->req->param_str('srch');
     _utf8_on($s);
+    push @qsrch, { f => 'srch', val => $s };
     if (my $name = $s) {
         $name =~ s/([%_])/\\$1/g;
         $name =~ s/\*/%/g;
@@ -87,6 +89,7 @@ sub list :
     }
     
     my $blkid = $self->req->param_dig('blkid');
+    push @qsrch, { f => 'blkid', val => $blkid };
     my $blok;
     if ($blkid) {
         $srch->{blkid} = $blkid > 0 ? $blkid : 0;
@@ -112,9 +115,9 @@ sub list :
             },
         );
     
-    
     return
         srch    => $s,
+        qsrch => $self->qsrch(@qsrch),
         blkid   => $blkid,
         blok    => $blok,
         list    => \@list,

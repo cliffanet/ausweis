@@ -17,6 +17,27 @@
         return result;
     }
     
+    function findReplaceParameter(parameterName, val) {
+        var result = [],
+            tmp = [],
+            isexists = 0;
+        location.search
+            .substr(1)
+            .split("&")
+            .forEach(function (item) {
+              tmp = item.split("=");
+              if (tmp[0] === parameterName) {
+                isexists = 1;
+                tmp[1] = encodeURIComponent(val);
+              }
+              result.push(tmp[0] + '=' + tmp[1]);
+            });
+        if (!isexists) {
+            result.unshift(parameterName + '=' + encodeURIComponent(val));
+        }
+        return result.join('&');
+    }
+    
     var methods = {
         init    : function(opts) {
             
@@ -136,8 +157,10 @@
                             success: function(res) {
                                 $(data.target).html(res);
                                 data.text = txt;
-                                if (!noHistory)
-                                    history.replaceState('', document.title, txt === '' ? location.pathname : '?srch=' + encodeURIComponent(txt));
+                                if (!noHistory) {
+                                    var q = findReplaceParameter('srch', txt);
+                                    history.replaceState('', document.title, q === '' ? location.pathname : '?' + q);
+                                }
                             },
                             complete: function() {
                                 data.request = null;

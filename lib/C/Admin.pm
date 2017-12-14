@@ -19,9 +19,11 @@ sub _root :
     my @group = $self->model('UserGroup')->search({}, { order_by => 'name' });
     my %grp = map { ($_->{id} => $_) } @group;
     
+    my @qsrch = ();
     my $srch = {};
     my $s = $self->req->param_str('srch');
     _utf8_on($s);
+    push @qsrch, { f => 'srch', val => $s };
     if (my $name = $s) {
         $name =~ s/([%_])/\\$1/g;
         $name =~ s/\*/%/g;
@@ -33,6 +35,16 @@ sub _root :
             login           => { LIKE => $name },
             'command.name'  => { LIKE => $name },
         };
+    }
+    
+    my $gid = $self->req->param_dig('gid');
+    push @qsrch, { f => 'gid', val => $gid };
+    my $group;
+    if ($gid) {
+        $srch->{gid} = $gid > 0 ? $gid : 0;
+        if ($gid > 0) {
+            $group = $self->model('UserGroup')->byId($gid);
+        }
     }
     
     my ($count, $countall);
@@ -59,6 +71,9 @@ sub _root :
     
     return
         srch    => $s,
+        qsrch => $self->qsrch(@qsrch),
+        gid     => $gid,
+        group   => $group,
         count   => $count,
         countall=> $countall,
         ulist   => \@user,

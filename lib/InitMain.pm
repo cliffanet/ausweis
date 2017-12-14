@@ -12,6 +12,7 @@ require "$::pathRoot/conf/text.conf";
 
 use Func;
 use Img;
+use Encode '_utf8_off';
 
 __PACKAGE__->config(
     redefine        => $::pathRoot.'/conf/redefine.conf',
@@ -826,6 +827,37 @@ sub FormError {
     return \%err;
 }
 
+sub qsrch {
+    my $self = shift;
+    
+    my @qsrch = grep { $_->{val} } @_;
+    my %qsrch =
+        map {
+            my $val = Clib::Mould->ToUrl($_->{val});
+            _utf8_off($val);
+            $_->{f} => $val;
+        }
+        @qsrch;
+    
+    return {
+        full => %qsrch ? '?' . join('&', map { $_->{f} . '=' . $qsrch{ $_->{f} } } @qsrch) : '',
+        (
+            map {
+                my $f = $_->{f};
+                my %qsrch1 = %qsrch;
+                delete $qsrch1{$f};
+                'no_'.$f => %qsrch1 ?
+                    '?' . join('&',
+                               map { $_->{f} . '=' . $qsrch1{ $_->{f} } }
+                               grep { $qsrch1{ $_->{f} } }
+                               @qsrch
+                            ) :
+                    '';
+            }
+            @_
+        ),
+    }
+}
 
 
 =pod
