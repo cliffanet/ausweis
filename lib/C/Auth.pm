@@ -33,6 +33,7 @@ sub init {
     
     # Устанавливаем текущих пользователей
     $self->user($user);
+    $self->log_prefix_add('['.$user->{id}.'] ' . $user->{login});
     
     my $admin = {
         uid         => $user->{id},
