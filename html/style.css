@@ -18,6 +18,10 @@ h3 {
     display: none;
 }
 
+.bold, .bold td, tr.bold td, .bold a, .bold span, .bold div {
+    font-weight: bold;
+}
+
 h3 a, h3 a:link, h3 a:visited, h3 a:active {
     display: block;
     margin: 0 0 0px 0;

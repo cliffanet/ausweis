@@ -129,6 +129,7 @@ sub const_init {
         "Доступ к системе",
         [Main               => 1    => "Глобальный доступ"                  => qw/Yes/],
         [Admins             => 2    => "Пользователи"                       => qw/Read Write/],
+        [Msg                => 3    => "Сообщения"                          => qw/Read Advanced/],
         'База аусвайсов',
         [BlokList           => 11   => "Блоки: список"                      => qw/Read/],
         [BlokInfo           => 12   => "Блоки: информация"                  => qw/My All/],
@@ -172,6 +173,7 @@ sub const_init {
         [ 'Команды'         => command_list     => 'command/list' ],
         [ 'Аусвайсы'        => ausweis_list     => 'ausweis/list' ],
         [ 'Моя команда'     => command_info     => 'command/my' ],
+        [ 'Сообщения'       => msg_read         => 'msg' => \&msg_count ],
         undef,
         [ 'Добавить аусвайс'=> ausweis_edit_all => 'ausweis/adding' ],
     ],
@@ -309,6 +311,9 @@ sub http_after_init {
         admin_read      => sub { rights_Exists($_[0],   $num{Admins}); },
         admin_write     => sub { rights_Check($_[0],    $num{Admins},   $val{Write}); },
         
+        msg_read       => sub { rights_Exists($_[0],   $num{Msg}); },
+        msg_cfg        => sub { rights_Check($_[0],    $num{Msg},   $val{Advanced}); },
+        
         blok_list       => sub { rights_Exists($_[0],   $num{BlokList}); },
         blok_info       => sub { rights_Exists($_[0],   $num{BlokInfo}); },
         blok_info_all   => sub { rights_Check($_[0],    $num{BlokInfo}, $val{All}); },
@@ -412,9 +417,15 @@ sub http_patt {
         map {
             if (ref($_) eq 'ARRAY') {
                 my ($title, $rcheck, $pref, @args) = @$_;
-                my @m = $self->rcheck($rcheck) ?
-                    { is_item => 1, title => $title, href => $self->pref($pref, @args) } :
-                    ();
+                my $fadd = ref($args[0]) eq 'CODE' ? shift(@args) : undef;
+                my @m;
+                if ($self->rcheck($rcheck)) {
+                    if ($fadd) {
+                        my $fres = $fadd->($self);
+                        $title .= sprintf(' (%s)', $fres) if $fres;
+                    }
+                    @m = { is_item => 1, title => $title, href => $self->pref($pref, @args) };
+                }
                 push @{ $mt->{list} }, @m;
                 @m;
             }
@@ -859,6 +870,12 @@ sub qsrch {
     }
 }
 
+
+sub msg_count {
+    my $self = shift;
+    
+    return $self->model('Msg')->count({ uid => $self->user->{id}, readed => 0 });
+}
 
 =pod
 sub http_accept {

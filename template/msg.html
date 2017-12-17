@@ -1,0 +1,39 @@
+[% BLOCK TITLE %]Сообщения[% END %]
+[% BLOCK CONTENT %]
+    <!-- Поиск -->
+    <h3>Поиск</h3>
+    <form action="[% PREF msg %][% qsrch.no_srch %]">
+    <table class="tbl">
+        <tr>
+            <td class="ltitle">Текст:</td>
+            <td colspan="2"><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
+        </tr>
+    </table>
+    </form>
+
+    <div id="search-result">
+    [% BLOCK result %]
+    [% IF list %]
+    <h3>Результаты ([% count %][% IF countall != count %] из [% countall %][% END %])</h3>
+    <table class="tbl">
+        <tr class="title">
+            <td width="100">Когда</td>
+            <td>Сообщение</td>
+        </tr>
+    [% IF size(list) > 0 %]
+    [% FOREACH m = list %]
+        <tr[% IF !m.readed %] class="bold"[% END %]>
+            <td>[% DATETIME m.dtadd %]</td>
+            <td>[% TEXT m.txt %]</td>
+        </tr>
+    [% END %]
+    [% ELSE %]
+        <tr><td colspan="2" style="height:50px;text-align:center;vertical-align:middle;">
+            сообщений не найдено
+        </td></tr>
+    [% END %]
+    </table>
+    [% END %]
+    [% END %]
+    </div>
+[% END %]
