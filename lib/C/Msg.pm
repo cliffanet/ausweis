@@ -61,7 +61,57 @@ sub _root :
         list => \@list,
         count   => $count,
         countall=> $countall,
+        
+        email => $self->user->{email},
 }
+
+
+sub email :
+    ReturnOperation
+{
+    my ($self) = @_;
+    
+    $self->rcheck('msg_cfg') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
+    
+    my %upd = ();
+    my %err = ();
+    my $q = $self->req;
+    
+    foreach my $p (qw/email/) {
+        _utf8_on($upd{$p} = $q->param_str($p))
+            if defined $q->param($p);
+    }
+    
+    # Проверка данных
+    if (exists($upd{email})) {
+        if ($upd{email} && ($upd{email} !~ /^[a-zA-Z_0-9][a-zA-Z_0-9\-\.]*\@[a-zA-Z0-9\_\-]+\.[a-zA-Z0-9]{1,4}$/)) {
+            $err{email} = 2;
+        }
+    }
+    else {
+        $err{email} = 1;
+    }
+    
+    # Ошибки заполнения формы
+    my @fpar = (qw/email/);
+    if (%err) {
+        return (error => 000101, pref => 'msg', fpar => \@fpar, ferr => \%err);
+    }
+    
+    # Поля, которые не изменились
+    delete($upd{$_}) foreach grep { $self->user->{$_} eq $upd{$_} } keys %upd;
+    
+    %upd || return (error => 000106, href => '');
+    
+    # Сохраняем
+    $self->model('UserList')->update(\%upd, { id => $self->user->{id} })
+        || return (error => 000104, pref => 'msg', fpar => \@fpar, ferr => \%err);
+    
+    # Статус с редиректом
+    return (ok => 930100, href => '');
+}
+
 
 
 1;

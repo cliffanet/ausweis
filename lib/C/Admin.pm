@@ -212,7 +212,7 @@ sub uedit :
     }
     
     return
-        user => $user,
+        usr => $user,
         form => \%form,
         ferror => $self->FormError(),
         group_list => [ $self->model('UserGroup')->search({}, { order_by => 'name'}) ],
@@ -263,7 +263,7 @@ sub uset :
     my %upd = ();
     my $q = $self->req;
     
-    foreach my $p (qw/login/) {
+    foreach my $p (qw/login email/) {
         _utf8_on($upd{$p} = $q->param_str($p))
             if defined $q->param($p);
     }
@@ -314,6 +314,12 @@ sub uset :
         }
     }
     
+    if (exists($upd{email})) {
+        if ($upd{email} && ($upd{email} !~ /^[a-zA-Z_0-9][a-zA-Z_0-9\-\.]*\@[a-zA-Z0-9\_\-]+\.[a-zA-Z0-9]{1,4}$/)) {
+            $err{email} = 2;
+        }
+    }
+    
     # Права
     $upd{rights} = $user->{rights};
     my %rBySymb = map { ($_->[0] => $_->[1]) } @{ $self->c('rtypes')||[] };
@@ -335,7 +341,7 @@ sub uset :
     }
     
     # Ошибки заполнения формы
-    my @fpar = (qw/login password gid cmdid/, map { 'rights.'.$_->[1] } grep { ref($_) eq 'ARRAY' } @{ $self->c('rights')||[] });
+    my @fpar = (qw/login password gid cmdid email/, map { 'rights.'.$_->[1] } grep { ref($_) eq 'ARRAY' } @{ $self->c('rights')||[] });
     if (%err) {
         return (error => 000101, pref => ['admin/uedit' => $user->{id}], fpar => \@fpar, ferr => \%err);
     }

@@ -1,0 +1,141 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+no warnings 'once';
+
+use Encode '_utf8_off';
+use utf8;
+
+BEGIN {
+    use Cwd            qw( abs_path );
+    use File::Basename qw( dirname );
+    $::pathRoot = dirname(dirname(abs_path($0)));
+};
+
+use lib "$::pathRoot/lib";
+
+require "$::pathRoot/conf/defines.conf";
+
+use base 'Clib::LineScript';
+
+use Clib::MailSend;
+
+$::logPath ||= '/var/log';
+$::pidPath ||= '/var/run';
+$::logDebug||= 0;
+my $self = __PACKAGE__->new(
+    path_root           => $::pathRoot,
+    redefine            => 'conf/redefine.conf',
+    schema              => 'DB',
+    log_file            => "$::logPath/msg.log",
+    pid_file            => "$::pidPath/msg.pid",
+    debug_file          => $::logDebug ? "$::logPath/msg.log" : undef,
+);
+
+#==========================================================
+#==========================================================
+#==========================================================
+    
+    # Первое неотправленное
+    while (1) {
+        my ($msg) = $self->model('Msg')->search(
+                { mailed => \ 'IS NULL' },
+                { order_by => 'dtadd', limit => 1 }
+            );
+        $msg || last;
+        
+        my $user = $self->model('UserList')->byId($msg->{uid});
+        
+        my @msg = $self->model('Msg')->search(
+                { mailed => \ 'IS NULL', uid => $msg->{uid} },
+                { order_by => 'dtadd' }
+            );
+        @msg || last;
+        
+        if (!$user || !$user->{email}) {
+            $self->model('Msg')->update(
+                { mailed => 0 },
+                { id => [ map { $_->{id} } @msg ] }
+            ) || last;
+            next;
+        }
+        
+        my $mailed = $self->sendmail($user, @msg) || 0;
+        $self->model('Msg')->update(
+            { mailed => $mailed },
+            { id => [ map { $_->{id} } @msg ] }
+        ) || last;
+    }
+    
+    exit 0;
+    # Ищем все сообщения для этого пользователя
+
+#==========================================================
+#==========================================================
+#==========================================================
+
+sub const_init {
+    mail_from   => 'Ausweis <noreply@airsoftclub.ru>',
+    mail_smtp   => {
+        Server  => 'mail.northnet.ru',
+        #Auth    => ['stat@mail.northnet.ru', 'stat123mail'],
+        Hello   => 'stat.northnet.ru',
+        Sender  => 'stat@mail.northnet.ru',
+    },
+    mail_xmailer=> "Ausweis SendMessage by Cliff",
+    mail_subject=> 'Сообщения с сервера аусвайсов airsoftclub.ru',
+}
+
+
+
+################################################################
+##
+##      cmd_check_queue
+##
+##      Рассылка из очереди SendMessage
+##
+sub sendmail {
+    my ($self, $user, @msg) = @_;
+   
+   $self->log(1);
+            
+    # Инициализация отправки
+    my $mail = Clib::MailSend->new($self->c(mail_smtp => 'Server'), %{ $self->c('mail_smtp') });
+    if (!$mail) {
+        $self->error("Cant't init mail-module");
+        return -1;
+    }
+    
+    my %e = %{ $self->c() };
+    delete($e{$_}) foreach grep { ref $e{$_} } keys %e;
+     _utf8_off($e{$_}) foreach keys %e;
+    
+    # Заголовки
+    $mail->add("From" => $e{mail_from}) if $e{mail_from};
+    $mail->add("Reply-to" => $e{mail_replyto} || $e{mail_from}) if $e{mail_replyto} || $e{mail_from};
+    $mail->add("Content-Type" => "text/html; charset=utf-8");
+    $mail->add("MIME-Version" => "1.0");
+    $mail->add("X-Mailer"     => $e{mail_xmailer}) if $e{mail_xmailer};
+    
+    $mail->subject($e{mail_subject});
+    $mail->to($user->{email});
+    
+    my $mtxt = join('', map { '<li>'.$_->{txt}.'</li>' } @msg);
+    _utf8_off($mtxt);
+    
+    # Отправка
+    if (!$mail->send($mtxt)) {
+        $self->error("E-mail send error: ".$mail->error);
+        return -1;
+    }
+    
+    $self->log("to=$user->{email}: Sended mail!");
+    
+    return 1;
+}
+
+
+##==========================================================
+#================================================== End ===
+#==========================================================

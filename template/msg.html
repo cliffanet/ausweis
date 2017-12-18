@@ -1,5 +1,17 @@
 [% BLOCK TITLE %]Сообщения[% END %]
 [% BLOCK CONTENT %]
+    <h3>Отправка оповещений на email</h3>
+    <form action="[% PREF msg/email %]" method="POST">
+    <table class="tbl">
+        <tr>
+            <td class="ltitle">E-mail:</td>
+            <td><input type="text" class="stdin" name="email" value="[% email %]"></td>
+            <td width="60" align="right"><input type="submit" value="Сохранить" /></td>
+        </tr>
+    </table>
+    </form>
+    <br />
+    
     <!-- Поиск -->
     <h3>Поиск</h3>
     <form action="[% PREF msg %][% qsrch.no_srch %]">

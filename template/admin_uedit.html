@@ -1,6 +1,6 @@
-[% BLOCK TITLE %][% user.login %] - Аккаунты пользователей[% END %]
+[% BLOCK TITLE %][% usr.login %] - Аккаунты пользователей[% END %]
 [% BLOCK CONTENT %]
-    <form action="[% PREF admin/uset: user.id %]" method="post">
+    <form action="[% PREF admin/uset: usr.id %]" method="post">
     <h3>Инфо</h3>
     <table class="tbl">
     <tr>
@@ -37,12 +37,16 @@
         </td>
     </tr>
     <tr>
+        <td class="ltitle" style="width:250px">E-mail:   [% BLOCKDUP ferr(ferror.email) %]</td>
+        <td><input type="text"  class="stdin" name="email" value="[% form.email %]"></td>
+    </tr>
+    <tr>
         <td class="submit" colspan="2">
         <input type="submit" value="Сохранить">
         <input type="button" value="Отмена" onClick="history.go(-1)">
     <br />
-    <a href="[% PREF admin/udel: user.id %]"
-        onClick="return confirm('Удаление Администратора: [% user.login %]\nПродолжать?');"
+    <a href="[% PREF admin/udel: usr.id %]"
+        onClick="return confirm('Удаление Администратора: [% usr.login %]\nПродолжать?');"
         >удалить</a>
         </td>
     </tr>
@@ -60,7 +64,7 @@
                 <select name="[% r.fname %]" class="stdin">
                     <option value="[% dcode %]">&lt;- нет -&gt;</option>
                     <option value="[% gcode %]"[% IF r.ucode eq gcode %] selected[% END %]
-                        >&lt;- как у группы ([% IF user.gid %][% r.gvar.name %][% ELSE %]нет группы[% END %]) -&gt;</option>
+                        >&lt;- как у группы ([% IF usr.gid %][% r.gvar.name %][% ELSE %]нет группы[% END %]) -&gt;</option>
                 [% FOREACH v = r.var_list %]
                     <option value="[% v.code %]"[% IF r.ucode eq v.code %] selected[% END %]>[% v.name %]</option>
                 [% END %]
