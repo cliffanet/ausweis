@@ -8,8 +8,8 @@ use Clib::Mould;
 use Encode '_utf8_on', 'encode';
 
 ##################################################
-###     Îñíîâíîé ñïèñîê
-###     Êîä ìîäóëÿ: 95
+###     ÐžÑÐ½Ð¾Ð²Ð½Ð¾Ð¹ ÑÐ¿Ð¸ÑÐ¾Ðº
+###     ÐšÐ¾Ð´ Ð¼Ð¾Ð´ÑƒÐ»Ñ: 95
 #############################################
 
 =pod
@@ -138,9 +138,10 @@ sub op :
     _utf8_on($p{comment});
         
     my $ret;
-    if ($p{modered} > 0) {
-        my $fields = ($pre->{op} eq 'C') || ($pre->{op} eq 'E') ?
+    my $fields = ($pre->{op} eq 'C') || ($pre->{op} eq 'E') ?
             $self->model('PreeditField')->get_value($pre->{id}) : undef;
+            
+    if ($p{modered} > 0) {
         if ($pre->{op} eq 'C') {
             $ret = $self->model($pre->{tbl})->create($fields);
             $pre->{recid} = $self->model($pre->{tbl})->insertid;
@@ -151,7 +152,7 @@ sub op :
             $ret = $self->model($pre->{tbl})->delete({ id => $pre->{recid} });
         }
         
-        # Çàãðóçêà ôàéëîâ
+        # Ð—Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ñ„Ð°Ð¹Ð»Ð¾Ð²
         if (($pre->{tbl} eq 'Ausweis') && $fields && $fields->{photo} && $ret) {
             Func::MakeCachDir('ausweis', $pre->{recid})
                 || return (error => 900102, href => '', errlog => ['Can\'t make ausweis dir: %s', $!]);
@@ -174,9 +175,26 @@ sub op :
     }
     $ret || return (error => 000104, href => '');
     
-    # Îáíîâëÿåì ñòàòóñ Preedit
+    # ÐžÐ±Ð½Ð¾Ð²Ð»ÑÐµÐ¼ ÑÑ‚Ð°Ñ‚ÑƒÑ Preedit
     $self->model('Preedit')->update(\%p, { id => $pre->{id} })
         || return (error => 000104, href => '');
+    
+    if ($pre->{tbl} eq 'Ausweis') {
+        # ÐÐ°Ð´Ð¾ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð¸Ñ‚ÑŒ Ð¾Ð¿Ð¾Ð²ÐµÑ‰ÐµÐ½Ð¸Ðµ Ð¾Ð± ÑƒÑÐ¿ÐµÑˆÐ½Ð¾Ð¹ Ð¼Ð¾Ð´ÐµÑ€Ð°Ñ†Ð¸Ð¸
+        my $txt;
+        my $aus = $self->model('Ausweis')->byId($pre->{recid}) || $fields || { nick => '-anonymous-' };
+        $aus->{numid} ||= '-unknown-';
+        $aus->{cmdid} ||= 0;
+        if (($p{modered} > 0) && ($txt = $self->c(msg => 'auspreeditok'))) {
+            $txt = sprintf $txt, $aus->{numid}, $aus->{nick};
+        }
+        elsif (($p{modered} < 0) && ($txt = $self->c(msg => 'auspreediterr'))) {
+            $txt = sprintf $txt, $aus->{numid}, $aus->{nick}, $p{comment};
+        }
+        if ($txt) {
+            $self->model('Msg')->send($pre->{uid}, $aus->{cmdid}, $txt);
+        }
+    }
     
     return ($ret > 0 ? (ok => 950100) : (error => 000106), href => '');
 }

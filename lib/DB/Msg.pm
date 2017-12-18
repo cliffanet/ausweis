@@ -21,4 +21,10 @@ sub create {
     return $self->SUPER::create($new);
 }
 
+sub send {
+    my ($self, $uid, $cmdid, $txt) = @_;
+    
+    return $self->create({ uid => $uid, cmdid => $cmdid, txt => $txt });
+}
+
 1;

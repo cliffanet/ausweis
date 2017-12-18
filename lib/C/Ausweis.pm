@@ -476,6 +476,7 @@ sub add :
     my $ausid;
     if ($preedit) {
         if (my $file = $q->param("photo")) {
+            _utf8_on($file);
             %files = (files => { photo => $file });
         }
     } else {
@@ -497,6 +498,11 @@ sub add :
         }
     }
     
+    # Статус с редиректом
+    my $pref = $preedit && $fdata->{cmdid} ?
+        ['command/info', $fdata->{cmdid}] :
+        ['ausweis/info', $ausid];
+    
     my $ret = $self->model('Preedit')->add(
         tbl     => 'Ausweis',
         op      => 'C',
@@ -504,16 +510,11 @@ sub add :
         modered => $preedit ? 0 : 1,
         fields  => $fdata,
         %files
-    ) || return (error => 000104, pref => ['ausweis/info', $ausid]);
-    return (error => 000106, pref => ['ausweis/info', $ausid])
+    ) || return (error => 000104, pref => $pref);
+    return (error => 000106, pref => $pref)
         if $ret == 0;
     
-    # Статус с редиректом
-    if ($preedit && $fdata->{cmdid}) {
-        return (ok => 990100, pref => ['command/info', $fdata->{cmdid}]);
-    }
-    
-    return (ok => 990100, pref => ['ausweis/info', $ausid]);
+    return (ok => 990100, pref => $pref);
 }
 
 sub set :
@@ -550,6 +551,7 @@ sub set :
     my $ausid;
     if ($preedit) {
         if (my $file = $q->param("photo")) {
+            _utf8_on($file);
             %files = (files => { photo => $file });
         }
     } else {

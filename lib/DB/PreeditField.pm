@@ -25,6 +25,8 @@ sub add {
         $value = "=> $$value" if ref($value) eq 'SCALAR';
         my $o = $old && exists($old->{$f}) ? $old->{$f} : undef;
         next if defined($o) && ($o eq $value);
+        #use Data::Dumper;
+        #$self->r->debug("preedit fields: %s", Dumper [$eid, $f, $value, $o]);
         $sth->execute($eid, $f, $value, $o) || return;
         $count ++;
     }
