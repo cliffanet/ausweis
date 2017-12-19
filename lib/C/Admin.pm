@@ -109,6 +109,7 @@ sub uadd :
     my ($self) = @_;
     
     $self->rcheck('admin_write') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
     
     my %err = ();
     my %new = ();
@@ -195,6 +196,7 @@ sub uedit :
     
     $self->view_rcheck('admin_read') || return;
     $user || return $self->notfound;
+    $self->view_can_edit() || return;
     $self->template('admin_uedit');
     
     my $grp;
@@ -258,6 +260,7 @@ sub uset :
     
     $self->rcheck('admin_write') || return $self->rdenied;
     $user || return $self->notfound;
+    $self->d->{read_only} && return $self->cantedit();
     
     my %err = ();
     my %upd = ();
@@ -371,6 +374,7 @@ sub udel :
     $self->rcheck('admin_write') || return $self->rdenied;
     $self->d->{read_only} && return $self->cantedit();
     $user || return $self->nfound();
+    $self->d->{read_only} && return $self->cantedit();
     
     $self->model('UserList')->delete({ id => $user->{id} })
         || return (error => 000104, href => '');
@@ -406,6 +410,7 @@ sub gadd :
     my ($self) = @_;
     
     $self->rcheck('admin_write') || return $self->rdenied;
+    $self->d->{read_only} && return $self->cantedit();
     
     my %err = ();
     my %new = ();
@@ -451,6 +456,7 @@ sub gedit :
     
     $self->view_rcheck('admin_read') || return;
     $grp || return $self->notfound;
+    $self->view_can_edit() || return;
     $self->template('admin_gedit');
     
     my @grights = split(//, $grp->{rights});
@@ -503,6 +509,7 @@ sub gset :
     
     $self->rcheck('admin_write') || return $self->rdenied;
     $grp || return $self->notfound;
+    $self->d->{read_only} && return $self->cantedit();
     
     my %err = ();
     my %upd = ();
@@ -574,6 +581,7 @@ sub gdel :
     $self->rcheck('admin_write') || return $self->rdenied;
     $self->d->{read_only} && return $self->cantedit();
     $grp || return $self->nfound();
+    $self->d->{read_only} && return $self->cantedit();
     
     $self->model('UserList')->update({ gid => 0 }, { gid => $grp->{id} })
         || return (error => 000104, href => '');

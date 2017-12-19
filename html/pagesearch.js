@@ -65,7 +65,13 @@
                         var $form, $txt;
                         if ($this.get(0).nodeName == 'INPUT') {
                             $txt = $this;
-                            $form = $this.closest('form');
+                            var srchurl = $this.data('search-url');
+                            if (srchurl) {
+                                data.url = srchurl;
+                            }
+                            else {
+                                $form = $this.closest('form');
+                            }
                         }
                         else if ($this.get(0).nodeName == 'FORM') {
                             $form = $this;
@@ -75,11 +81,13 @@
                             return;
                         }
                         
-                        if ($form.length != 1) return;
                         if ($txt.length > 1) $txt = $txt.eq(0);
                         if ($txt.length != 1) return;
                         
-                        data.url = $form.attr('action');
+                        if ($form) {
+                            if ($form.length != 1) return;
+                            data.url = $form.attr('action');
+                        }
                         if (!data.url) return;
                         
                         data.getText = function() { return $txt.val(); };

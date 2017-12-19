@@ -5,7 +5,7 @@
 <table class="tbl">
     <tr>
         <td class="ltitle">Название:    [% BLOCK ferr: e=ferror.name %][% IF e %]<div class="form_error">[% e %]</div>[% END %][% END %]</td>
-        <td><input type="text" name="name" class="stdin" value="[% form.name %]" /></td>
+        <td><input type="text" name="name" class="stdin" value="[% form.name %]" data-search-url="[% PREF command/list %]" autocomplete="off" /></td>
     </tr>
     <tr>
         <td class="ltitle">Блок:        [% BLOCKDUP ferr(ferror.blkid) %]</td>
@@ -19,6 +19,14 @@
         </td>
     </tr>
     <tr>
+        <td class="ltitle">Аккаунт (создать):   [% BLOCKDUP ferr(ferror.login) %]</td>
+        <td><input type="text"  class="stdin" name="login" value="[% form.login %]"></td>
+    </tr>
+    <tr>
+        <td class="ltitle">Пароль (<a href="#" id="passGen">генер</a>): [% BLOCKDUP ferr(ferror.pass) %]</td>
+        <td><input type="text" class="stdin" name="pass" id="passInp" value="[% form.pass %]"></td>
+    </tr>
+    <tr>
         <td class="ltitle">Загрузка логотипа:<br /><small>Логотип буден виден через несколько минут после загрузки</small></td>
         <td><input type="file" name="photo" class="stdin" /></td>
     </tr>
@@ -30,4 +38,29 @@
 </tr>
 </table>
 </form>
+
+    <div id="search-result"></div>
+    
+    <script>
+                
+        $(function(){
+            'use strict';
+            
+            $('#passGen').click(function(e) {
+                e.preventDefault();
+                
+                var pass    = '';
+                var words   = '0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
+                var wlen    = words.length - 1;
+                var plen    = 4 + Math.floor ( Math.random() * 3 );
+                for( var i = 0; i < plen; ++i ) {
+                    var n = Math.floor ( Math.random() * wlen );
+                    pass = pass + words.substring(n, n + 1);
+                }
+                
+                $('#passInp').val(pass);
+            });
+        });
+
+    </script>
 [% END %]

@@ -3,6 +3,8 @@ package C::Command;
 use strict;
 use warnings;
 
+use Clib::Rights;
+
 use Encode '_utf8_on', 'encode';
 
 ##################################################
@@ -419,7 +421,7 @@ sub adding :
     
     # Автозаполнение полей, если данные из формы не приходили
     my $form =
-        { map { ($_ => '') } qw/name blkid/ };
+        { map { ($_ => '') } qw/name blkid login pass/ };
     if ($self->req->params()) {
         # Данные из формы - либо после ParamParse, либо напрямую данные
         my $fdata = $self->ParamData(fillall => 1);
@@ -429,6 +431,7 @@ sub adding :
             _utf8_on($form->{$_} = $self->req->param($_)) foreach $self->req->params();
         }
     }
+    
     return
         form => $form,
         ferror => $self->FormError(),
@@ -468,16 +471,87 @@ sub add :
     my $dirUpload = Func::SetTmpDir($self)
         || return ( error => 900101, pref => 'command/adding' );
     
-    # Проверяем данные из формы
-    $self->ParamParse(model => 'Command', is_create => 1, utf8 => 1)
-        || return (error => 000101, pref => 'command/adding', upar => $self->ParamData);
+    my %err = ();
+    my %new = ();
+    my $q = $self->req;
+    
+    foreach my $p (qw/name login/) {
+        _utf8_on($new{$p} = $q->param_str($p))
+            if defined $q->param($p);
+    }
+    foreach my $p (qw/pass/) {
+        _utf8_on($new{$p} = $q->param($p))
+            if defined $q->param($p);
+    }
+    foreach my $p (qw/blkid/) {
+        $new{$p} = $q->param_int($p)
+            if defined $q->param($p);
+    }
+    
+    my %adm =
+        map { ($_ => delete $new{$_}) }
+        grep { exists $new{$_} }
+        qw/login pass/;
+    
+    # Проверка данных
+    if ($new{name}) {
+        if ($self->model('Command')->count({ name => $new{name} })) {
+            $err{name} = 13;
+        }
+    }
+    else {
+        $err{name} = 1;
+    }
+    
+    if ($new{blkid}) {
+        if (!$self->model('Blok')->byId($new{blkid})) {
+            $err{blkid} = 11;
+        }
+    }
+    
+    if (exists($adm{login}) && ($adm{login} ne '')) {
+        $adm{gid} = $self->c('command_gid');
+        if ($adm{login} !~ /^[a-zA-Z_0-9\-а-яА-Я]+$/) {
+            $err{login} = 2;
+        }
+        elsif ($self->model('UserList')->count({ login => $adm{login} })) {
+            $err{login} = 14;
+        }
+        elsif (!$adm{gid} || !$self->model('UserGroup')->byId($adm{gid})) {
+            $err{login} = 15;
+        }
+    }
+    else {
+        %adm = ();
+    }
+    
+    if (exists($adm{pass})) {
+        if ($adm{pass} eq '') {
+            $err{pass} = 1;
+        }
+        else {
+            $adm{password} = { PASSWORD => delete $adm{pass} };
+        }
+    }
+    
+    # Ошибки заполнения формы
+    my @fpar = (qw/name blkid login pass/);
+    if (%err) {
+        return (error => 000101, pref => 'command/adding', fpar => \@fpar, ferr => \%err);
+    }
     
     # Сохраняем данные
-    my $cmdid;
-    $self->ParamSave( 
-        model   => 'Command', 
-        insert  => \$cmdid,
-    ) || return (error => 000104, pref => 'command/adding', upar => $self->ParamData);
+    $self->model('Command')->create(\%new)
+        || return (error => 000104, pref => 'command/adding', fpar => \@fpar, ferr => {});
+    my $cmdid = $self->model('Command')->insertid();
+    
+    # Создаем аккаунт
+    if (%adm) {
+        $adm{rights} = RIGHT_GROUP x 128;
+        $adm{cmdid} = $cmdid;
+        $self->model('UserList')->create(\%adm)
+            || return (error => 000104, pref => 'command/adding', fpar => \@fpar, ferr => {});
+    }
     
     # Загрузка логотипа
     my $err = _logo($self, $dirUpload, $cmdid);

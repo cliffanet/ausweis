@@ -126,6 +126,10 @@ $(function(){
         var target = $(this).attr('data-hide-target');
         $(target).toggle();
     });
+    
+    
+    $('input#search-txt').PageSearch({ target: '#search-result' });
+    $('[data-search-url]').PageSearch({ target: '#search-result' });
 
 });
 
