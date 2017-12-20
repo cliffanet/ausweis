@@ -92,7 +92,7 @@
 <br />
 [% END %]
 
-<h3>Аусвайсы</h3>
+<h3>Аусвайсы ([% size(ausweis_list) %])</h3>
 <table class="tbl">
     <tr class="title">
         <td width="150">Номер</td>
@@ -128,7 +128,7 @@
 </table>
 
 [% IF size(ausweis_blocked_list) > 0 %]
-<h3><a href="#" data-hide-target="#aus_blocked">Заблокированные</a></h3>
+<h3><a href="#" data-hide-target="#aus_blocked">Заблокированные ([% size(ausweis_blocked_list) %])</a></h3>
 <table class="tbl hidden" id="aus_blocked">
     <tr class="title">
         <td width="150">Номер</td>
