@@ -86,12 +86,36 @@ sub Ausweis {
             $txt->font($fnt, $o->{size}||10);
             $txt->translate($o->{x}||0, $o->{y}||0);
             $txt->fillcolor($o->{color}||'black');
-            if ($o->{align} && ($o->{align} eq 'right')) {
-                $txt->text_right($o->{text});
-            } elsif ($o->{align} && ($o->{align} eq 'center')) {
-                $txt->text_center($o->{text});
-            } else {
-                $txt->text($o->{text});
+            my @text = $o->{text};
+            if (my $width = $o->{width}) { # Если указана максимальная ширина текста, делаем сложный алгоритм, чтобы его обрезать и перенести на след строку
+                while (1) {
+                    my $i = @text-1;
+                    my $app = '';
+                    while ($txt->advancewidth($text[$i]) > $width) {
+                        $self->debug("Text split: %s", $text[$i]);
+                        last if $text[$i] !~ s/\s+\S+$//;
+                        if ($text[$i] eq '') {
+                            $text[$i] = $&;
+                            last;
+                        }
+                        $app = $& . $app;
+                    }
+                    $self->debug("Text postsplit: %s", $text[$i]);
+                    $app =~ s/^\s+//;
+                    $app || last;
+                    $self->debug("Text nextsplit: %s", $app);
+                    push @text, $app;
+                }
+            }
+            while (my $s = shift @text) {
+                if ($o->{align} && ($o->{align} eq 'right')) {
+                    $txt->text_right($s);
+                } elsif ($o->{align} && ($o->{align} eq 'center')) {
+                    $txt->text_center($s);
+                } else {
+                    $txt->text($s);
+                }
+                $txt->cr(-($o->{size}||10)) if @text;
             }
             $txt->textend;
         }

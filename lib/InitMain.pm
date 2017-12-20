@@ -7,7 +7,7 @@ no warnings 'once';
 use utf8;
 
 require "$::pathRoot/conf/defines.conf";
-require "$::pathRoot/conf/rights.conf";
+#require "$::pathRoot/conf/rights.conf";
 require "$::pathRoot/conf/text.conf";
 
 use Func;
@@ -91,8 +91,8 @@ __PACKAGE__->run();
 
 sub const_init {
     
-    version     => '0.30',
-    versionDate => '2017-10-29',
+    version     => '0.40',
+    versionDate => '2017-12-21',
     
     db => {},
     
