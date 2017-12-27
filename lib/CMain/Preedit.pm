@@ -1,4 +1,4 @@
-package C::Preedit;
+package CMain::Preedit;
 
 use strict;
 use warnings;

@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+BEGIN {
+    $::pathRoot = $0;
+    $::pathRoot =~ s/\/+/\//g;
+    $::pathRoot =~ s/[^\/]+$//;
+    if ($::pathRoot !~ s/\/[^\/]+\/$//) {
+        $::pathRoot .= '..';
+    }
+};
+
+use lib "$::pathRoot/lib";
+use base 'Clib::HTTP::CGI';
+
+__PACKAGE__->config(href_prefix => $ENV{SCRIPT_NAME});
+require "$::pathRoot/lib/InitKpp.pm"; 
+
+
+#====================================================================================
+    exit 0;
+#====================================================================================
+
+1;

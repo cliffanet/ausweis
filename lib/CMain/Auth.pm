@@ -1,4 +1,4 @@
-package C::Auth;
+package CMain::Auth;
 use strict;
 use warnings;
 

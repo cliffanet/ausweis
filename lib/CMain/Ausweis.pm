@@ -1,4 +1,4 @@
-package C::Ausweis;
+package CMain::Ausweis;
 
 use strict;
 use warnings;

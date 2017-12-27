@@ -24,9 +24,9 @@ __PACKAGE__->config(
     pid_file    => "$::pidPath/main.fcgi.pid",
     bind        => '127.0.0.1:9004',
     
-    controller_extended => 1,
+    controller_extended => 'CMain',
     dispatcher  => {
-        default                         => 'C::Misc::default',
+        default                         => 'CMain::Misc::default',
     },
     
     return_custom => [qw/Operation/],
@@ -386,7 +386,7 @@ sub http_accept {
     $self->{_run_count} ||= 0;
     $self->{_run_count} ++;
     
-    C::Auth::init($self, $path)
+    CMain::Auth::init($self, $path)
         || return $self->disable_dispatcher;
 }
 

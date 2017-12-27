@@ -1,4 +1,4 @@
-package C::Msg;
+package CMain::Msg;
 
 use strict;
 use warnings;

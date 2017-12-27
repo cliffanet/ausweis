@@ -1,4 +1,4 @@
-package C::Command;
+package CMain::Command;
 
 use strict;
 use warnings;

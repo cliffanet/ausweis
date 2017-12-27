@@ -1,4 +1,4 @@
-package C::Admin;
+package CMain::Admin;
 use strict;
 use warnings;
 

@@ -1,4 +1,4 @@
-package C::Event;
+package CMain::Event;
 
 use strict;
 use warnings;

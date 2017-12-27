@@ -1,4 +1,4 @@
-package C::Blok;
+package CMain::Blok;
 
 use strict;
 use warnings;

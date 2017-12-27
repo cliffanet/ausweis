@@ -1,4 +1,4 @@
-package C::Misc;
+package CMain::Misc;
 
 use strict;
 use warnings;
