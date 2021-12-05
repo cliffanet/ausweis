@@ -47,29 +47,50 @@ my $dtadd;# = '2014-11-15 10:00';
 
 sub import_event {
     my %cmdid = ();
+    $self->log("input count: %d", scalar(@num));
+    my ($add, $skip, $err) = (0, 0, 0);
     foreach my $num (@num) {
         my ($aus, @other) =
             $self->model('Ausweis')->search({ numid => $num }, {}, nolog => 1);
         if (!$aus) {
             $self->error("Unknown NUMID: %s", $num);
+            $skip++;
+            next;
         }
         if (@other) {
             $self->error("More one NUMID: %s", $num);
+            $skip += @other;
         }
         if ($aus->{blocked}) {
             $self->error("Blocked NUMID: %s", $num);
         }
+        
+        my ($ev) = $self->model('EventAusweis')->search({ evid => $eventid, ausid => $aus->{id} }, {}, nolog => 1);
+        if ($ev) {
+            $self->error("Duplicate register NUMID: %s", $num);
+            $skip++;
+            next;
+        }
 
         $cmdid{$aus->{cmdid}} = 1;
 
-        next;
+        #next;
 
         my %c = ( dtadd => $dtadd, evid => $eventid, ausid => $aus->{id}, cmdid => $aus->{cmdid} );
-        $self->model('EventAusweis')->create(\%c)
-            || last;
+        if (!$self->model('EventAusweis')->create(\%c)) {
+            $self->error("Fail registering NUMID: %s", $num);
+            $err++;
+            next;
+        }
+        $add++;
+        $self->log("added OK: %s", $num);
     }
+    
+    $self->log("added: %d, skipped: %d, error: %d", $add, $skip, $err);
 
-    return;
+    #return;
+    delete($cmdid{$_->{cmdid}})
+        foreach $self->model('EventMoney')->search({ evid => $eventid });
 
     foreach my $cmdid (keys %cmdid) {
         $self->model('EventMoney')->create({
