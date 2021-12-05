@@ -612,9 +612,9 @@ sub logo :
 {
     my ($self, $cmd) = @_;
     
-    $self->rcheck('command_edit') || return $self->rdenied;
+    $self->rcheck('command_logo') || return $self->rdenied;
     if (!$self->user->{cmdid} || ($cmd && ($self->user->{cmdid} != $cmd->{id}))) {
-        $self->rcheck('command_edit_all') || return $self->rdenied;
+        $self->rcheck('command_logo_all') || return $self->rdenied;
     }
     $cmd || return $self->nfound();
     
