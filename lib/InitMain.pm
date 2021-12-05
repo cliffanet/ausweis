@@ -633,7 +633,8 @@ sub return_operation {
             $self->debug(Dumper \@form);
             if ($form = $self->d->{form_check}) {
                 my @f =
-                    map { $_ .  '-' . $form->{$_}->[0]->{num} }
+                    #map { $_ .  '-' . $form->{$_}->[0]->{num} }
+                    map { $_ .  '-' . $form->{$_}->[0] }
                     grep { $form->{$_} && $form->{$_}->[0] }
                     keys %$form;
                 if (@f) {
