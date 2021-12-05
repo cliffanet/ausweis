@@ -30,6 +30,8 @@ $::logDebug ||= 0;
 $::logPath ||= '/var/log';
 $::pidPath ||= '/var/run';
 my $self = __PACKAGE__->new(
+    path_root           => $::pathRoot,
+    redefine            => 'conf/redefine.conf',
     schema              => 'DB',
     log_file            => "$::logPath/event_import.log",
     pid_file            => "$::pidPath/event_import.pid",
@@ -41,14 +43,17 @@ my $self = __PACKAGE__->new(
 use Data::Dumper;
 $self->log(1);
 
-my @num = ();
-my $eventid;# = 9;
-my $dtadd;# = '2014-11-15 10:00';
+my @num = (qw/
+/);
+my $eventid;# = 39;
+my $dtadd = '2021-07-10 10:00';
 
 sub import_event {
     my %cmdid = ();
+    
     $self->log("input count: %d", scalar(@num));
     my ($add, $skip, $err) = (0, 0, 0);
+    
     foreach my $num (@num) {
         my ($aus, @other) =
             $self->model('Ausweis')->search({ numid => $num }, {}, nolog => 1);
@@ -64,7 +69,8 @@ sub import_event {
         if ($aus->{blocked}) {
             $self->error("Blocked NUMID: %s", $num);
         }
-        
+
+        #next;
         my ($ev) = $self->model('EventAusweis')->search({ evid => $eventid, ausid => $aus->{id} }, {}, nolog => 1);
         if ($ev) {
             $self->error("Duplicate register NUMID: %s", $num);
@@ -74,21 +80,20 @@ sub import_event {
 
         $cmdid{$aus->{cmdid}} = 1;
 
-        #next;
-
         my %c = ( dtadd => $dtadd, evid => $eventid, ausid => $aus->{id}, cmdid => $aus->{cmdid} );
         if (!$self->model('EventAusweis')->create(\%c)) {
             $self->error("Fail registering NUMID: %s", $num);
             $err++;
             next;
         }
+        
         $add++;
         $self->log("added OK: %s", $num);
     }
-    
-    $self->log("added: %d, skipped: %d, error: %d", $add, $skip, $err);
+    $self->log("added: %d, skipped: %s, error: %s", $add, $skip, $err);
 
     #return;
+    
     delete($cmdid{$_->{cmdid}})
         foreach $self->model('EventMoney')->search({ evid => $eventid });
 
@@ -100,9 +105,6 @@ sub import_event {
         }) || last;
     }
 }
-
-@num = qw/
-    /;
 
 import_event();
 

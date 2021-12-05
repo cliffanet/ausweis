@@ -388,6 +388,8 @@ sub http_accept {
     
     CMain::Auth::init($self, $path)
         || return $self->disable_dispatcher;
+        
+    $self->d->{read_only} = $::db_Main{read_only} ? 1 : 0
 }
 
 sub http_patt {
@@ -475,6 +477,7 @@ sub http_patt {
         state           => $state,
         allow_ausweis_list => $self->rcheck('ausweis_list'),
         numidnick       => '',
+        read_only       => $self->d->{read_only}||0,
     };
 }
 
@@ -632,6 +635,8 @@ sub return_operation {
             use Data::Dumper;
             $self->debug(Dumper \@form);
             if ($form = $self->d->{form_check}) {
+            #use Data::Dumper;
+            #$self->debug(Dumper $form);
                 my @f =
                     #map { $_ .  '-' . $form->{$_}->[0]->{num} }
                     map { $_ .  '-' . $form->{$_}->[0] }
