@@ -32,12 +32,12 @@
     <table class="tbl">
         <tr>
             <td class="ltitle">Логин / Команда:</td>
-            <td colspan="2"><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
+            <td colspan="2"><input type="text" class="stdin" name="srch" value="[% srch %]" autocomplete="off" data-search-url="[% PREF admin/srch %]" /></td>
         </tr>
-    [% IF gid %]
+    [% IF group %]
         <tr>
             <td class="ltitle">Группа:</td>
-            <td>[% IF gid > 0 %][% group.name %][% ELSE %]&lt;- без группы -&gt;[% END %]</td>
+            <td>[% group.name %]</td>
             <td width="80"><a href="[% PREF admin %][% qsrch.no_gid %]">отменить</a></a></td>
         </tr>
     [% END %]
@@ -45,12 +45,12 @@
             <a href="[% PREF admin/uadding %]">добавить пользователя</a>
         </td></tr>
     </table>
-   </form>
+    </form>
     
     <div id="search-result">
     [% BLOCK result %]
     [% IF ulist %]
-    <h3>Пользователи ([% count %][% IF countall != count %] из [% countall %][% END %])</h3>
+    <h3>Пользователи[% IF pager %] ([% pager.count %][% IF pager.countall != pager.count %] из [% pager.countall %][% END %])[% END %]</h3>
     <table class="tbl">
         <tr class="title">
             <td width="200">Логин</td>

@@ -1,22 +1,18 @@
 #!/usr/bin/perl
 
-use strict;
-use warnings;
+use Clib::Proc qw|strict8 script1 lib|;
+use Clib::TimeCount;
+use Clib::Const ':utf8';
+use Clib::Log 'log_main';
+use Clib::Web::CGI;
 
-BEGIN {
-    $::pathRoot = $0;
-    $::pathRoot =~ s/\/+/\//g;
-    $::pathRoot =~ s/[^\/]+$//;
-    if ($::pathRoot !~ s/\/[^\/]+\/$//) {
-        $::pathRoot .= '..';
-    }
-};
+use WebMain;
 
-use lib "$::pathRoot/lib";
-use base 'Clib::HTTP::CGI';
+Clib::Web::CGI->loop();
 
-__PACKAGE__->config(href_prefix => $ENV{SCRIPT_NAME});
-require "$::pathRoot/lib/InitMain.pm"; 
+sub web_init { WebMain::init(href_prefix => $ENV{SCRIPT_NAME}) }
+
+sub web_request { WebMain::request(@_) }
 
 
 #====================================================================================

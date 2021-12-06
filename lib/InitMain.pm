@@ -15,7 +15,7 @@ use Img;
 use Encode '_utf8_off';
 
 __PACKAGE__->config(
-    redefine        => $::pathRoot.'/conf/redefine.conf',
+    redefine        => $::pathRoot.'/redefine.conf',
     
     view_default=> 'Main',
     schema      => 'DB',

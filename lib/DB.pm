@@ -1,17 +1,11 @@
-package DB;
+#!/usr/bin/perl
 
-use strict;
-use base 'Clib::DBIC::Schema';
+utf8 => 1,
 
-__PACKAGE__->config(
-    connect_by_const => 'db',
-    connect_info => [
-        { RaiseError => 0, mysql_enable_utf8 => 1 },
-        {
-            on_connect_do => [ 'set names utf8' ],
-            auto_reconnect => 1,
-        },
-    ],
-);
-
-1;
+tbl => [qw/
+            ausweis blok command 
+            event event_ausweis event_money event_necombat 
+            msg 
+            preedit preedit_field
+            user_group user_list user_session
+        /],

@@ -1,86 +1,84 @@
 package CMain::Admin;
-use strict;
-use warnings;
+
+use Clib::strict8;
 
 use Clib::Rights;
 
-use Encode '_utf8_on', 'encode';
-use utf8;
-
 
 sub _root :
-        ReturnPatt
+        Simple
 {
-    my $self = shift;
+    #rchk('admin_read') || return 'rdenied';
+    my $p = wparam();
     
-    $self->view_rcheck('admin_read') || return;
-    $self->template('admin_list', 'CONTENT_result');
+    my @grp = sqlSrch(user_group => sqlOrder('name'));
+    my %grp = map { ($_->{id} => $_) } @grp;
     
-    my @group = $self->model('UserGroup')->search({}, { order_by => 'name' });
-    my %grp = map { ($_->{id} => $_) } @group;
+    my @query = ();
+    my @where = ();
     
-    my @qsrch = ();
-    my $srch = {};
-    my $s = $self->req->param_str('srch');
-    _utf8_on($s);
-    push @qsrch, { f => 'srch', val => $s };
-    if (my $name = $s) {
-        $name =~ s/([%_])/\\$1/g;
-        $name =~ s/\*/%/g;
-        $name =~ s/\?/_/g;
-        $name = "%$name" if $name !~ /^%/;
-        $name .= "%" if $name !~ /%$/;
-        #$name .= "%" if $name !~ /^(.*[^\\])?%$/;
-        $srch->{-or} = {
-            login           => { LIKE => $name },
-            'command.name'  => { LIKE => $name },
-        };
+    if ($p->exists('srch') && length($p->str('srch'))) {
+        my $s = $p->str('srch');
+        
+        push @query, srch => $s;
+        
+        $s =~ s/([%_])/\\$1/g;
+        $s =~ s/\*/%/g;
+        $s =~ s/\?/_/g;
+        $s = '%'.$s if $s !~ /^%/;
+        $s .= '%' if $s !~ /%$/;
+        #$s .= '%' if $s !~ /^(.*[^\\])?%$/;
+        my @cmd =
+            map { $_->{id} }
+            sqlSrch(command => sqlLike(name => $s));
+        push @where, @cmd ?
+            sqlOr(sqlLike(login => $s), cmdid => @cmd > 1 ? [@cmd] : $cmd[0]) :
+            sqlLike(login => $s);
     }
-    
-    my $gid = $self->req->param_dig('gid');
-    push @qsrch, { f => 'gid', val => $gid };
+
     my $group;
-    if ($gid) {
-        $srch->{gid} = $gid > 0 ? $gid : 0;
-        if ($gid > 0) {
-            $group = $self->model('UserGroup')->byId($gid);
-        }
+    if ($p->exists('gid')) {
+        my $gid = $p->uint('gid');
+        push @query, gid => $gid;
+        push @where, gid => $gid;
+        $group = sqlGet(user_group => $gid);
     }
     
-    my ($count, $countall);
-    my @user =
-        map {
-            $_->{group} = $grp{ $_->{gid} };
-            $_;
-        }
-        $self->model('UserList')->search(
-            $srch,
-            {
-                prefetch => 'command',
-                order_by => [qw/login/],
-            },
-            pager => {
-                onpage => 100,
-                handler => sub {
-                    my %p = @_;
-                    $count = $p{count};
-                    $countall = $p{countall};
-                },
-            },
-        );
+    my $pager = { onpage => 100 };
+    my @user = sqlSrch(user_list => @where, $pager, sqlOrder('login'));
+    
+    my %cmd = map { ($_->{cmdid} => 1) } @user;
+    if (%cmd) {
+        %cmd =
+            map { ($_->{id} => $_) }
+            sqlGet(command => [keys %cmd]);
+    }
+    
+    foreach my $u (@user) {
+        $u->{group} = $grp{ $u->{gid} };
+        $u->{command} = $cmd{ $u->{cmdid} };
+    }
     
     return
-        srch    => $s,
-        qsrch => $self->qsrch(@qsrch),
-        gid     => $gid,
+        'admin_list',
+        srch    => $p->str('srch'),
+        qsrch   => qsrch([qw/srch gid/], @query),
         group   => $group,
-        count   => $count,
-        countall=> $countall,
+        pager   => $pager,
         ulist   => \@user,
-        glist   => \@group,
+        glist   => \@grp,
 }
 
+sub srch :
+        ReturnBlock
+{
+    my ($tmpl, @p) = _root();
+    return
+        $tmpl => 'CONTENT_result',
+        @p;
+}
 
+=pod
 sub uadding :
     ReturnPatt
 {
@@ -592,6 +590,6 @@ sub gdel :
     # статус с редиректом
     return (ok => 20600, pref => 'admin');
 }
-    
+=cut
 
 1;

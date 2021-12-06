@@ -1,0 +1,46 @@
+#!/usr/bin/perl
+
+use Clib::Proc qw|strict8 script1 lib|;
+use Clib::TimeCount;
+use Clib::Const ':utf8';
+use Clib::Log 'log_main';
+use Clib::Web::FCGI;
+
+use WebMain;
+
+
+#====================================================================================
+
+Clib::Proc::daemon(
+        pidfile => '$pidPath/main.fcgi.pid',
+        #name => 'fcgi-ausweis-main',
+        #no => 1,
+    ) || exit -1;
+
+log('Start');
+
+Clib::Web::FCGI->loop(
+        procname    => 'fcgi-ausweis-main',
+        bind        => '0.0.0.0:8099',
+        #run_count   => 100,
+        #worker_count=> 5,
+    );
+
+log('Finish');
+
+#====================================================================================
+
+sub web_init {
+    WebMain::init();
+}
+
+sub web_request { WebMain::request(@_) }
+
+sub web_clear { WebMain::clear(@_) }
+
+
+#====================================================================================
+    exit 0;
+#====================================================================================
+
+1;
