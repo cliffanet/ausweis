@@ -8,6 +8,7 @@ use Clib::Web::Param;
 use Clib::DB::MySQL 'DB';
 use Clib::Template::Package;
 use Clib::DT;
+use Clib::Rights;
 
 $SIG{__DIE__} = sub { error('DIE: %s', $_) for @_ };
 
@@ -40,7 +41,7 @@ sub disp_search {
 
 webctrl_local(
         'CMain',
-        attr => [qw/ReturnOperation ReturnRedirect ReturnBlock/],
+        attr => [qw/Title AllowNoAuth ReturnOperation ReturnRedirect ReturnBlock/],
         eval => "
             use Clib::Const;
             use Clib::Log;
@@ -52,14 +53,24 @@ webctrl_local(
         ",
     ) || die webctrl_error;
 
+# get/post параметры
 my $param;
 sub param { $param ||= Clib::Web::Param::param(prepare => 1) }
 
+# авторизация
 my %auth = ();
 sub auth { @_ ? $auth{shift()} : %auth };
+sub login {
+    while (@_) {
+        my $key = shift;
+        $auth{$key} = shift;
+    }
+}
+sub logout {
+    delete($auth{$_}) foreach qw/session user group/;
+}
 
-
-
+# Формирование query для фильтра
 sub qsrch {
     my @fld = ref($_[0]) eq 'ARRAY' ? @{ shift() } : ();
     my $r = {};
@@ -84,6 +95,17 @@ sub qsrch {
     return $r;
 }
 
+# Права
+my %rchk = ();
+sub _rchk {
+    my $rights = shift() || return;
+    my $rcode = shift() || return;
+    my $rchk = $rchk{$rcode} || return;
+    
+    return $rchk->($rights);
+}
+sub rchk { _rchk($auth{rights}, @_); }
+
 
 sub init {
     my %p = @_;
@@ -91,6 +113,80 @@ sub init {
     $logpid->set($$);
     
     $href_prefix = $p{href_prefix} if $p{href_prefix};
+
+    # права
+    my %num = ();
+    if (my $rights = c('rights')) {
+        foreach my $r (@$rights) {
+            ref($r) || next;
+            my ($name, $num, $title, @variant) = @$r;
+            $num{$name} = $num;
+        }
+    }
+    my %val = ();
+    if (my $rtypes = c('rtypes')) {
+        foreach my $r (@$rtypes) {
+            ref($r) || next;
+            my ($name, $val, $title) = @$r;
+            $val{$name} = $val;
+        }
+    }
+    
+    %rchk = (
+        global          => sub { Clib::Rights::chk($_[0],    $num{Main},     $val{Yes}); },
+        
+        admin_read      => sub { Clib::Rights::exists($_[0],   $num{Admins}); },
+        admin_write     => sub { Clib::Rights::chk($_[0],    $num{Admins},   $val{Write}); },
+        
+        msg_read       => sub { Clib::Rights::exists($_[0],   $num{Msg}); },
+        msg_cfg        => sub { Clib::Rights::chk($_[0],    $num{Msg},   $val{Advanced}); },
+        
+        blok_list       => sub { Clib::Rights::exists($_[0],   $num{BlokList}); },
+        blok_info       => sub { Clib::Rights::exists($_[0],   $num{BlokInfo}); },
+        blok_info_all   => sub { Clib::Rights::chk($_[0],    $num{BlokInfo}, $val{All}); },
+        blok_edit       => sub { Clib::Rights::exists($_[0],   $num{BlokEdit}); },
+        blok_edit_all   => sub { Clib::Rights::chk($_[0],    $num{BlokEdit}, $val{All}); },
+        blok_file       => sub { Clib::Rights::exists($_[0],   $num{BlokInfo}) ||
+                                 Clib::Rights::exists($_[0],   $num{CommandInfo}); },
+        blok_file_all   => sub { Clib::Rights::chk($_[0],    $num{BlokInfo}, $val{All}) ||
+                                 Clib::Rights::chk($_[0],    $num{CommandInfo}, $val{All}); },
+        
+        command_list    => sub { Clib::Rights::exists($_[0],   $num{CommandList}); },
+        command_info    => sub { Clib::Rights::exists($_[0],   $num{CommandInfo}); },
+        command_info_all=> sub { Clib::Rights::chk($_[0],    $num{CommandInfo}, $val{All}); },
+        command_edit    => sub { Clib::Rights::exists($_[0],   $num{CommandEdit}); },
+        command_edit_all=> sub { Clib::Rights::chk($_[0],    $num{CommandEdit}, $val{All}); },
+        command_logo    => sub { Clib::Rights::exists($_[0],   $num{CommandLogo}); },
+        command_logo_all=> sub { Clib::Rights::chk($_[0],    $num{CommandLogo}, $val{All}); },
+        command_file    => sub { Clib::Rights::exists($_[0],   $num{CommandInfo}) ||
+                                 Clib::Rights::exists($_[0],   $num{CommandInfo}); },
+        command_file_all=> sub { Clib::Rights::chk($_[0],    $num{CommandInfo}, $val{All}) ||
+                                 Clib::Rights::chk($_[0],    $num{AusweisInfo}, $val{All}); },
+        
+        ausweis_list    => sub { Clib::Rights::exists($_[0],   $num{AusweisList}); },
+        ausweis_info    => sub { Clib::Rights::exists($_[0],   $num{AusweisInfo}); },
+        ausweis_info_all=> sub { Clib::Rights::chk($_[0],    $num{AusweisInfo}, $val{All}); },
+        ausweis_edit    => sub { Clib::Rights::exists($_[0],   $num{AusweisEdit}) ||
+                                 Clib::Rights::exists($_[0],   $num{AusweisPreEdit}); },
+        ausweis_edit_all=> sub { Clib::Rights::chk($_[0],    $num{AusweisEdit}, $val{All}) ||
+                                 Clib::Rights::chk($_[0],    $num{AusweisPreEdit}, $val{All}); },
+        ausweis_pree    => sub {!Clib::Rights::exists($_[0],   $num{AusweisEdit}) &&
+                                 Clib::Rights::exists($_[0],   $num{AusweisPreEdit}); },
+        ausweis_pree_all=> sub {!Clib::Rights::chk($_[0],    $num{AusweisEdit}, $val{All}) &&
+                                 Clib::Rights::chk($_[0],    $num{AusweisPreEdit}, $val{All}); },
+        ausweis_file    => sub { Clib::Rights::exists($_[0],   $num{AusweisInfo}); },
+        ausweis_file_all=> sub { Clib::Rights::chk($_[0],    $num{AusweisInfo}, $val{All}); },
+        
+        preedit_first   => sub { Clib::Rights::exists($_[0],   $num{Preedit}); },
+        preedit_op      => sub { Clib::Rights::exists($_[0],   $num{Preedit}); },
+        preedit_hide    => sub { Clib::Rights::exists($_[0],   $num{CommandInfo}); },
+        preedit_cancel  => sub { Clib::Rights::exists($_[0],   $num{PreeditCancel}); },
+        preedit_cancel_all=>sub{ Clib::Rights::chk($_[0],    $num{PreeditCancel}, $val{All}); },
+        
+        event_read      => sub { Clib::Rights::exists($_[0],   $num{Event}); },
+        event_edit      => sub { Clib::Rights::chk($_[0],    $num{Event}, $val{Write}, $val{Advanced}); },
+        event_advanced  => sub { Clib::Rights::chk($_[0],    $num{Event}, $val{Advanced}); },
+    );
 }
 
 sub request {
@@ -116,19 +212,40 @@ sub request {
         $logdisp = log_prefix($disp->{path});
     }
     else {
-        $logdisp = log_prefix('-unknown dispatcher- ('.$path.')')
-    }
-    
-    # Проверка авторизации
-    #%auth = AuthAdmin::check(disp => $disp, path => $path);
-    #$auth{login} || return @{ $auth{fail}||['', 403] };
-    #$loguser->set($auth{login});
-    
-    # Теперь проверяем на 404
-    if (!$disp) {
         error("dispatcher not found (redirect to /404)");
         #dumper \%ENV;
         return '', '404 Not found', 'Content-type' => 'text/plain', Pragma => 'no-cach';
+    }
+    
+    # Проверка авторизации
+    %auth = CMain::Auth::sesscheck();
+    if (my $user = $auth{user}) {
+        $loguser->set($user->{login});
+    }
+    elsif (!(grep { $_->[0] =~ /allownoauth/i } @{$disp->{attr}||[]})) {
+        error("dispatcher not allowed whithout auth (redirect to /auth)");
+        my $autherr = $auth{errno} || 'noauth';
+        my @attr = map { $_->[0] } @{($disp||{})->{attr}||[]};
+        if (grep { /return(operation|json)/i } @attr) {
+            return return_operation(
+                    error       => c(state => loginerr => $autherr)||$autherr,
+                    loginerr    => $autherr,
+                    pref        => 'auth',
+                );
+        }
+        elsif (grep { /return(simple|block)/i } @attr) {
+            return '', undef, 'Content-type' => 'text/html; charset=utf-8';
+        }
+        else {
+            my $url = redirect_url('auth');
+            my $ar = pref_short($disp->{path}, @disp);
+            if ($ar && ($ar ne 'auth')) {
+                $ar = '/' . $ar;
+                debug('auth-form redirect to: %s', $ar);
+                $url .= '?ar='.$ar;
+            }
+            return '', undef, Location => $url;
+        }
     }
     
     # Выполняем обработчик
@@ -292,6 +409,21 @@ sub return_html {
         }
     );
     
+    # Команда
+    if ($auth{user} && (my $cmdid = $auth{user}->{cmdid})) {
+        my $cmd = sqlGet(command => $cmdid);
+        push(@p, mycmd => $cmd) if $cmd;
+    }
+    
+    # state
+    if (my $sess = $auth{session}) {
+        if (defined $sess->{state}) {
+            push @p, state => $sess->{state};
+            sqlUpd(user_session => $sess->{id}, state => undef);
+            $sess->{state} = undef;
+        }
+    }
+    
     my $meth = 'html';
     $meth .= '_'.$block if $block;
 
@@ -318,11 +450,6 @@ sub return_operation {
         $p{$k} = $msg1;
     }
     
-    # Ключ redirect содержит pref-массив, куда потом надо редиректить
-    # В случае аякс-запроса, сформируется ссылка и будет передана в ответе
-    my @pref = ref($p{redirect}) eq 'ARRAY' ? @{ $p{redirect} } :
-                defined($p{redirect}) ? $p{redirect} : ();
-    
     my $p = param();
     
     if ($p && $p->bool('ajax')) {
@@ -330,13 +457,14 @@ sub return_operation {
         if (my $msg = $p{ok}) {
             push @json, ok => 1, message => $msg;
             # В аякс-версии редирект используется только при успешном сообщении
-            if ((@pref == 1) && ($pref[0] eq '')) {
-                my $ref = redirect_referer();
-                debug('return_operation: redirect to back %s', $ref);
+            if (exists $p{pref}) {
+                my $ref =
+                    ref($p{pref}) eq 'ARRAY' ?
+                        pref(@{ $p{pref} }) :
+                    $p{pref} ?
+                        pref($p{pref}) :
+                        path_referer();
                 push(@json, redirect => $ref) if $ref;
-            }
-            elsif (@pref) {
-                push(@json, redirect => pref(@pref));
             }
         }
         else {
@@ -364,10 +492,31 @@ sub return_operation {
         return return_json(@json);
     }
     
-    return return_redirect(pref => @pref);
+    if (my $sess = $auth{session}) {
+        if ($p{ok}) {
+            sqlUpd(user_session => $sess->{id}, state => 'ok');
+        }
+        elsif (my $err = $p{error} || $p{err}) {
+            sqlUpd(user_session => $sess->{id}, state => $err);
+        }
+        else {
+            error("CRITICAL: return_operation whithout `ok` or `err`");
+            if (defined $sess->{state}) {
+                sqlUpd(user_session => $sess->{id}, state => undef);
+                $sess->{state} = undef;
+            }
+        }
+    }
+    
+    my @p = ();
+    foreach my $f (qw/pref query/) {
+        push(@p, $f => $p{$f}) if exists $p{$f};
+    }
+    
+    return return_redirect(@p);
 }
 
-sub redirect_referer {
+sub path_referer {
     my $host = $ENV{HTTP_HOST} || return;
     
     if ($ENV{HTTP_REFERER} &&
@@ -393,11 +542,6 @@ sub redirect_url {
     
     return 'http://'.$ENV{HTTP_HOST}.$href;
 }
-sub tourl {
-    my $s = shift();
-    $s =~ s/([^a-z0-9\:\/\\\.])/'%'.uc(sprintf("%02x", ord($1)))/gie;
-    return $s;
-}
 sub return_redirect {
     # Обычный редирект
     my $host = $ENV{HTTP_HOST};
@@ -409,25 +553,19 @@ sub return_redirect {
     my $href;
     if (@_) {
         my %p = @_;
-        if (defined($p{pref})) {
+        if ($p{pref}) {
             $href = pref(ref($p{pref}) eq 'ARRAY' ? @{ $p{pref} } : $p{pref});
         }
         else {
-            $href = redirect_referer();
+            $href = path_referer();
             debug('return_operation: redirect to back %s', $href);
         }
-        if (my $q = $p{query}) {
+        if (defined(my $q = $p{query})) {
             if (ref($q) eq 'ARRAY') {
-                my @q = map { tourl($_) } @$q;
-                my @qp = ();
-                push(@qp, shift(@q).'='.shift(@q)) while @q;
-                $href .= '?'.join('&', @qp);
+                $href .= '?' . Clib::Web::Param::data2url(@$q);
             }
             elsif (ref($q) eq 'HASH') {
-                my @qp =
-                    map { tourl($_).'='.tourl($q->{$_}) }
-                    keys %$q;
-                $href .= '?'.join('&', @qp);
+                $href .= '?' . Clib::Web::Param::data2url(%$q);
             }
             elsif (!ref($q)) {
                 $href .= '?'.$q;
@@ -435,9 +573,9 @@ sub return_redirect {
         }
         debug('return_redirect: to %s', $href);
     }
-    elsif (my $ref = redirect_referer()) {
-        $href = $ref;
-        debug('return_redirect: to back %s', $ref);
+    elsif (my $path = path_referer()) {
+        $href = $path;
+        debug('return_redirect: to back %s', $path);
     }
     else {
         error('return_redirect: to back with wrong HTTP_REFERER: %s', $ENV{HTTP_REFERER});

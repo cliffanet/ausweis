@@ -1,267 +1,258 @@
 package CMain::Auth;
-use strict;
-use warnings;
 
-use Encode '_utf8_on', 'encode';
+use Clib::strict8;
+use Clib::Web::Controller; # webctrl_search
 
-sub init {
-    my ($self, $path) = @_;
+sub sessnew {
+    my %p = @_;
     
-    my $is_login = $path && ($path =~ /^\/?auth\/login$/) ? 1 : 0;
+    my $time = time;
     
-    my %p = ();
-    $p{redirect} = $path if $path && !$is_login && ($path !~ /^\/?(ajax(\/[a-z0-9]+)?)$/);
-    
-    # Проверяем сессию
-    my ($s_id, $s_key) =
-        ($self->req->cookie('sid'), $self->req->cookie('skey'));
-    
-    $s_id || return err($self, 0, %p) || $is_login;
-    
-    
-    # Ищем сессию/пользователя (сессии без пользователя быть не должно)
-    my ($user) = $self->model('UserList')->search({
-            'session.id'    => $s_id,
-            'session.key'   => $s_key,
-        }, {
-            prefetch => [qw/session group/]
-        });
-    
-    if (!$user) {
-        return err($self, 11, %p) || $is_login;
-    }
-    
-    # Устанавливаем текущих пользователей
-    $self->user($user);
-    $self->log_prefix_add('['.$user->{id}.'] ' . $user->{login});
-    
-    my $admin = {
-        uid         => $user->{id},
-        login       => $user->{login},
-        urights     => $user->{rights},
-    };
-    use Clib::Rights;
-    ($admin->{gid}, $admin->{group}, $admin->{grights}, $admin->{rights}) =
-        $user->{group} && $user->{group}->{id} ?
-            ($user->{group}->{id}, $user->{group}->{name}, $user->{group}->{rights}, rights_Combine($user->{rights}, $user->{group}->{rights}, 1)) :
-            (0, '', '', $user->{rights});
-    
-    $self->admin($admin);
-    
-    # Проверяем глобальный доступ
-    if (!$self->rcheck('global')) {
-        $self->model('UserSession')->delete(
-            { id => $user->{session}->{id} }
-        );
-        return err($self, 14, %p) || $is_login;
-    }
-    
-    # Если указано, обновляем время посещения
-    if ($p{redirect}) {
-        my $ip = $ENV{REMOTE_ADDR};
-        $self->model('UserSession')->update({
-            visit => \ 'NOW()',
-            $ip eq $user->{session}->{ip} ?
-                () : (ip => $ip),
-        }, {
-            id => $user->{session}->{id}
-        });
-    }
-    
-    return 1;
-}
-
-sub form {
-    my $self = shift;
-    my $errno = shift;
-    
-    $self->template('auth_login');
-    $self->patt(
-        errno => $errno,
-        error => $self->c(userError => $errno),
-        login => '',
-        redirect => '',
+    my $skey = int(rand(0xFFFFFFFF));
+    my @sess = (
+        key     => $skey,
+        ip      => $ENV{REMOTE_ADDR} || '',
+        dtbeg   => Clib::DT::now(),
+        dtact   => Clib::DT::now(),
         @_,
     );
     
-    return view => 1;
-}
-
-sub err {
-    my $self = shift;
-    my $errno = shift;
-    
-    form($self, $errno, @_);
-    
-    if ($self->req->cookie('sid') || $self->req->cookie('skey')) {
-        # Удаляем куки, если сессия была удалена
-        $self->res->cookie(sid => '');
-        $self->res->cookie(skey => '');
+    # Пишем в БД
+    my $sid = sqlAdd(user_session => @sess);
+    if (!$sid) {
+        logauth('AUTH: Can\'t create session');
+        return;
     }
     
-    $self->user({});
-    $self->admin({});
+    WebMain::login(session => { id => $sid, @sess });
     
-    return 0;
+    # Наконец, всё ок, пишем куки
+    Clib::Web::Param::cookieset(sid => $sid, path => '/');
+    Clib::Web::Param::cookieset(skey => $skey, path => '/');
+    
+    return $sid;
+}
+
+sub sesscheck {
+    my %c = WebMain::web_cookie();
+    my $ip = $ENV{REMOTE_ADDR};
+    
+    return
+        if !$ip || !$c{sid} || !$c{skey};
+    
+    my @r = (ip => $ip);
+    
+    # Ищем и проверяем сессию пользователя
+    my ($sess) = sqlSrch(user_session => id => $c{sid}, key => $c{skey});
+    
+    if (!$sess) {
+        Clib::Web::Param::cookieset(sid => '', path => '/', delete => 1);
+        Clib::Web::Param::cookieset(skey => '', path => '/', delete => 1);
+        return errno => 'nosess', @r;
+    }
+    
+    push @r, session => $sess;
+    
+    if (!$sess->{uid}) {
+        # Это временная сессия
+        return @r;
+    }
+    
+    # Ищем пользователя
+    my $user = sqlGet(user_list => $sess->{uid});
+    if (!$user) {
+        logauth('SESSION: UNKNOWN UID=%s', $sess->{uid});
+        return errno => 'sessinf', @r;
+    }
+    my @u = (user => $user);
+    
+    # Пароль пустой - глобальный запрет доступа
+    if ($user->{password} eq '') {
+        logauth('SESSION: Empty password on user: %s', $user->{login});
+        return errno => 'rdenied', @r;
+    }
+    
+    my $rights = $user->{rights};
+    
+    # группа
+    if (my $gid = $user->{gid}) {
+        my $grp = sqlGet(user_group => $gid);
+        if (!$grp) {
+            logauth('SESSION: Group[gid=%d] not found on user: %s', $gid, $user->{login});
+            return errno => 'ugroup', @r;
+        }
+        
+        $rights = Clib::Rights::combine($user->{rights}, $grp->{rights});
+        
+        push @u, group => $grp;
+    }
+    
+    # Права доступа
+    if (!WebMain::_rchk($rights, 'global')) {
+        logauth('SESSION: No global access on user: %s', $user->{login});
+        return errno => 'rdenied', @r;
+    }
+    push @u, rights => $rights;
+    
+    # обновляем время посещения
+    sqlUpd(user_session => $sess->{id}, dtact => Clib::DT::now())
+        || return errno => 'sessupd', @r;
+    
+    return @r, @u;
+}
+
+sub _root :
+        AllowNoAuth
+        Title('Авторизация')
+{
+    my @p = ();
+    my $p = wparam();
+    
+    # ссылка для редиректа
+    my ($disp, @disp) = ();
+    if (my $path = $p->raw('ar')) {
+        debug('auth-form redirect path: %s', $path);
+        ($disp, @disp) = webctrl_search($path);
+    }
+    elsif (my $href = WebMain::path_referer()) {
+        debug('auth-form redirect referer: %s', $href);
+        ($disp, @disp) = WebMain::disp_search($href);
+    }
+    if ($disp && (($disp->{path} ne '') || @disp) && (($disp->{path} !~ /^auth/))) {
+        my $ar = WebMain::pref_short($disp->{path}, @disp);
+        if ($ar && ($ar !~ /^auth/)) {
+            push @p, ar => $ar;
+            debug('auth-form redirect to: %s', $ar);
+        }
+    }
+    
+    return 'auth_form', @p;
 }
 
 sub login :
+        AllowNoAuth
+        Title('Авторизация (выполнение)')
         ReturnOperation
 {
-    my $self = shift;
-    
-    my $login    = $self->req->param_str('l');
-    my $password = $self->req->param('p');
+    my $p = wparam();
+    my $login    = $p->str('l');
+    my $password = $p->raw('p');
     $password = '' if !defined($password);
-    my $redirect = $self->req->param_str('r');
-    my $is_ajax = $self->req->param_bool('is_ajax');
     
-    my %error = ( login => $login, $redirect ? (redirect => $redirect) : () );
+    my @err = (pref => 'auth');
+
+    my $path = $p->raw('ar');
+    if ($path) {
+        debug('auth-login redirect path: %s', $path);
+        if (!webctrl_search($path)) {
+            error('auth-login redirect fail path: %s', $path);
+            $path = '';
+        }
+    }
+    push(@err, query => [ar => $path]) if $path;
     
-    foreach my $s ($login, $password) {
-        _utf8_on($s);
+    # Проверка логина
+    if ($login eq '') {
+        logauth('AUTH: Empty login');
+        return err => c(state => loginerr => 'empty'), @err;
     }
     
-    # Проверяем логин и пароль
-    if (!$login) {
-        $self->log("Empty login");
-        return form($self, 4, %error);
-    }
+    # Хорошо бы передавать логин через msg, чтобы в случае редиректа он уже был автоматически введён,
+    # однако, если будет ошибка авторизации (например, при подборе пароля), то каждый раз
+    # будет создаваться сессия с сохранённым логином, которая не будет стираться до таймаута,
+    # пока не будет открыта страница. При ajax-авторизации такое, например, вообще штатно происходит.
+    # Поэтому, чтобы не делать лишних сохранений в БД и вообще лишних действий, сохранять логин не будем
+    #push @err, login => $login;
     
-    my ($user) = $self->model('UserList')->search({
-        login       => $login,
-        password    => { 'PASSWORD' => $password },
-    }, {
-        prefetch    => ['group'],
-    }, nolog => 0);
+    # Проверяем существование аккаунта
+    my ($user) = sqlSrch(user_list => login => $login, sqlPassword(password => $password));
     
     if (!$user || !$user->{id}) {
-        $self->log("Authentication failed for user: %s", $login);
-        return form($self, 1, %error);
+        logauth('AUTH: Unknown user: %s', $login);
+        return err => c(state => loginerr => 'wrong'), @err;
     }
     
-    $self->log("Authentication succeful for user: %s (%s)", $login, $user->{login});
+    # Проверяем пароль
+    if ($user->{password} eq '') {
+        # Пароль пустой - глобальный запрет доступа
+        logauth('AUTH: Empty password on user: %s', $login);
+        return err => c(state => loginerr => 'wrong'), @err;
+    }
     
+    logauth('AUTH: Succeful for user: %s', $user->{login});
     
     # Создаем новую сессию
-    my $session = {
-        key     => int(rand(0xFFFFFFFF)),
-        ip      => $ENV{REMOTE_ADDR} || '',
-        create  => \ 'NOW()',
-        visit   => \ 'NOW()',
-        uid     => $user->{id},
-    };
-    if (!$self->model('UserSession')->create($session)) {
-        $self->log("Can't create session");
-        return form($self, 2, %error);
-    }
+    my $sid = sessnew(uid => $user->{id})
+        || return err => c(state => loginerr => 'sessadd'), @err;
+    WebMain::login(user => $user);
     
-    my $s_id = $self->model('UserSession')->insertid;
-    # Читаем заного пользователя с сессией
-    ($user) = $self->model('UserList')->search({
-            'id'            => $user->{id},
-            'session.id'    => $s_id,
-        }, {
-            prefetch => [qw/session group/]
-        });
-    $user || return form($self, 2, %error);
-    
-    $self->user($user);
-    
-    $self->res->cookie(sid => $s_id);
-    $self->res->cookie(skey => $session->{key});
-    
-    return (ok => 10100, $redirect ? (redirect => $self->href($redirect)) : $is_ajax ? () : (href => ''));
+    return ok => c(state => 'loginok'), pref => $path||'/';
 }
 
 sub logout :
+        Title('Выход из системы')
         ReturnOperation
 {
-    my $self = shift;
+    my %auth = WebMain::auth();
+    my $sess = $auth{session}
+        || return err => c(state => loginerr => 'nosess');
     
-    my $user = $self->user;
-    $user = undef if $user && (!$user->{id} || !$user->{session} || !$user->{session}->{id});
+    logauth('LOGOUT: %s', ($auth{user}||{})->{login});
     
-    $user || return form($self, 11);
+    sqlDel(user_session => $sess->{id});
     
-    $self->model('UserSession')->delete({ id => $user->{session}->{id} })
-        || return (error => 000104, href => '');
+    Clib::Web::Param::cookieset(sid => '', path => '/', delete => 1);
+    Clib::Web::Param::cookieset(skey => '', path => '/', delete => 1);
     
-    $self->res->cookie(sid => '');
-    $self->res->cookie(skey => '');
+    WebMain::logout();
     
-    $self->log("Logout: %s", $user->{login});
-    
-    return (href => '');
+    return ok => c(state => 'logout'), pref => 'auth';
 }
         
 sub pform :
-        ReturnPatt
+        Simple
 {
-    my $self = shift;
-    
-    my $user = $self->user() || return;
-    $self->template('auth_pass');
+    return 'auth_pass';
 }
         
-sub pass :
+sub pchg :
         ReturnOperation
 {
-    my $self = shift;
+    my $user = WebMain::auth('user')
+        || return pref => 'auth';
     
-    my $user = $self->user() || return (href => '');
-
+    my $p = wparam();
+    
     # Сверяем старый пароль
-    my $password = $self->req->param('p');
+    my $password = $p->raw('p');
     $password = '' if !defined($password);
-    _utf8_on($password);
-    my ($user1) = $self->model('UserList')->search({
-        id      => $user->{id},
-        password=> { 'PASSWORD' => $password },
-    });
-    if (!$user1) {
-        $self->error("Password old verify failed");
-        return (error => 10301, pref => 'auth/pform');
+    my ($u1) = sqlSrch(user_list => id => $user->{id}, sqlPassword(password => $password));
+    if (!$u1) {
+        logauth('PASSCHANGE: Current verify failed');
+        return err => c(state => passchg => 'current'), pref => 'auth/pform';
     }
     
     # Проверяем новый пароль
-    my $passnew = $self->req->param('pn');
-    my $password2 = $self->req->param('p2');
+    my $passnew = $p->raw('pn');
+    my $password2 = $p->raw('p2');
     if (!defined($passnew) || !length($passnew)) {
-        $self->error("New password empty");
-        return (error => 10302, href => '');
-    }
-    foreach my $s ($passnew, $password2) {
-        _utf8_on($s);
+        logauth('PASSCHANGE: New empty');
+        return err => c(state => passchg => 'newempty'), pref => 'auth/pform';
     }
     if (!defined($password2) || ($passnew ne $password2)) {
-        $self->error("New password not confirmed");
-        return (error => 10303, href => '');
+        logauth('PASSCHANGE: Not confirmed');
+        return err => c(state => passchg => 'confirm'), pref => 'auth/pform';
     }
     
     # Сохраняем данные
-    $self->model('UserList')->update(
-            { password => { PASSWORD => $passnew } }, 
-            { id => $user->{id} }
-    ) || return (error => 100104, href => '');
+    sqlUpd(
+        user_list => $user->{id},
+        password => [PASSWORD => $passnew]
+    ) || return err => 'db', pref => 'auth/pform';
+
+    logauth('PASSCHANGE: Succeful for user: %s', $user->{login});
     
-    $self->log("Password change succeful for user: $user->{login}");
-    
-    return (ok => 10300, href => '');
+    return ok => c(state => passchg => 'ok'), pref => '/';
 }
-        
-        
-        ######################################################################
-
-
-sub obj_user {
-    my $self = shift;
-    
-    $self->object_by_model(
-        'AdminList',
-        param => { columns => [qw/id login/] }
-    ),
-}
-
 
 1;

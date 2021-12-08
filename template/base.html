@@ -37,14 +37,14 @@
     function msgClose() { document.getElementById('alert_msg').style.display = 'none'; }
 //-->
 </script>
-[% IF state.code > 0 %]
+[% IF state eq 'ok' %]
     <div id="alert_msg" class="msg">
-        <span class="text" id="alert_msg_text">ВЫПОЛНЕНО! ([% TIME %])<br />[% state.msg %]</span>
+        <span class="text" id="alert_msg_text">ВЫПОЛНЕНО!</span>
         <a href="javascript:msgClose()">закрыть</a>
     </div>
 [% ELSE %]
     <div id="alert_msg" class="err">
-        <span class="text" id="alert_err_text">ОШИБКА! ([% TIME %])<br />[% state.msg %]</span>
+        <span class="text" id="alert_err_text">ОШИБКА!<br />[% state %]</span>
         <a href="javascript:msgClose()">закрыть</a>
     </div>
 [% END %]
@@ -55,15 +55,15 @@
 </tr>
 
 <tr>
-[% IF user && user.ok && !user.denied %]
+[% IF auth.user %]
     <td width="200" valign="top" class="menu">
 
 <!-- Авторизация -->
     <div class="auth">
-    Вы вошли как: <b>[% user.login %]</b><br />
-    Группа: [% IF user.group %][% user.group %][% ELSE %]<i>(Без групппы)</i>[% END %]<br />
+    Вы вошли как: <b>[% auth.user.login %]</b><br />
+    Группа: [% IF auth.group %][% auth.group.name %][% ELSE %]<i>(Без групппы)</i>[% END %]<br />
     [% IF mycmd %]Команда: [% mycmd.name %]<br />[% END %]
-    <small>Ваш IP: [% ip %]<br />
+    <small>Ваш IP: [% auth.ip %]<br />
     [% TIME %] </small><br />
     <a href="[% PREF auth/pform %]">Изменить пароль</a>
     :: <a href="[% PREF auth/logout %]">Выйти</a>
@@ -112,7 +112,7 @@
 [% END %]
 
     </td>
-[% END # IF user && !user.denied %]
+[% END # IF auth.user %]
     <td valign="top" class="content">
 [% IF read_only %]
     <div class="title" style="color: red">База в режиме "только чтение"</div>

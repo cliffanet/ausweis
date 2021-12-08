@@ -5,7 +5,7 @@
     Для продолжения требуется авторизация на сервере!
     <form action="[% PREF auth/login %]" method="post">
         [% IF errno %]<div style="color:red; font-weight:bold;">[Ошибка [% errno %]] [% error %]</div>[% END %]
-        [% IF redirect %]<input type="hidden" name="r" value="[% redirect %]">[% END %]
+        [% IF ar %]<input type="hidden" name="ar" value="[% ar %]">[% END %]
         <br />
         Логин:<br />
         <input type="text" name="l" /><br />

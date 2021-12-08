@@ -2,13 +2,11 @@ package CMain::Admin;
 
 use Clib::strict8;
 
-use Clib::Rights;
-
 
 sub _root :
         Simple
 {
-    #rchk('admin_read') || return 'rdenied';
+    rchk('admin_read') || return 'rdenied';
     my $p = wparam();
     
     my @grp = sqlSrch(user_group => sqlOrder('name'));
