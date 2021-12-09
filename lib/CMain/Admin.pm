@@ -76,114 +76,124 @@ sub srch :
         @p;
 }
 
-=pod
-sub uadding :
-    ReturnPatt
-{
-    my ($self) = @_;
 
-    $self->view_rcheck('admin_write') || return;
-    $self->view_can_edit() || return;
-    $self->template("admin_uadd");
+sub uadding :
+        Simple
+{
+    rchk('admin_write') || return 'rdenied';
+    editable() || return 'readonly';
     
-    # Автозаполнение полей, если данные из формы не приходили
-    my $form =
-        { map { ($_ => '') } qw/login password gid cmdid/ };
-    if ($self->req->params()) {
-            _utf8_on($form->{$_} = $self->req->param($_)) foreach $self->req->params();
+    my @grp = sqlAll(user_group => 'name');
+    my @cmd = sqlAll(command => 'name');
+    
+    my %blok =
+        map { ($_->{id} => $_) }
+        sqlAll('blok');
+    foreach my $cmd (@cmd) {
+        my $blkid = $cmd->{blkid} || next;
+        $cmd->{blok} = $blok{ $blkid };
     }
+    
     return
-        form => $form,
-        ferror => $self->FormError(),
-        group_list => [ $self->model('UserGroup')->search({}, { order_by => 'name'}) ],
-        cmd_list=> [ $self->model('Command')->search({}, { prefetch => 'blok', order_by => 'name'}) ],
+        'admin_uadd',
+        group_list  => \@grp,
+        cmd_list    => \@cmd,
+        form(qw/login gid cmdid/);
 }
-        
+
 sub uadd :
         ReturnOperation
 {
-    my ($self) = @_;
-    
-    $self->rcheck('admin_write') || return $self->rdenied;
-    $self->d->{read_only} && return $self->cantedit();
-    
+    rchk('admin_write') || return err => 'rdenied';
+    editable() || return err => 'readonly';
+
+    my $p = wparam();
     my %err = ();
-    my %new = ();
-    my $q = $self->req;
-    
-    foreach my $p (qw/login/) {
-        _utf8_on($new{$p} = $q->param_str($p))
-            if defined $q->param($p);
-    }
-    foreach my $p (qw/gid cmdid/) {
-        $new{$p} = $q->param_int($p)
-            if defined $q->param($p);
-    }
+    my @new = ();
     
     # Проверка данных
-    if (exists($new{login})) {
-        if ($new{login} !~ /^[a-zA-Z_0-9\-а-яА-Я]+$/) {
-            $err{login} = 2;
+    if ($p->exists('login')) {
+        my $login = $p->str('login');
+        push @new, login => $login;
+        
+        if ($login !~ /^[a-zA-Z_0-9\-а-яА-Я]+$/) {
+            $err{login} = 'format';
         }
-        elsif ($self->model('UserList')->count({ login => $new{login} })) {
-            $err{login} = 6;
-        }
-    }
-    else {
-        $err{login} = 1;
-    }
-    
-    my $pass = $q->param('ps');
-    if (defined($pass) && ($pass ne '')) {
-        my $pass2 = $q->param('p2');
-        foreach my $s ($pass, $pass2) {
-            _utf8_on($s);
-        }
-        if (!defined($pass2) || ($pass eq $pass2)) {
-            $new{password} = { PASSWORD => $pass };
-        }
-        else {
-            $err{password} = 4;
+        elsif (sqlSrch(user_list => login => $login)) {
+            $err{login} = 'used';
         }
     }
     else {
-        $err{password} = 1;
+        $err{login} = 'nospec';
     }
     
-    if (exists($new{gid})) {
-        if ($new{gid} < 0) {
-            $err{gid} = 2;
+    if ($p->exists('ps')) {
+        my $pass = $p->raw('ps');
+        $pass = '' if !defined($pass);
+        push @new, password => [PASSWORD => $pass];
+        
+        if ($pass eq '') {
+            $err{password} = 'empty';
         }
-        elsif ($new{gid} && !$self->model('UserGroup')->count({ id => $new{gid} })) {
-            $err{gid} = 5;
+        elsif ($p->exists('p2')) {
+            my $pass2 = $p->raw('p2');
+            if (!defined($pass2) || ($pass2 ne $pass)) {
+                $err{pass2} = 'passconfirm';
+            }
+        }
+    }
+    else {
+        $err{password} = 'nospec';
+    }
+    
+    if ($p->exists('gid')) {
+        my $gid = $p->uint('gid');
+        push @new, gid => $gid;
+        
+        if ($p->str('gid') !~ /^\d+$/) {
+            $err{gid} = 'format';
+        }
+        elsif ($gid && !sqlGet(user_group => $gid)) {
+            $err{gid} = 'novalid';
         }
     }
     
-    if (exists($new{cmdid})) {
-        if ($new{cmdid} < 0) {
-            $err{cmdid} = 2;
+    if ($p->exists('cmdid')) {
+        my $cmdid = $p->uint('cmdid');
+        push @new, cmdid => $cmdid;
+        
+        if ($p->str('cmdid') !~ /^\d+$/) {
+            $err{cmdid} = 'format';
         }
-        elsif ($new{cmdid} && !$self->model('Command')->count({ id => $new{cmdid} })) {
-            $err{cmdid} = 5;
+        elsif ($cmdid && !sqlGet(command => $cmdid)) {
+            $err{cmdid} = 'novalid';
         }
     }
     
-    $new{rights} = RIGHT_GROUP x 128;
+    push @new, rights => Clib::Rights::GROUP x 128;
     
     # Ошибки заполнения формы
-    my @fpar = (qw/login password gid cmdid/);
     if (%err) {
-        return (error => 000101, pref => 'admin/uadding', fpar => \@fpar, ferr => \%err);
+        return
+            ferr => \%err,
+            pref => 'admin/uadding';
     }
     
     # Сохраняем
-    $self->model('UserList')->create(\%new)
-        || return (error => 000104, pref => 'admin/uadding', fpar => \@fpar, ferr => \%err);
+    my $uid = sqlAdd(user_list => @new)
+        || return
+            err  => 'db',
+            ferr => \%err,
+            pref => 'admin/uadding';
         
-    return (ok => 20100, pref => 'admin');
+    return
+        ok => 1,
+        pref => 'admin';
 }
 
 
+
+=pod
 sub uedit :
         ParamObj('user', 0)
         ReturnPatt

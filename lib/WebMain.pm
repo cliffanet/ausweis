@@ -10,6 +10,8 @@ use Clib::Template::Package;
 use Clib::DT;
 use Clib::Rights;
 
+use JSON::XS;
+
 $SIG{__DIE__} = sub { error('DIE: %s', $_) for @_ };
 
 my $logpid = log_prefix($$);
@@ -27,16 +29,19 @@ sub pref_short {
 }
 sub pref { return $href_prefix . '/' . pref_short(@_); }
 
-sub disp_search {
-    my $href = shift() || return;
+sub path_short {
+    my $path = shift() || return;
     
     if ($href_prefix ne '') {
-        if (substr($href, 0, length($href_prefix)) ne $href_prefix) {
+        if (substr($path, 0, length($href_prefix)) ne $href_prefix) {
             return;
         }
-        $href = substr($href, length($href_prefix), length($href)-length($href_prefix));
+        substr($path, 0, length($href_prefix)) = '';
     }
-    return webctrl_search($href);
+    
+    $path =~ s/^\///;
+    
+    return $path;
 }
 
 webctrl_local(
@@ -49,7 +54,9 @@ webctrl_local(
             
             *wparam = *WebMain::param;
             *rchk = *WebMain::rchk;
+            *editable = *WebMain::editable;
             *qsrch = *WebMain::qsrch;
+            *form = *WebMain::form;
         ",
     ) || die webctrl_error;
 
@@ -106,7 +113,80 @@ sub _rchk {
 }
 sub rchk { _rchk($auth{rights}, @_); }
 
+# БД в режиме "только чтение"
+sub editable {
+    return c('read_only') ? 0 : 1;
+}
 
+# json
+sub tojson {
+    my $data = shift;
+    return eval { JSON::XS->new->utf8->pretty(0)->canonical->encode($data); };
+}
+sub jdata {
+    my $d = shift() || return;
+    return eval { JSON::XS->new->decode($d); };
+}
+
+# сохранённые данные формы в случае ошибки
+sub form {
+    my $sess = $auth{session} || return;
+    
+    # Сохранённые данные
+    my %ferr = ();
+    my %form = ();
+    if (my $f = $sess->{form}) {
+        $f = jdata($f) || {};
+        
+        if (%$f) {
+            if (!$f->{dst} || !$auth{path} || ($f->{dst} ne $auth{path})) {
+                error('[form] `dst` fail: dst=%s, path=%s', defined($f->{dst})?$f->{dst}:'-undef', defined($auth{path})?$auth{path}:'-undef-');
+                $f = {};
+            }
+        }
+        else {
+            error('[form] data fail');
+        }
+        
+        if (%$f) {
+            %ferr = %{ $f->{ferr}||{} };
+            foreach my $k (keys %ferr) {
+                my $msg = c(form_errors => $ferr{$k}) || next;
+                $ferr{$k} = $msg;
+            }
+            
+            my @par = @{ $f->{par}||[] };
+            while (@par && (my ($k, $v) = splice(@par, 0, 2))) {
+                next if exists $form{$k};
+                $form{$k} = $v;
+            }
+        }
+        else {
+            # в любой непонятной ситуации стираем сохранённые данные из БД
+            sqlUpd(user_session => $sess->{id}, form => undef);
+        }
+    }
+    
+    # Заполнение исходными данными
+    foreach my $f (@_) {
+        if (ref($f) eq 'HASH') {
+            # Существующая запись
+            foreach my $k (keys %$f) {
+                next if exists $form{$k};
+                $form{$k} = $f->{$k};
+            }
+        }
+        else {
+            # пустое поле новой записи
+            next if exists $form{$f};
+            $form{$f} = '';
+        }
+    }
+    
+    return form => \%form, ferr => \%ferr;
+}
+
+# инициализация
 sub init {
     my %p = @_;
     
@@ -189,6 +269,7 @@ sub init {
     );
 }
 
+# обработка запросов
 sub request {
     my $path = shift;
     
@@ -197,11 +278,6 @@ sub request {
     $logpid->set($$.'/'.$count);
     $logip->set($ENV{REMOTE_ADDR}||'-noip-');
     log('request %s', $path);
-    
-    # Прописывание skey для внешней авторизации
-    if ($path =~ /^\/skey(?:\/([a-zA-Z0-9]{15,25}))?$/) {
-        return AuthAdmin::skeyset($1);
-    }
     
     # Проверка указанного запроса
     my ($disp, @disp) = webctrl_search($path);
@@ -221,6 +297,9 @@ sub request {
     %auth = CMain::Auth::sesscheck();
     if (my $user = $auth{user}) {
         $loguser->set($user->{login});
+        
+        $auth{path} = $path;
+        $auth{path} =~ s/^\///;
     }
     elsif (!(grep { $_->[0] =~ /allownoauth/i } @{$disp->{attr}||[]})) {
         error("dispatcher not allowed whithout auth (redirect to /auth)");
@@ -442,6 +521,8 @@ sub return_default { return return_html('base', shift(), '', @_); }
 sub return_operation {
     my %p = @_;
     
+    $p{err} = 'input' if !($p{err}||$p{error}) && $p{ferr};
+    
     # Ключ ok/err/error содержат текстовое сообщение о статусе выполненной операции
     # Могут сохранять либо сам текст, либо ключ стандартных сообщений
     foreach my $k (qw/ok err error/) {
@@ -494,10 +575,27 @@ sub return_operation {
     
     if (my $sess = $auth{session}) {
         if ($p{ok}) {
-            sqlUpd(user_session => $sess->{id}, state => 'ok');
+            my @f = (state => 'ok');
+            
+            if ($sess->{form}) {
+                push @f, form => undef;
+            }
+            
+            sqlUpd(user_session => $sess->{id}, @f);
         }
         elsif (my $err = $p{error} || $p{err}) {
-            sqlUpd(user_session => $sess->{id}, state => $err);
+            my @f = (state => $err);
+            
+            if (my $f = $p{ferr}) {
+                my $d = { ferr => $f, par => [ param()->orig() ] };
+                if (my $p = $p{pref}) {
+                    $d->{dst} = webctrl_pref(ref($p) eq 'ARRAY' ? @$p : $p);
+                }
+                
+                push @f, form => tojson($d);
+            }
+            
+            sqlUpd(user_session => $sess->{id}, @f);
         }
         else {
             error("CRITICAL: return_operation whithout `ok` or `err`");

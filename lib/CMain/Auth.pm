@@ -116,7 +116,8 @@ sub _root :
     }
     elsif (my $href = WebMain::path_referer()) {
         debug('auth-form redirect referer: %s', $href);
-        ($disp, @disp) = WebMain::disp_search($href);
+        $path = WebMain::path_short($href);
+        ($disp, @disp) = webctrl_search($path) if defined $path;
     }
     if ($disp && (($disp->{path} ne '') || @disp) && (($disp->{path} !~ /^auth/))) {
         my $ar = WebMain::pref_short($disp->{path}, @disp);

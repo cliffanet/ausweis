@@ -17,5 +17,6 @@ ALTER TABLE `user_session`
 	CHANGE COLUMN `create` `dtbeg` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
 	CHANGE COLUMN `visit` `dtact` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
     DROP COLUMN `state`,
-    CHANGE COLUMN `op` `state` char(128) DEFAULT NULL;
+    CHANGE COLUMN `op` `state` char(128) DEFAULT NULL,
+	ADD `form` text DEFAULT NULL;
 
