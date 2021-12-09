@@ -4,19 +4,19 @@
     <h3>Инфо</h3>
     <table class="tbl">
     <tr>
-        <td class="ltitle" style="width:250px">Логин:   [% BLOCK ferr: e=ferror.login %][% IF e %]<div class="form_error">[% e %]</div>[% END %][% END %]</td>
+        <td class="ltitle" style="width:250px">Логин:   [% INCLUDE ferr, e=ferr.login %]</td>
         <td><input type="text"  class="stdin" name="login" value="[% form.login %]"></td>
     </tr>
     <tr>
-        <td class="ltitle">Пароль:</td>
+        <td class="ltitle">Пароль:                      [% INCLUDE ferr, e=ferr.password %]</td>
         <td><input type="password" class="stdin" name="ps" value=""></td>
     </tr>
     <tr>
-        <td class="ltitle">Подтверждение:               [% BLOCKDUP ferr(ferror.password) %]</td>
+        <td class="ltitle">Подтверждение:               [% INCLUDE ferr, e=ferr.pass2 %]</td>
         <td><input type="password" class="stdin" name="p2" value=""></td>
     </tr>
     <tr>
-        <td class="ltitle">Группа:                      [% BLOCKDUP ferr(ferror.gid) %]</td>
+        <td class="ltitle">Группа:                      [% INCLUDE ferr, e=ferr.gid %]</td>
         <td>
                 <select name="gid" class="stdin">
                     <option value="0"> &lt;- выбрать -&gt; </option>
@@ -28,7 +28,7 @@
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Команда:                     [% BLOCKDUP ferr(ferror.cmdid) %]</td>
+        <td class="ltitle">Команда:                     [% INCLUDE ferr, e=ferr.cmdid %]</td>
         <td>
             <select name="cmdid" class="stdin">
                 <option value="0"> &lt;- нет привязки -&gt; </option>
@@ -37,7 +37,7 @@
         </td>
     </tr>
     <tr>
-        <td class="ltitle" style="width:250px">E-mail:   [% BLOCKDUP ferr(ferror.email) %]</td>
+        <td class="ltitle" style="width:250px">E-mail:   [% INCLUDE ferr, e=ferr.email %]</td>
         <td><input type="text"  class="stdin" name="email" value="[% form.email %]"></td>
     </tr>
     <tr>
@@ -59,7 +59,7 @@
     [% FOREACH r = rights_list %]
         [% IF r %]
         <tr>
-            <td class="ltitle" style="width:250px">[% r.name %]</td>
+            <td class="ltitle" style="width:250px">[% r.name %][% INCLUDE ferr, e=r.err %]</td>
             <td>
                 <select name="[% r.fname %]" class="stdin">
                     <option value="[% dcode %]">&lt;- нет -&gt;</option>

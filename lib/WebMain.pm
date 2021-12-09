@@ -594,6 +594,9 @@ sub return_operation {
                 
                 push @f, form => tojson($d);
             }
+            elsif ($sess->{form}) {
+                push @f, form => undef;
+            }
             
             sqlUpd(user_session => $sess->{id}, @f);
         }
