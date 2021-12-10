@@ -6,6 +6,10 @@ sub user_by_id {
     sqlGet(user_list => shift());
 }
 
+sub group_by_id {
+    sqlGet(user_group => shift());
+}
+
 sub _root :
         Simple
 {
@@ -369,7 +373,7 @@ sub uset :
     @upd || return err => 'nochange', pref => ['admin/uedit' => $user->{id}];
     
     # Сохраняем
-    my $uid = sqlUpd(user_list => $user->{id}, @upd)
+    sqlUpd(user_list => $user->{id}, @upd)
         || return
             err  => 'db',
             ferr => \%err,
@@ -390,7 +394,7 @@ sub udel :
     $user || return err => 'notfound';
     editable() || return err => 'readonly';
 
-    my $uid = sqlDel(user_list => $user->{id})
+    sqlDel(user_list => $user->{id})
         || return
             err  => 'db',
             pref => '';
@@ -400,217 +404,208 @@ sub udel :
         pref => 'admin';
 }
 
-
-
-=pod   
 sub gadding :
-    ReturnPatt
+        Simple
 {
-    my ($self) = @_;
-
-    $self->view_rcheck('admin_write') || return;
-    $self->view_can_edit() || return;
-    $self->template("admin_gadd");
+    rchk('admin_write') || return 'rdenied';
+    editable() || return 'readonly';
     
-    # Автозаполнение полей, если данные из формы не приходили
-    my $form =
-        { map { ($_ => '') } qw/name/ };
-    if ($self->req->params()) {
-            _utf8_on($form->{$_} = $self->req->param($_)) foreach $self->req->params();
-    }
     return
-        form => $form,
-        ferror => $self->FormError(),
+        'admin_gadd',
+        form(qw/name/);
 }
-        
+
 sub gadd :
         ReturnOperation
 {
-    my ($self) = @_;
-    
-    $self->rcheck('admin_write') || return $self->rdenied;
-    $self->d->{read_only} && return $self->cantedit();
-    
+    rchk('admin_write') || return err => 'rdenied';
+    editable() || return err => 'readonly';
+
+    my $p = wparam();
     my %err = ();
-    my %new = ();
-    my $q = $self->req;
-    
-    foreach my $p (qw/name/) {
-        _utf8_on($new{$p} = $q->param_str($p))
-            if defined $q->param($p);
-    }
+    my @new = ();
     
     # Проверка данных
-    if (exists($new{name})) {
-        if ($new{name} eq '') {
-            $err{name} = 1;
+    if ($p->exists('name')) {
+        my $name = $p->str('name');
+        push @new, name => $name;
+        
+        if ($name eq '') {
+            $err{name} = 'empty';
         }
-        elsif ($self->model('UserGroup')->count({ name => $new{name} })) {
-            $err{name} = 6;
+        elsif (sqlSrch(user_group => name => $name)) {
+            $err{name} = 'used';
         }
     }
     else {
-        $err{name} = 1;
+        $err{name} = 'nospec';
     }
     
     # Ошибки заполнения формы
-    my @fpar = (qw/name/);
     if (%err) {
-        return (error => 000101, pref => 'admin/gadding', fpar => \@fpar, ferr => \%err);
+        return
+            ferr => \%err,
+            pref => 'admin/gadding';
     }
     
     # Сохраняем
-    $self->model('UserGroup')->create(\%new)
-        || return (error => 000104, pref => 'admin/gadding', fpar => \@fpar, ferr => \%err);
+    my $gid = sqlAdd(user_group => @new)
+        || return
+            err  => 'db',
+            ferr => \%err,
+            pref => 'admin/gadding';
         
-    return (ok => 20200, pref => 'admin');
+    return
+        ok => 1,
+        pref => 'admin';
 }
 
-
 sub gedit :
-        ParamObj('grp', 0)
-        ReturnPatt
+        ParamCodeUInt(\&group_by_id)
 {
-    my ($self, $grp) = @_;
+    my $grp = shift();
     
-    $self->view_rcheck('admin_read') || return;
-    $grp || return $self->notfound;
-    $self->view_can_edit() || return;
-    $self->template('admin_gedit');
+    rchk('admin_write') || return 'rdenied';
+    $grp || return 'notfound';
+    editable() || return 'readonly';
     
     my @grights = split(//, $grp->{rights});
     
-    my %rByCode = map { ($_->[1] => $_->[2]) } @{ $self->c('rtypes')||[] };
-    my %rBySymb = map { ($_->[0] => $_->[1]) } @{ $self->c('rtypes')||[] };
+    my %rByCode = map { ($_->[1] => $_->[2]) } @{ c('rtypes')||[] };
+    my %rBySymb = map { ($_->[0] => $_->[1]) } @{ c('rtypes')||[] };
     
-    my %form = %$grp;
-    if ($self->req->params()) {
-        _utf8_on($form{$_} = $self->req->param($_)) foreach $self->req->params();
-    }
+    my %form = form($grp);
+    my %f = %{ $form{form}||{} };
     
-    return
-        grp  => $grp,
-        form => \%form,
-        ferror => $self->FormError(),
-        dcode => RIGHT_DENY,
-        rights_list => [
-            map {
-                if (ref($_) eq 'ARRAY') {
-                    my ($vname, $num, $name, @var) = @$_;
-                    my $gr = $grights[$num];
-                    $gr = RIGHT_DENY if !defined($gr) || ($gr eq '');
-                    my $fname = sprintf('rights.%d', $num); # имя поля
-                    {
-                        vname   => $vname,
-                        num     => $num,
-                        name    => $name,
-                        fname   => $fname,
-                        gcode   => exists $form{$fname} ? $form{$fname} : $gr,
-                        gvar    => { code => $gr, name => $rByCode{$gr}||$gr },
-                        var_list=> [
-                            map { { code => $rBySymb{$_}||$_, name => $rByCode{$rBySymb{$_}||$_}||$_ } } @var
-                        ],
-                    }
-                }
-                else {
-                    undef
+    my @rights =
+        map {
+            if (ref($_) eq 'ARRAY') {
+                my ($vname, $num, $name, @var) = @$_;
+                my $gr = $grights[$num];
+                $gr = Clib::Rights::DENY if !defined($gr) || ($gr eq '');
+                my $fname = sprintf('rights_%d', $num); # имя поля
+                {
+                    vname   => $vname,
+                    num     => $num,
+                    name    => $name,
+                    fname   => $fname,
+                    gcode   => exists $form{$fname} ? $form{$fname} : $gr,
+                    gvar    => { code => $gr, name => $rByCode{$gr}||$gr },
+                    var_list=> [
+                        map { { code => $rBySymb{$_}||$_, name => $rByCode{$rBySymb{$_}||$_}||$_ } } @var
+                    ],
+                    err     => ($form{ferr}||{})->{$fname},
                 }
             }
-            @{ $self->c('rights')||[] }
-        ],
+            else {
+                undef
+            }
+        }
+        @{ c('rights')||[] };
+    
+    return
+        'admin_gedit',
+        grp  => $grp,
+        %form,
+        dcode => Clib::Rights::DENY,
+        rights_list => \@rights;
 }
-        
+
 sub gset :
-        ParamObj('grp', 0)
+        ParamCodeUInt(\&group_by_id)
         ReturnOperation
 {
-    my ($self, $grp) = @_;
+    my $grp = shift();
     
-    $self->rcheck('admin_write') || return $self->rdenied;
-    $grp || return $self->notfound;
-    $self->d->{read_only} && return $self->cantedit();
-    
+    rchk('admin_write') || return err => 'rdenied';
+    $grp || return err => 'notfound';
+    editable() || return err => 'readonly';
+
+    my $p = wparam();
     my %err = ();
-    my %upd = ();
-    my $q = $self->req;
-    
-    foreach my $p (qw/name/) {
-        _utf8_on($upd{$p} = $q->param_str($p))
-            if defined $q->param($p);
-    }
+    my @upd = ();
     
     # Проверка данных
-    if (exists($upd{name})) {
-        if ($upd{name} eq '') {
-            $err{name} = 1;
+    if ($p->exists('name')) {
+        my $name = $p->str('name');
+        push(@upd, name => $name) if $name ne $grp->{name};
+        
+        if ($name eq '') {
+            $err{name} = 'empty';
         }
-        elsif ($self->model('UserGroup')->count({ name => $upd{name}, id => { '!=' => $grp->{id} } })) {
-            $err{name} = 6;
+        elsif (sqlSrch(user_group => name => $name, sqlNotEq(id => $grp->{id}))) {
+            $err{name} = 'used';
         }
     }
     
     # Права
-    $upd{rights} = $grp->{rights};
-    my %rBySymb = map { ($_->[0] => $_->[1]) } @{ $self->c('rtypes')||[] };
-    foreach (grep { ref($_) eq 'ARRAY' } @{ $self->c('rights')||[] }) {
-        my (undef, $rnum, $name, @vals) = @$_;
-        my $f = "rights.$rnum";
-        my $rval = $q->param($f);
+    my $rights = $grp->{rights};
+    my %rBySymb = map { ($_->[0] => $_->[1]) } @{ c('rtypes')||[] };
+    foreach (grep { ref($_) eq 'ARRAY' } @{ c('rights')||[] }) {
+        my (undef, $num, $name, @var) = @$_;
+        my $fname = sprintf('rights_%d', $num); # имя поля
+        my $rval = $p->raw($fname);
         defined($rval) || next;
         if (length($rval) != 1) {
-            $err{$f} = 2;
+            $err{$fname} = 'format';
             next;
         }
-        if (!(grep { $rval eq $_ } (RIGHT_DENY, map { $rBySymb{$_}||$_ } @vals))) {
-            $err{$f} = 5;
+        if (!(grep { $rval eq $_ } (Clib::Rights::DENY, map { $rBySymb{$_}||$_ } @var))) {
+            $err{$fname} = 'novalid';
             next;
         }
         
-        $upd{rights} = Clib::Rights::rights_Set($upd{rights}, $rnum, $rval);
+        $rights = Clib::Rights::set($rights, $num, $rval);
     }
+    push(@upd, rights => $rights) if $rights ne $grp->{rights};
     
     # Ошибки заполнения формы
-    my @fpar = (qw/name/, map { 'rights.'.$_->[1] } grep { ref($_) eq 'ARRAY' } @{ $self->c('rights')||[] });
     if (%err) {
-        return (error => 000101, pref => ['admin/gedit' => $grp->{id}], fpar => \@fpar, ferr => \%err);
+        return
+            ferr => \%err,
+            pref => ['admin/gedit' => $grp->{id}];
     }
     
-    # Убираем из списка неизменившиеся поля
-    foreach my $p (keys %upd) {
-        delete($upd{$p})
-            if $upd{$p} eq $grp->{$p};
-    }
-    
-    # Осталось ли, что сохранять
-    %upd || return ( error => 000106, pref => ['admin/gedit' => $grp->{id}]);
+    # Надо ли, что сохранять
+    @upd || return err => 'nochange', pref => ['admin/gedit' => $grp->{id}];
     
     # Сохраняем
-    $self->model('UserGroup')->update(\%upd, { id => $grp->{id} })
-        || return (error => 000104, pref => ['admin/gedit' => $grp->{id}], fpar => \@fpar, ferr => \%err);
+    sqlUpd(user_group => $grp->{id}, @upd)
+        || return
+            err  => 'db',
+            ferr => \%err,
+            pref => ['admin/gedit' => $grp->{id}];
         
-    return (ok => 20400, pref => 'admin');
+    return
+        ok => 1,
+        pref => 'admin';
 }
-        
+
 sub gdel :
-    ParamObj('grp', 0)
-    ReturnOperation
+        ParamCodeUInt(\&group_by_id)
+        ReturnOperation
 {
-    my ($self, $grp) = @_;
+    my $grp = shift();
     
-    $self->rcheck('admin_write') || return $self->rdenied;
-    $self->d->{read_only} && return $self->cantedit();
-    $grp || return $self->nfound();
-    $self->d->{read_only} && return $self->cantedit();
+    rchk('admin_write') || return err => 'rdenied';
+    $grp || return err => 'notfound';
+    editable() || return err => 'readonly';
     
-    $self->model('UserList')->update({ gid => 0 }, { gid => $grp->{id} })
-        || return (error => 000104, href => '');
+    foreach my $user (sqlSrch(user_list => gid => $grp->{id})) {
+        sqlUpd(user_list => $user->{id}, gid => 0)
+            || return
+                err  => 'db',
+                pref => '';
+    }
     
-    $self->model('UserGroup')->delete({ id => $grp->{id} })
-        || return (error => 000104, href => '');
+    sqlDel(user_group => $grp->{id})
+        || return
+            err  => 'db',
+            pref => '';
     
-    # статус с редиректом
-    return (ok => 20600, pref => 'admin');
+    return
+        ok => 1,
+        pref => 'admin';
 }
-=cut
 
 1;

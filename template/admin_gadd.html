@@ -4,7 +4,7 @@
     <h3>Инфо</h3>
     <table class="tbl">
     <tr>
-        <td class="ltitle" style="width:250px">Название:   [% BLOCK ferr: e=ferror.name %][% IF e %]<div class="form_error">[% e %]</div>[% END %][% END %]</td>
+        <td class="ltitle" style="width:250px">Название:[% INCLUDE ferr, e=ferr.name %]</td>
         <td><input type="text"  class="stdin" name="name" value="[% form.name %]"></td>
     </tr>
     <tr>
