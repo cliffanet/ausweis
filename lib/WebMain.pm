@@ -488,19 +488,24 @@ sub return_html {
         }
     );
     
-    # Команда
-    if ($auth{user} && (my $cmdid = $auth{user}->{cmdid})) {
-        my $cmd = sqlGet(command => $cmdid);
-        push(@p, mycmd => $cmd) if $cmd;
-    }
-    
-    # state
-    if (my $sess = $auth{session}) {
-        if (defined $sess->{state}) {
-            push @p, state => $sess->{state};
-            sqlUpd(user_session => $sess->{id}, state => undef);
-            $sess->{state} = undef;
+    if ($auth{user} && !$block) {
+        # Команда
+        if ($auth{user} && (my $cmdid = $auth{user}->{cmdid})) {
+            my $cmd = sqlGet(command => $cmdid);
+            push(@p, mycmd => $cmd) if $cmd;
         }
+    
+        # state
+        if (my $sess = $auth{session}) {
+            if (defined $sess->{state}) {
+                push @p, state => $sess->{state};
+                sqlUpd(user_session => $sess->{id}, state => undef);
+                $sess->{state} = undef;
+            }
+        }
+        
+        # menu
+        push @p, menu => [menu()];
     }
     
     my $meth = 'html';
@@ -684,6 +689,41 @@ sub return_redirect {
     }
     
     return '', 302, Clib::Web::Param::cookiebuild(), Location => "http://".$ENV{HTTP_HOST}.$href;
+}
+
+sub menu {
+    my $mt = { list => [] };
+    return
+        grep { $_->{is_item} || @{ $_->{list} } }
+        map {
+            if (ref($_) eq 'ARRAY') {
+                my ($title, $rcheck, $pref, @args) = @$_;
+                my $fadd = ref($args[0]) eq 'CODE' ? shift(@args) : undef;
+                my @m;
+                if (rchk($rcheck)) {
+                    if ($fadd) {
+                        my $fres = $fadd->();
+                        $title .= sprintf(' (%s)', $fres) if $fres;
+                    }
+                    @m = { is_item => 1, title => $title, href => pref($pref, @args) };
+                }
+                push @{ $mt->{list} }, @m;
+                @m;
+            }
+            elsif ($_) {
+                $mt = { is_title => 1, title => $_, list => [] };
+            }
+            else {
+                $mt = { is_splitter => 1, list => [] };
+            }
+        }
+        @{ c('menu') || [] };
+}
+
+sub msgcount {
+    my $user = $auth{user} || return 0;
+    
+    return scalar sqlSrch(msg => uid => $user->{id}, readed => 0);
 }
 
 1;
