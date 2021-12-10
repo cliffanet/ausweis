@@ -2,11 +2,11 @@
 [% BLOCK CONTENT %]
     <!-- Поиск -->
     <h3>Поиск</h3>
-    <form action="[% PREF blok/list %]">
+    <form action="[% PREF blok %]">
     <table class="tbl">
         <tr>
             <td class="ltitle">Название:</td>
-            <td><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
+            <td><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off" data-search-url="[% PREF blok/srch %]" /></td>
         </tr>
         <tr><td colspan="2" class="submit">
             <a href="[% PREF blok/adding %]">добавить</a>
@@ -27,7 +27,7 @@
     [% FOREACH bl = list %]
         <tr>
             <td><a title="Просмотр информации о блоке" alt="Просмотр информации о блоке" href="[% PREF blok/info: bl.id %]">[% bl.name %]</a></td>
-            <td align="right">[% IF bl.cmdcount %]<a href="[% PREF command/list %][% IF qsrch.full %][% qsrch.full %]&[% ELSE %]?[% END %]blkid=[% bl.id %]">[% bl.cmdcount %]</a>[% END %]</td>
+            <td align="right">[% IF bl.cmdcount %]<a href="[% PREF command %][% IF qsrch.full %][% qsrch.full %]&[% ELSE %]?[% END %]blkid=[% bl.id %]">[% bl.cmdcount %]</a>[% END %]</td>
         </tr>
     [% END %]
     [% ELSE %]
@@ -38,7 +38,7 @@
     [% IF noblock_count > 0 %]
         <tr>
             <td>&lt;- без блока -&gt;</td>
-            <td align="right"><a href="[% PREF command/list %][% IF qsrch.full %][% qsrch.full %]&[% ELSE %]?[% END %]blkid=-1">[% noblock_count %]</a></td>
+            <td align="right"><a href="[% PREF command %][% IF qsrch.full %][% qsrch.full %]&[% ELSE %]?[% END %]blkid=-1">[% noblock_count %]</a></td>
         </tr>
     [% END %]
     </table>

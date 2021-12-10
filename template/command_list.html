@@ -2,7 +2,7 @@
 [% BLOCK CONTENT %]
     <!-- Поиск -->
     <h3>Поиск</h3>
-    <form action="[% PREF command/list %][% qsrch.no_srch %]">
+    <form action="[% PREF command %][% qsrch.no_srch %]">
     <table class="tbl">
         <tr>
             <td class="ltitle">Название:</td>
@@ -12,7 +12,7 @@
         <tr>
             <td class="ltitle">Блок:</td>
             <td>[% IF blkid > 0 %][% blok.name %][% ELSE %]&lt;- без блока -&gt;[% END %]</td>
-            <td width="80"><a href="[% PREF command/list %][% qsrch.no_blkid %]">отменить</a></a></td>
+            <td width="80"><a href="[% PREF command %][% qsrch.no_blkid %]">отменить</a></a></td>
         </tr>
     [% END %]
         <tr><td colspan="3" class="submit">

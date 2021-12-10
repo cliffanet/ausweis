@@ -1,130 +1,101 @@
 package CMain::Blok;
 
-use strict;
-use warnings;
-
-use Encode '_utf8_on', 'encode';
+use Clib::strict8;
 
 ##################################################
-###     Список команд
-###     Код модуля: 97
-#############################################
 
-=pod
-sub _item {
-    my $self = shift;
-    my $item = $self->d->{excel} ? shift : $self->ToHtml(shift, 1);
-    my $id = $item->{id};
+sub by_id {
+    sqlGet(blok => shift());
+}
+
+sub redit {
+    my $blok = shift();
     
-    if ($id) {
-        # Ссылки
-        $item->{href_info}      = $self->href($::disp{BlokShow}, $item->{id}, 'info');
-        $item->{href_edit}      = $self->href($::disp{BlokShow}, $item->{id}, 'edit');
-        $item->{href_del}       = $self->href($::disp{BlokDel}, $item->{id});
-        $item->{href_delete}    = $self->href($::disp{BlokDel}, $item->{id});
-        
-        $item->{href_file}      = sub { $self->href($::disp{BlokFile}, $item->{id}, shift) };
-        $item->{file_size} = sub {
-            my $file = shift;
-            $file || return;
-            return $item->{"_file_size_$file"} ||=
-                -s Func::CachDir('blok', $item->{id})."/$file";
-        };
-        
-        $item->{href_cmd_adding}= $self->href($::disp{CommandAdding}."?blkid=%d", $id);
-        
-        Func::regen_stat($self, $item);
+    rchk('blok_edit') || return;
+    
+    my $user = WebMain::auth('user') || return;
+    if (!$user->{blkid} || ($blok && ($user->{blkid} != $blok->{id}))) {
+        rchk('blok_info_all') || return err => 'rdenied';
     }
     
-    return $item;
+    1;
 }
 
-sub _list {
-    my $self = shift;
-    return $self->d->{blk}->{_list} ||= [
-        map { _item($self, $_); }
-        $self->model('Blok')->search({},{order_by=>'name'})
-    ];
-}
-
-sub _hash {
-    my $self = shift;
-    return $self->d->{blk}->{_hash} ||= {
-        map { ($_->{id} => $_) }
-        @{ _list($self) }
-    };
-}
-=cut
-
-sub list :
-    ReturnPatt
+sub _root :
+        Simple
 {
-    my ($self) = @_;
-
-    $self->view_rcheck('blok_list') || return;
-    $self->template("blok_list", 'CONTENT_result');
+    rchk('blok_list') || return 'rdenied';
+    my $p = wparam();
     
+    my @query = ();
+    my @where = ();
     my $noblock_count = 0;
     
-    my @qsrch = ();
-    my $srch = {};
-    my $s = $self->req->param_str('srch');
-    _utf8_on($s);
-    push @qsrch, { f => 'srch', val => $s };
-    if (my $name = $s) {
-        $name =~ s/([%_])/\\$1/g;
-        $name =~ s/\*/%/g;
-        $name =~ s/\?/_/g;
-        $name = "%$name" if $name !~ /^%/;
-        $name .= "%" if $name !~ /%$/;
-        #$name .= "%" if $name !~ /^(.*[^\\])?%$/;
-        $srch->{name} = { LIKE => $name };
+    if ($p->exists('srch') && length($p->str('srch'))) {
+        my $s = $p->str('srch');
+        
+        push @query, srch => $s;
+        
+        $s =~ s/([%_])/\\$1/g;
+        $s =~ s/\*/%/g;
+        $s =~ s/\?/_/g;
+        $s = '%'.$s if $s !~ /^%/;
+        $s .= '%' if $s !~ /%$/;
+        #$s .= '%' if $s !~ /^(.*[^\\])?%$/;
+        push @where, sqlLike(name => $s);
     }
     else {
-        $noblock_count = $self->model('Command')->count({ blkid => 0 });
+        $noblock_count = sqlSrch(command => blkid => 0 );
     }
 
+    my @list = sqlSrch(blok => @where, sqlOrder('name'));
     
-    my @list = $self->model('Blok')->search(
-            $srch,
-            {
-                order_by => 'name',
-                join => 'command',
-                '+columns' => ['COUNT(`command`.`id`) as `blok.cmdcount`'],
-                group_by => 'id',
-            },
-        );
+    $_->{cmdcount} = 0 foreach @list;
+    my %byid = map { ($_->{id} => $_) } @list;
+    if (%byid) {
+        foreach my $cmd (sqlSrch(command => blkid => [keys %byid])) {
+            my $blk = $byid{ $cmd->{blkid} } || next;
+            $blk->{cmdcount} ++;
+        }
+    }
     
     return
-        srch => $s,
-        qsrch => $self->qsrch(@qsrch),
+        'blok_list',
+        srch    => $p->str('srch'),
+        qsrch   => qsrch([qw/srch/], @query),
         noblock_count => $noblock_count,
-        list => \@list,
+        list    => \@list,
+}
+
+sub srch :
+        ReturnBlock
+{
+    my ($tmpl, @p) = _root();
+    return
+        $tmpl => 'CONTENT_result',
+        @p;
 }
 
 sub info :
-    ParamObj('blok', 0)
-    ReturnPatt
+        ParamCodeUInt(\&by_id)
 {
-    my ($self, $blok) = @_;
-
-    $self->view_rcheck('blok_info') || return;
-    $blok || return $self->notfound;
-    if (!$self->user->{blkid} || ($self->user->{blkid} != $blok->{id})) {
-        $self->view_rcheck('blok_info_all') || return;
+    my $blok = shift();
+    
+    rchk('blok_info') || return 'rdenied';
+    $blok || return 'notfound';
+    
+    my $user = WebMain::auth('user');
+    if (!$user || !$user->{blkid} || ($user->{blkid} != $blok->{id})) {
+        rchk('blok_info_all') || return 'rdenied';
     }
-    $self->template("blok_info");
     
     my $filelogo = 'logo.site.jpg';
-    my $flsize = -s Func::CachDir('blok', $blok->{id})."/$filelogo";
+    my $flsize = 0;#-s Func::CachDir('blok', $blok->{id}).'/'.$filelogo;
     
-    my @cmd =
-        $self->model('Command')->search(
-            { blkid => $blok->{id} },
-            { order_by => 'name' },
-        );
+    my @cmd = sqlSrch(command => blkid => $blok->{id}, sqlOrder('name'));
     
     return
+        'blok_info',
         blok => $blok,
         file_logo => $filelogo,
         file_logo_size => $flsize,
@@ -132,46 +103,31 @@ sub info :
 }  
 
 sub my :
-    ReturnPatt
+        Simple
 {
-    my ($self) = @_;
+    my $user = WebMain::auth('user') || return 'rdenied';
+    my $blkid = $user->{blkid} || return 'notfound';
+    my $blok = sqlGet(blok => $blkid) || return 'notfound';
     
-    my $user = $self->user || return $self->rdenied;
-    my $blkid = $self->user->{blkid} || return $self->notfound;
-    my $blok = $self->obj(blok => [$blkid]) || return $self->notfound;
-    
-    return info($self, $blok->{$blkid});
+    return info($blok);
 }
 
 sub edit :
-    ParamObj('blok', 0)
-    ReturnPatt
+        ParamCodeUInt(\&by_id)
 {
-    my ($self, $blok) = @_;
-
-    $self->view_rcheck('blok_edit') || return;
-    $blok || return $self->notfound;
-    if (!$self->user->{blkid} || ($self->user->{blkid} != $blok->{id})) {
-        $self->view_rcheck('blok_edit_all') || return;
-    }
-    $self->view_can_edit() || return;
-    $self->template("blok_edit");
+    my $blok = shift();
     
-    my %form = %$blok;
-    if ($self->req->params() && (my $fdata = $self->ParamData)) {
-        if (keys %$fdata) {
-            $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
-        } else {
-            _utf8_on($form{$_} = $self->req->param($_)) foreach $self->req->params();
-        }
-    }
+    redit($blok) || return 'rdenied';
+    $blok || return 'notfound';
+    editable() || return 'readonly';
     
     return
-        blok => $blok,
-        form => \%form,
-        ferror => $self->FormError(),
+        'blok_edit',
+        blok    => $blok,
+        form($blok);
 }
 
+=pod
 sub file :
     ParamObj('blok', 0)
     ParamRegexp('[a-zA-Z\d\.\-]+')
@@ -195,33 +151,20 @@ sub file :
         $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $blok, dot2hash => 1);
     }
 }
+=cut
 
 sub adding :
-    ReturnPatt
+        Simple
 {
-    my ($self) = @_;
-
-    $self->view_rcheck('blok_edit_all') || return;
-    $self->view_can_edit() || return;
-    $self->template("blok_add");
+    rchk('blok_edit_all') || return 'rdenied';
+    editable() || return 'readonly';
     
-    # Автозаполнение полей, если данные из формы не приходили
-    my $form =
-        { map { ($_ => '') } qw/name/ };
-    if ($self->req->params()) {
-        # Данные из формы - либо после ParamParse, либо напрямую данные
-        my $fdata = $self->ParamData(fillall => 1);
-        if (keys %$fdata) {
-            $form->{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %$form;
-        } else {
-            _utf8_on($form->{$_} = $self->req->param($_)) foreach $self->req->params();
-        }
-    }
     return
-        form => $form,
-        ferror => $self->FormError(),
+        'blok_add',
+        form(qw/name/);
 }
 
+=pod
 sub _logo {
     my ($self, $dirUpload, $blid) = @_;
     
@@ -243,100 +186,142 @@ sub _logo {
     
     return;
 }
+=cut
 
 sub add :
-    ReturnOperation
+        ReturnOperation
 {
-    my ($self) = @_;
+    rchk('blok_edit_all') || return err => 'rdenied';
+    editable() || return err => 'readonly';
+
+    my $p = wparam();
+    my %err = ();
+    my @new = ();
     
-    $self->rcheck('blok_edit_all') || return $self->rdenied;
-    $self->d->{read_only} && return $self->cantedit();
+    # Проверка данных
+    if ($p->exists('name')) {
+        my $name = $p->str('name');
+        push @new, name => $name;
+        
+        if ($name eq '') {
+            $err{name} = 'empty';
+        }
+    }
+    else {
+        $err{name} = 'nospec';
+    }
     
-    my $dirUpload = Func::SetTmpDir($self)
-        || return ( error => 900101, pref => 'blok/adding' );
+    # Ошибки заполнения формы
+    if (%err) {
+        return
+            ferr => \%err,
+            pref => 'blok/adding';
+    }
     
-    # Проверяем данные из формы
-    $self->ParamParse(model => 'Blok', is_create => 1, utf8 => 1)
-        || return (error => 000101, pref => 'blok/adding', upar => $self->ParamData);
+    # Сохраняем
+    my $blkid = sqlAdd(blok => @new)
+        || return
+            err  => 'db',
+            ferr => \%err,
+            pref => 'blok/adding';
     
-    # Сохраняем данные
-    my $blid;
-    $self->ParamSave( 
-        model   => 'Blok', 
-        insert  => \$blid,
-    ) || return (error => 000104, pref => 'blok/adding', upar => $self->ParamData);
+    #my $dirUpload = Func::SetTmpDir($self)
+    #    || return ( error => 900101, pref => 'blok/adding' );
     
     # Загрузка логотипа
-    my $err = _logo($self, $dirUpload, $blid);
-    return (error => $err, pref => ['blok/edit', $blid]) if $err;
-    
-    return (ok => 970100, pref => ['blok/info', $blid]);
+    #my $err = _logo($self, $dirUpload, $blid);
+    #return (error => $err, pref => ['blok/edit', $blid]) if $err;
+        
+    return
+        ok => 1,
+        pref => ['blok/info', $blkid];
 }
 
 sub set :
-    ParamObj('blok', 0)
-    ReturnOperation
+        ParamCodeUInt(\&by_id)
+        ReturnOperation
 {
-    my ($self, $blok) = @_;
+    my $blok = shift();
     
-    $self->rcheck('blok_edit') || return $self->rdenied;
-    if (!$self->user->{blkid} || ($blok && ($self->user->{blkid} != $blok->{id}))) {
-        $self->rcheck('blok_edit_all') || return $self->rdenied;
+    redit($blok) || return err => 'rdenied';
+    $blok || return err => 'notfound';
+    editable() || return err => 'readonly';
+
+    my $p = wparam();
+    my %err = ();
+    my @upd = ();
+    
+    # Проверка данных
+    if ($p->exists('name')) {
+        my $name = $p->str('name');
+        push(@upd, name => $name) if $name ne $blok->{name};
+        
+        if ($name eq '') {
+            $err{name} = 'empty';
+        }
     }
-    $self->d->{read_only} && return $self->cantedit();
-    $blok || return $self->nfound();
     
-    my $dirUpload = Func::SetTmpDir($self)
-        || return ( error => 900101, pref => ['blok/edit', $blok->{id}] );
+    # Ошибки заполнения формы
+    if (%err) {
+        return
+            ferr => \%err,
+            pref => ['blok/edit' => $blok->{id}];
+    }
     
-    # Проверяем данные из формы
-    $self->ParamParse(model => 'Blok', utf8 => 1)
-        || return (error => 000101, pref => ['blok/edit', $blok->{id}], upar => $self->ParamData);
+    # Надо ли, что сохранять
+    @upd || return err => 'nochange', pref => ['blok/edit' => $blok->{id}];
     
-    # Сохраняем данные
-    $self->ParamSave( 
-        model       => 'Blok', 
-        update      => { id => $blok->{id} }, 
-        preselect   => $blok
-    ) || return (error => 000104, pref => ['blok/edit', $blok->{id}], upar => $self->ParamData);
+    # Сохраняем
+    sqlUpd(blok => $blok->{id}, @upd)
+        || return
+            err  => 'db',
+            ferr => \%err,
+            pref => ['blok/edit' => $blok->{id}];
+    
+    #my $dirUpload = Func::SetTmpDir($self)
+    #    || return ( error => 900101, pref => ['blok/edit', $blok->{id}] );
     
     # Загрузка логотипа
-    my $err = _logo($self, $dirUpload, $blok->{id});
-    return (error => $err, pref => ['blok/edit', $blok->{id}]) if $err;
-    
-    # Статус с редиректом
-    return (ok => 970200, pref => ['blok/info', $blok->{id}]);
+    #my $err = _logo($self, $dirUpload, $blok->{id});
+    #return (error => $err, pref => ['blok/edit', $blok->{id}]) if $err;
+        
+    return
+        ok => 1,
+        pref => ['blok/info' => $blok->{id}];
 }
 
 sub del :
-    ParamObj('blok', 0)
-    ReturnOperation
+        ParamCodeUInt(\&by_id)
+        ReturnOperation
 {
-    my ($self, $blok) = @_;
+    my $blok = shift();
     
-    $self->rcheck('blok_edit_all') || return $self->rdenied;
-    $self->d->{read_only} && return $self->cantedit();
-    $blok || return $self->nfound();
+    redit($blok) || return err => 'rdenied';
+    $blok || return err => 'notfound';
+    editable() || return err => 'readonly';
     
-    $self->model('Blok')->delete({ id => $blok->{id} })
-        || return (error => 000104, href => '');
-        
-    # Убираем блок у команд
-    $self->model('Command')->update(
-        { blkid => 0 },
-        { blkid => $blok->{id} },
-    ) || return (error => 000104, href => '');
+    sqlDel(blok => $blok->{id})
+        || return
+            err  => 'db',
+            pref => '';
     
-    # Убираем блок у аусвайсов
-    $self->model('Ausweis')->update(
-        { blkid => 0 },
-        { blkid => $blok->{id} },
-    ) || return (error => 000104, href => '');
+    foreach my $cmd (sqlSrch(command => blkid => $blok->{id})) {
+        sqlUpd(command => $cmd->{id}, blkid => 0)
+            || return
+                err  => 'db',
+                pref => '';
+    }
     
-    # статус с редиректом
-    return (ok => 970300, pref => 'blok/list');
+    foreach my $aus (sqlSrch(ausweis => blkid => $blok->{id})) {
+        sqlUpd(ausweis => $aus->{id}, blkid => 0)
+            || return
+                err  => 'db',
+                pref => '';
+    }
+    
+    return
+        ok => 1,
+        pref => 'blok';
 }
-
-
 
 1;

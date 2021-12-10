@@ -20,3 +20,9 @@ ALTER TABLE `user_session`
     CHANGE COLUMN `op` `state` char(128) DEFAULT NULL,
 	ADD `form` text DEFAULT NULL;
 
+ALTER TABLE `user_list`
+    DROP COLUMN `family`,
+    DROP COLUMN `name`,
+    DROP COLUMN `otch`,
+    DROP COLUMN `phone`;
+
