@@ -10,6 +10,8 @@ use Clib::Template::Package;
 use Clib::DT;
 use Clib::Rights;
 
+use ImgFile;
+
 use JSON::XS;
 
 $SIG{__DIE__} = sub { error('DIE: %s', $_) for @_ };
@@ -62,7 +64,7 @@ webctrl_local(
 
 # get/post параметры
 my $param;
-sub param { $param ||= Clib::Web::Param::param(prepare => 1) }
+sub param { $param ||= Clib::Web::Param::param(prepare => 1, @_) }
 
 # авторизация
 my %auth = ();

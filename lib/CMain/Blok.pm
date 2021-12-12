@@ -164,37 +164,33 @@ sub adding :
         form(qw/name/);
 }
 
-=pod
-sub _logo {
-    my ($self, $dirUpload, $blid) = @_;
+# Загрузка логотипа
+sub _logo_load {
+    my $blkid = shift();
+    defined($_[0]) || return 1;
     
-    # Загрузка логотипа
-    if (my $file = $self->req->param("photo")) {
-        Func::MakeCachDir('blok', $blid)
-            || return 900102;
-        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('blok', $blid), 'logo')
-            || return 900102;
-        $self->model('Blok')->update(
-            { 
-                regen   => (1<<($::regen{logo}-1)),
-                photo   => $photo,
-            },
-            { id => $blid }
-        ) || return 000104;
-        unlink("$dirUpload/$file");
-    }
+    my $p = wparam();
+    my $ext = $p->str('photo') =~ /\.([a-zA-Z0-9]{1,5})$/ ? lc($1) : 'jpg';
+    my $fname = ImgFile::Save($_[0], [blok => $blkid], logo => orig => $ext)
+        || return;
     
-    return;
+    sqlUpd(
+        blok => $blkid,
+        regen   => ImgFile::RegenBit('logo'),
+        photo   => $fname
+    ) || return;
+    
+    return 1;
 }
-=cut
 
 sub add :
         ReturnOperation
 {
     rchk('blok_edit_all') || return err => 'rdenied';
     editable() || return err => 'readonly';
-
-    my $p = wparam();
+    
+    my $logo;
+    my $p = wparam(file => { photo => \$logo });
     my %err = ();
     my @new = ();
     
@@ -225,12 +221,11 @@ sub add :
             ferr => \%err,
             pref => 'blok/adding';
     
-    #my $dirUpload = Func::SetTmpDir($self)
-    #    || return ( error => 900101, pref => 'blok/adding' );
-    
     # Загрузка логотипа
-    #my $err = _logo($self, $dirUpload, $blid);
-    #return (error => $err, pref => ['blok/edit', $blid]) if $err;
+    _logo_load($blkid, $logo)
+        || return
+            err  => 'imgload',
+            pref => ['blok/edit', $blkid];
         
     return
         ok => 1,
@@ -246,8 +241,9 @@ sub set :
     redit($blok) || return err => 'rdenied';
     $blok || return err => 'notfound';
     editable() || return err => 'readonly';
-
-    my $p = wparam();
+    
+    my $logo;
+    my $p = wparam(file => { photo => \$logo });
     my %err = ();
     my @upd = ();
     
@@ -269,21 +265,23 @@ sub set :
     }
     
     # Надо ли, что сохранять
-    @upd || return err => 'nochange', pref => ['blok/edit' => $blok->{id}];
-    
-    # Сохраняем
-    sqlUpd(blok => $blok->{id}, @upd)
-        || return
-            err  => 'db',
-            ferr => \%err,
-            pref => ['blok/edit' => $blok->{id}];
-    
-    #my $dirUpload = Func::SetTmpDir($self)
-    #    || return ( error => 900101, pref => ['blok/edit', $blok->{id}] );
+    if (@upd) {
+        # Сохраняем
+        sqlUpd(blok => $blok->{id}, @upd)
+            || return
+                err  => 'db',
+                ferr => \%err,
+                pref => ['blok/edit' => $blok->{id}];
+    }
+    elsif (!defined($logo)) {
+        return err => 'nochange', pref => ['blok/edit' => $blok->{id}];
+    }
     
     # Загрузка логотипа
-    #my $err = _logo($self, $dirUpload, $blok->{id});
-    #return (error => $err, pref => ['blok/edit', $blok->{id}]) if $err;
+    _logo_load($blok->{id}, $logo)
+        || return
+            err  => 'imgload',
+            pref => ['blok/edit', $blok->{id}];
         
     return
         ok => 1,
