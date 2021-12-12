@@ -48,7 +48,7 @@ sub path_short {
 
 webctrl_local(
         'CMain',
-        attr => [qw/Title AllowNoAuth ReturnOperation ReturnRedirect ReturnBlock/],
+        attr => [qw/Title AllowNoAuth ReturnOperation ReturnRedirect ReturnBlock ReturnFile/],
         eval => "
             use Clib::Const;
             use Clib::Log;
@@ -371,6 +371,10 @@ sub request {
     elsif ($ret{block})  {
         return return_block(@web);
     }
+
+    elsif ($ret{file})  {
+        return return_file(@web);
+    }
     
     else {
         return return_default(@web);
@@ -691,6 +695,35 @@ sub return_redirect {
     }
     
     return '', 302, Clib::Web::Param::cookiebuild(), Location => "http://".$ENV{HTTP_HOST}.$href;
+}
+
+sub return_file {
+    my $file = shift();
+    if ($file eq 'rdenied') {
+        return '', '403 Permission denied';
+    }
+    elsif ($file eq 'notfound') {
+        return '', '404 Not Found';
+    }
+    
+    my $fh;
+    if (!open($fh, $file)) {
+        error('ReturnFile(%s): %s', $file, $!);
+        return '', '404 Not Found';
+    }
+    
+    my @hdr = ();
+    if (@_ && (my $mime = shift)) {
+        push @hdr, 'Content-type' => $mime;
+    }
+    elsif (($file =~ /\.([^.]+)$/) && ($mime = c(extMime => lc($1)))) {
+        push @hdr, 'Content-type' => $mime;
+    }
+    if (@_ && (my $fname = shift)) {
+        push @hdr, 'Content-Disposition' => "attachment; filename=".$fname;
+    }
+    
+    return sub { local $/ = undef; return <$fh>; }, '', @hdr;
 }
 
 sub menu {

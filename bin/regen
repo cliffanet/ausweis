@@ -1,80 +1,43 @@
 #!/usr/bin/perl
+
 use strict;
 use warnings;
-no warnings 'once';
+use utf8;
 
-BEGIN {
-    use Cwd            qw( abs_path );
-    use File::Basename qw( dirname );
-    $::pathRoot = dirname(dirname(abs_path($0)));
-};
+use Clib::Proc qw|script1 lib|;
+use Clib::Const ':utf8';
+use Clib::Log 'log_regen';
+use Clib::Proc qw|pid=$pidPath/regen.pid|;
 
-use lib "$::pathRoot/lib";
-use base 'Clib::LineScript';
+use Clib::DB::MySQL 'DB';
 
-use Func;
-use Img;
-use Pdf;
+$SIG{__DIE__} = sub { error('DIE: %s', $_) for @_ };
 
-use GD::Barcode;
+use ImgGen;
+#use Pdf;
 
-require "$::pathRoot/conf/defines.conf";
+#use GD::Barcode;
 
-# ×òîáû warnings íå ðóãàëñÿ
-$::logDebug ||= 0;
-$::logPath ||= '/var/log';
-$::pidPath ||= '/var/run';
-my $self = __PACKAGE__->new(
-    path_root           => $::pathRoot,
-    redefine            => 'conf/redefine.conf',
-    schema              => 'DB',
-    log_file            => "$::logPath/regen.log",
-    pid_file            => "$::pidPath/regen.pid",
-    pid_file_noerror    => 1,
-    debug_file          => $::logDebug ? "$::logPath/regen.log" : undef,
-);
-
+my @srch = (sqlGt(regen => 0), sqlLimit(1));
 
 #########################################################################
-###     Áëîêè
+###     Ð‘Ð»Ð¾ÐºÐ¸
 
-while (my ($blk) = $self->model('Blok')->search( 
-        { 'regen' => { '>' => 0 } },
-    )) {
-    $self->log_prefix(sprintf("[blok=%d] \"%s\"", $blk->{id}, $blk->{name}));
-    $self->log("Need regenerate: %08b", $blk->{regen});
+while (my ($blk) = sqlSrch(blok => @srch)) {
+    my $p = log_prefix('[blok=%d] "%s"', $blk->{id}, $blk->{name});
+    debug('Need regenerate: %08b', $blk->{regen});
     
-    if (!Func::MakeCachDir('blok', $blk->{id})) {
-        $self->error("Can't create dir: $!");
-        next;
-    }
-    my @regen = (0, reverse split(//, sprintf("%08b", $blk->{regen})));
-    my $dir = Func::CachDir('blok', $blk->{id});
-    
-    # Ëîãî
-    if ($::regen{logo} && $regen[$::regen{logo}] && $blk->{photo}) { {
-        Img::Save($self, "$dir/$blk->{photo}", $dir, 'logo')
-            && $self->log("Gen logo OK");
-        $self->model('Blok')->regen_off($blk->{id}, $::regen{logo});
-        $regen[$::regen{logo}] = 0;
-    } }
-
-    # Óáèâàåì íåïðîâåðÿåìûå ôëàãè
-    my $n=0;
-    my @regenl;
-    foreach my $b (@regen) {
-        push(@regenl, $n) if $b;
-        $n++;
-    }
-    if (@regenl) {
-        $self->model('Blok')->regen_off($blk->{id}, @regenl)
-            || last;
+    # Ð›Ð¾Ð³Ð¾
+    if (($blk->{regen} & ImgFile::RegenBit('logo')) && $blk->{photo}) {
+        ImgGen::Save([blok => $blk->{id}], $blk->{photo})
+            && log('Gen logo OK');
+        ImgFile::RegenOff(blok => $blk->{id}, 'logo') || last;
     }
 }
 
-
+=pod
 #########################################################################
-###     Êîìàíäû
+###     ÐšÐ¾Ð¼Ð°Ð½Ð´Ñ‹
 
 while (my ($cmd) = $self->model('Command')->search( 
         { 'regen' => { '>' => 0 } },
@@ -90,7 +53,7 @@ while (my ($cmd) = $self->model('Command')->search(
     my @regen = (0, reverse split(//, sprintf("%08b", $cmd->{regen})));
     my $dir = Func::CachDir('command', $cmd->{id});
     
-    # Ëîãî
+    # Ð›Ð¾Ð³Ð¾
     if ($::regen{logo} && $regen[$::regen{logo}] && $cmd->{photo}) { {
         Img::Save($self, "$dir/$cmd->{photo}", $dir, 'logo')
             && $self->log("Gen logo OK");
@@ -98,7 +61,7 @@ while (my ($cmd) = $self->model('Command')->search(
         $regen[$::regen{logo}] = 0;
     } }
 
-    # Óáèâàåì íåïðîâåðÿåìûå ôëàãè
+    # Ð£Ð±Ð¸Ð²Ð°ÐµÐ¼ Ð½ÐµÐ¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼Ñ‹Ðµ Ñ„Ð»Ð°Ð³Ð¸
     my $n=0;
     my @regenl;
     foreach my $b (@regen) {
@@ -114,7 +77,7 @@ while (my ($cmd) = $self->model('Command')->search(
 
 
 #########################################################################
-###     Àóñâàéñû
+###     ÐÑƒÑÐ²Ð°Ð¹ÑÑ‹
 
 while (my ($aus) = $self->model('Ausweis')->search( 
         { 'regen' => { '>' => 0 } },
@@ -130,7 +93,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
     my @regen = (0, reverse split(//, sprintf("%08b", $aus->{regen})));
     my $dir = Func::CachDir('ausweis', $aus->{id});
     
-    # Øòðèõêîä
+    # Ð¨Ñ‚Ñ€Ð¸Ñ…ÐºÐ¾Ð´
     if ($::regen{code} && $regen[$::regen{code}] && $aus->{numid}) { {
         my $file = "$dir/barcode.$aus->{numid}.orig.jpg";
         Pdf::GenNumId($self, $aus->{numid}, $file);
@@ -162,7 +125,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
         $regen[$::regen{code}] = 0;
     } }
     
-    # Ôîòî
+    # Ð¤Ð¾Ñ‚Ð¾
     if ($::regen{photo} && $regen[$::regen{photo}] && $aus->{photo}) { {
         Img::Save($self, "$dir/$aus->{photo}", $dir, 'photo')
             && $self->log("Gen photo OK");
@@ -170,7 +133,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
         $regen[$::regen{photo}] = 0;
     } }
     
-    # Ïå÷àòíàÿ ôîðìà jpg
+    # ÐŸÐµÑ‡Ð°Ñ‚Ð½Ð°Ñ Ñ„Ð¾Ñ€Ð¼Ð° jpg
     if ($::regen{print_img} && $regen[$::regen{print_img}]) {{
         my $img = Img::Ausweis($self, $aus, 'front');
         if ($img) {
@@ -194,7 +157,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
         $regen[$::regen{print_img}] = 0;
     } }
     
-    # Ïå÷àòíàÿ ôîðìà PDF
+    # ÐŸÐµÑ‡Ð°Ñ‚Ð½Ð°Ñ Ñ„Ð¾Ñ€Ð¼Ð° PDF
     if ($::regen{print_pdf} && $regen[$::regen{print_pdf}]) { {
         my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
         if ($pdf) {
@@ -213,7 +176,7 @@ while (my ($aus) = $self->model('Ausweis')->search(
         $regen[$::regen{print_pdf}] = 0;
     } }
     
-    # Óáèâàåì íåïðîâåðÿåìûå ôëàãè
+    # Ð£Ð±Ð¸Ð²Ð°ÐµÐ¼ Ð½ÐµÐ¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼Ñ‹Ðµ Ñ„Ð»Ð°Ð³Ð¸
     my $n=0;
     my @regenl;
     foreach my $b (@regen) {
@@ -225,20 +188,6 @@ while (my ($aus) = $self->model('Ausweis')->search(
             || last;
     }
 }
-
-=pod
-        $self->log(1);
-        my $dir = Func::CachDir('ausweis', 19);
-        my $pdf = eval { PDF::API2->new(-file => "$dir/print.pdf") };
-        if ($pdf) {
-            #$pdf->mediabox(595,842);
-            $pdf->mediabox('A4');
-            my $page = Pdf::Ausweis($self, $pdf, 19);
-            $pdf->save;
-            $pdf->end();
-        } else {
-            $self->error("Can't create PDF-file: $@");
-        }
 =cut
 
 #==========================================================

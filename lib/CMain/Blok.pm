@@ -8,6 +8,19 @@ sub by_id {
     sqlGet(blok => shift());
 }
 
+sub rinfo {
+    my $blok = shift();
+    
+    rchk('blok_info') || return;
+    
+    my $user = WebMain::auth('user') || return;
+    if (!$user->{blkid} || ($blok && ($user->{blkid} != $blok->{id}))) {
+        rchk('blok_info_all') || return;
+    }
+    
+    1;
+}
+
 sub redit {
     my $blok = shift();
     
@@ -15,7 +28,7 @@ sub redit {
     
     my $user = WebMain::auth('user') || return;
     if (!$user->{blkid} || ($blok && ($user->{blkid} != $blok->{id}))) {
-        rchk('blok_info_all') || return err => 'rdenied';
+        rchk('blok_edit_all') || return;
     }
     
     1;
@@ -81,16 +94,11 @@ sub info :
 {
     my $blok = shift();
     
-    rchk('blok_info') || return 'rdenied';
+    rinfo($blok) || return 'rdenied';
     $blok || return 'notfound';
     
-    my $user = WebMain::auth('user');
-    if (!$user || !$user->{blkid} || ($user->{blkid} != $blok->{id})) {
-        rchk('blok_info_all') || return 'rdenied';
-    }
-    
     my $filelogo = 'logo.site.jpg';
-    my $flsize = 0;#-s Func::CachDir('blok', $blok->{id}).'/'.$filelogo;
+    my $filesize = -s ImgFile::CachPath(blok => $blok->{id}, $filelogo);
     
     my @cmd = sqlSrch(command => blkid => $blok->{id}, sqlOrder('name'));
     
@@ -98,7 +106,7 @@ sub info :
         'blok_info',
         blok => $blok,
         file_logo => $filelogo,
-        file_logo_size => $flsize,
+        file_logo_size => $filesize,
         cmd_list => \@cmd,
 }  
 
@@ -127,31 +135,19 @@ sub edit :
         form($blok);
 }
 
-=pod
 sub file :
-    ParamObj('blok', 0)
-    ParamRegexp('[a-zA-Z\d\.\-]+')
-    ReturnPatt
+        ParamCodeUInt(\&by_id)
+        ParamRegexp('[a-zA-Z\d\.\-]+')
+        ParamEnd # ссылку будет завершать не имя функции "file", а само имя файла из аргументов
+        ReturnFile
 {
-    my ($self, $blok, $file) = @_;
-
-    $self->view_rcheck('blok_file') || return;
-    $blok || return $self->notfound;
-    if (!$self->user->{blkid} || ($self->user->{blkid} != $blok->{id})) {
-        $self->view_rcheck('blok_file_all') || return;
-    }
-    my $d = $self->d;
-    $self->view_select('File');
+    my $blok = shift();
     
-    $d->{file} = Func::CachDir('blok', $blok->{id})."/$file";
+    rinfo($blok) || return 'rdenied';
+    $blok || return 'notfound';
     
-    if (my $t = $::BlokFile{$file}) {
-        $d->{type} = $t->[0]||'';
-        my $m = Clib::Mould->new();
-        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $blok, dot2hash => 1);
-    }
+    return ImgFile::CachPath(blok => $blok->{id}, 'logo.site.jpg');
 }
-=cut
 
 sub adding :
         Simple

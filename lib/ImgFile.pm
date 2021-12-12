@@ -3,6 +3,7 @@ package ImgFile;
 use Clib::strict8;
 use Clib::Const;
 use Clib::Log;
+use Clib::DB::MySQL;
 
 sub err { error(@_); return; }
 
@@ -28,6 +29,10 @@ sub CachDir {
     }
     
     return @list;
+}
+
+sub CachPath {
+    return join('/', CachDir(shift(), shift()), @_);
 }
 
 sub MakeDir {
@@ -56,15 +61,12 @@ sub Save { # $data, $dir, $name, <составляющие_имени_файла
     
     my $fname = join '.', $name, @_;
     
-    my $file;
     if (ref($dir) eq 'ARRAY') {
         my @dir = CachDir(@$dir);
         MakeDir(@dir) || return;
-        $file = join '/', @dir, $fname;
+        $dir = join '/', @dir;
     }
-    else {
-        $file = $dir . '/' . $fname;
-    }
+    my $file = $dir . '/' . $fname;
     
     open(my $fh, '>', $file)
         || return err('[ImgFile::Save] open(%s): %s', $file, $!);
@@ -88,6 +90,17 @@ sub RegenBit {
     }
     
     return $r;
+}
+
+sub RegenOff {
+    my $tbl = shift() || return;
+    my $id = shift() || return;
+    my $r = RegenBit(@_) || return;
+    
+    return sqlDo(
+        'UPDATE `'.$tbl.'` SET `regen` = `regen` ^ ? WHERE `id` = ?',
+        $r, $id
+    );
 }
 
 ####################################################
