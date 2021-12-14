@@ -108,14 +108,14 @@ sub info :
         file_logo => $filelogo,
         file_logo_size => $filesize,
         cmd_list => \@cmd,
-}  
+}
 
 sub my :
         Simple
 {
     my $user = WebMain::auth('user') || return 'rdenied';
     my $blkid = $user->{blkid} || return 'notfound';
-    my $blok = sqlGet(blok => $blkid) || return 'notfound';
+    my $blok = by_id($blkid) || return 'notfound';
     
     return info($blok);
 }

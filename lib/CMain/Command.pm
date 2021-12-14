@@ -1,256 +1,248 @@
 package CMain::Command;
 
-use strict;
-use warnings;
-
-use Clib::Rights;
-
-use Encode '_utf8_on', 'encode';
+use Clib::strict8;
 
 ##################################################
-###     Список команд
-###     Код модуля: 98
-#############################################
 
-=pod
-sub _item {
-    my $self = shift;
+sub by_id {
+    sqlGet(command => shift());
+}
 
-    my $blok    = delete $_[0]->{blok};
+sub rinfo {
+    my $cmd = shift();
     
-    my $item = $self->d->{excel} ? shift : $self->ToHtml(shift, 1);
-    my $id = $item->{id};
+    rchk('command_info') || return;
     
-    $item->{blok}    = C::Blok::_item($self, $blok)
-        if $blok;
-    
-    if ($id) {
-        # Ссылки
-        $item->{href_info}      = $self->href($::disp{CommandShow}, $item->{id}, 'info');
-        $item->{href_srch}      = $self->href($::disp{AusweisList}."?cmdid=%d", $item->{id});
-        $item->{href_edit}      = $self->href($::disp{CommandShow}, $item->{id}, 'edit');
-        $item->{href_del}       = $self->href($::disp{CommandDel}, $item->{id});
-        $item->{href_delete}    = $self->href($::disp{CommandDel}, $item->{id});
-        $item->{href_history}   = $self->href($::disp{CommandHistory}, $item->{id});
-        $item->{href_event_list}= $self->href($::disp{CommandEventList}, $item->{id});
-        
-        $item->{href_file}      = sub { $self->href($::disp{CommandFile}, $item->{id}, shift) };
-        $item->{file_size} = sub {
-            my $file = shift;
-            $file || return;
-            return $item->{"_file_size_$file"} ||=
-                -s Func::CachDir('command', $item->{id})."/$file";
-        };
-        
-        $item->{href_aus_adding}= $self->href($::disp{AusweisAdding}."?cmdid=%d", $id);
-        
-        Func::regen_stat($self, $item);
+    my $user = WebMain::auth('user') || return;
+    if (!$user->{cmdid} || ($cmd && ($user->{cmdid} != $cmd->{id}))) {
+        rchk('command_info_all') || return;
     }
     
-    return $item;
+    1;
 }
 
-sub _list {
-    my $self = shift;
-    return $self->d->{cmd}->{_list} ||= [
-        map { _item($self, $_); }
-        $self->model('Command')->search({},{order_by=>'name'})
-    ];
+sub redit {
+    my $cmd = shift();
+    
+    rchk('command_edit') || return;
+    
+    my $user = WebMain::auth('user') || return;
+    if (!$user->{cmdid} || ($cmd && ($user->{cmdid} != $cmd->{id}))) {
+        rchk('command_edit_all') || return;
+    }
+    
+    1;
 }
 
-sub _hash {
-    my $self = shift;
-    return $self->d->{cmd}->{_hash} ||= {
-        map { ($_->{id} => $_) }
-        @{ _list($self) }
-    };
-}
-=cut
-
-sub list :
-    ReturnPatt
+sub _root :
+        Simple
 {
-    my ($self) = @_;
+    rchk('command_list') || return 'rdenied';
+    my $p = wparam();
+    
+    my @query = ();
+    my @where = ();
+    
+    if ($p->exists('srch') && length($p->str('srch'))) {
+        my $s = $p->str('srch');
+        
+        push @query, srch => $s;
+        
+        $s =~ s/([%_])/\\$1/g;
+        $s =~ s/\*/%/g;
+        $s =~ s/\?/_/g;
+        $s = '%'.$s if $s !~ /^%/;
+        $s .= '%' if $s !~ /%$/;
+        #$s .= '%' if $s !~ /^(.*[^\\])?%$/;
+        push @where, sqlLike(name => $s);
+    }
 
-    $self->view_rcheck('command_list') || return;
-    $self->template("command_list", 'CONTENT_result');
-    
-    my @qsrch = ();
-    my $srch = {};
-    my $s = $self->req->param_str('srch');
-    _utf8_on($s);
-    push @qsrch, { f => 'srch', val => $s };
-    if (my $name = $s) {
-        $name =~ s/([%_])/\\$1/g;
-        $name =~ s/\*/%/g;
-        $name =~ s/\?/_/g;
-        $name = "%$name" if $name !~ /^%/;
-        $name .= "%" if $name !~ /%$/;
-        #$name .= "%" if $name !~ /^(.*[^\\])?%$/;
-        $srch->{name} = { LIKE => $name };
+    my ($blkid, $blok);
+    if ($p->exists('blkid')) {
+        $blkid = $p->int('blkid');
+        
+        push @query, blkid => $blkid;
+        push @where, blkid => $blkid > 0 ? $blkid : 0;
+        
+        $blok = sqlGet(blok => $blkid);
     }
     
-    my $blkid = $self->req->param_dig('blkid');
-    push @qsrch, { f => 'blkid', val => $blkid };
-    my $blok;
-    if ($blkid) {
-        $srch->{blkid} = $blkid > 0 ? $blkid : 0;
-        if ($blkid > 0) {
-            $blok = $self->model('Blok')->byId($blkid);
+    my $pager = { onpage => 100 };
+    my @list = sqlSrch(command => @where, $pager, sqlOrder('name'));
+    
+    my %blk =
+        map {
+            $_->{blkid} > 0 ?
+                ($_->{blkid} => 1) : ()
         }
+        @list;
+    if (my @blkid = keys %blk) {
+        %blk =
+            map { ($_->{id} => $_) }
+            sqlSrch(blok => id => @blkid > 1 ? [@blkid] : $blkid[0]);
+        $_->{blok} = $blk{$_->{blkid}} foreach @list;
     }
-    
-    my ($count, $countall);
-    my @list = $self->model('Command')->search(
-            $srch,
-            {
-                prefetch => 'blok',
-                order_by => 'name',
-            },
-            pager => {
-                onpage => 100,
-                handler => sub {
-                    my %p = @_;
-                    $count = $p{count};
-                    $countall = $p{countall};
-                },
-            },
-        );
     
     return
-        srch    => $s,
-        qsrch => $self->qsrch(@qsrch),
+        'command_list',
+        srch    => $p->str('srch'),
+        qsrch   => qsrch([qw/srch/], @query),
         blkid   => $blkid,
         blok    => $blok,
         list    => \@list,
-        count   => $count,
-        countall=> $countall,
+        pager   => $pager;
+}
+
+sub srch :
+        ReturnBlock
+{
+    my ($tmpl, @p) = _root();
+    return
+        $tmpl => 'CONTENT_result',
+        @p;
 }
 
 sub info :
-    ParamObj('cmd', 0)
-    ReturnPatt
+        ParamCodeUInt(\&by_id)
 {
-    my ($self, $cmd) = @_;
-
-    $self->view_rcheck('command_info') || return;
-    $cmd || return $self->notfound;
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
-        $self->view_rcheck('command_info_all') || return;
-    }
-    $self->template("command_info");
+    my $cmd = shift();
+    
+    rinfo($cmd) || return 'rdenied';
+    $cmd || return 'notfound';
     
     my $filelogo = 'logo.site.jpg';
-    my $flsize = -s Func::CachDir('command', $cmd->{id})."/$filelogo";
+    my $filesize = -s ImgFile::CachPath(command => $cmd->{id}, $filelogo);
     
-    my $blok;
-    $blok = $self->model('Blok')->byId($cmd->{blkid}) if $cmd->{blkid};
+    my $blok = $cmd->{blkid} ?
+        sqlGet(blok => $cmd->{blkid}) :
+        undef;
     
     my @ausweis_list =
-        $self->model('Ausweis')->search(
-            { cmdid => $cmd->{id}, blocked => 0 },
-            {
-                order_by => 'nick',
-            },
-        );
-    my @ausweis_blocked_list =
-        $self->model('Ausweis')->search(
-            { cmdid => $cmd->{id}, blocked => 1 },
-            {
-                order_by => 'nick',
-            },
-        );
-    
-    my @ausweis_preedit_list =
-        map { 
-            $_->{allow_cancel} = 1;
-            #    $self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
-            #        $self->rights_check($::rPreeditCancel, $::rMy) ?
-            #            ($_->{uid} == $self->user->{id} ? 1 : 0) : 0
-            #    );
-            #$p->{href_show} = $self->href($::disp{CommandHistory}.'#pre%d', $rec->{id}, $p->{id});
-            #$p->{href_cancel} = $self->href($::disp{PreeditCancel}, $p->{id});
-            $_;
-        }
-        $self->model('Preedit')->search({
-            tbl     => 'Ausweis',
-            modered => 0,
-            'field_cmdid.value' => $cmd->{id},
-        }, {
-            prefetch => ['field_cmdid', 'field_nick'],
-            order_by => 'field_nick.value',
-        });
-    
-    my @cmd_account_list =
-        $self->model('UserList')->search({
+        sqlSrch(
+            ausweis =>
             cmdid   => $cmd->{id},
-        }, {
-            prefetch => 'group',
-            order_by => 'login',
-        });
+            blocked => 0,
+            sqlOrder('nick')
+        );
+    my @ausweis_blocked =
+        sqlSrch(
+            ausweis =>
+            cmdid   => $cmd->{id},
+            blocked => 1,
+            sqlOrder('nick')
+        );
     
-    my @ausweis_history_my = 
-        map {
-            $_->{nick} = $_->{ausweis}->{nick} || $_->{field_nick}->{value} || '';
-            $_;
-        }
-        $self->model('Preedit')->search({
-            uid     => $self->user->{id},
-            tbl     => 'Ausweis',
-            modered => { '!=' => 0 },
-            visibled=> 1,
-            -or     => { 'field_cmdid.value' => $cmd->{id}, 'ausweis.cmdid' => $cmd->{id} },
-        }, {
-            prefetch => [qw/field_cmdid field_nick ausweis/],
-            order_by => 'id',
-        });
+    my $f_pre_cmd = sub {
+        my $where = shift;
+        @_ || return;
+
+        my %byfld =
+            map { ($_->{eid} => $_) }
+            sqlSrch(
+                preedit_field =>
+                eid     => [map { $_->{id} } @_],
+                @$where
+            );
+        my @preedit =
+            grep { $byfld{ $_->{id} } }
+            @_;
+        @preedit || return;
+
+        my %nick =
+            map { ($_->{eid} => $_->{value}) }
+            sqlSrch(
+                preedit_field =>
+                eid     => [map { $_->{id} } @preedit],
+                param   => 'nick',
+            );
+        return
+            grep { defined($_->{nick} = $nick{ $_->{id} }) }
+            @preedit;
+    };
+    
+    my @ausweis_preedit =
+        sort { $a->{nick} cmp $b->{nick} }
+        $f_pre_cmd->(
+            [param => 'cmdid', value => $cmd->{id}],
+            sqlSrch(
+                preedit => 
+                tbl     => 'Ausweis',
+                uid     => (WebMain::auth('user')||{})->{id},
+                modered => 0
+            )
+        );
+    
+    my @account_list =
+        sqlSrch(user_list => cmdid => $cmd->{id}, sqlOrder('login'));
+    my %grp =
+        map { $_->{gid} > 0 ? ($_->{gid} => 1) : () }
+        @account_list;
+    if (my @gid = keys %grp) {
+        %grp =
+            map { ($_->{id} => $_) }
+            sqlSrch(user_group => id => \@gid);
+        $_->{group} = $grp{ $_->{gid} }
+            foreach @account_list;
+    }
+    
+    my @history_my =
+        $f_pre_cmd->(
+            [param => 'cmdid', sqlOr(value => $cmd->{id}, old => $cmd->{id})],
+            sqlSrch(
+                preedit =>
+                tbl     => 'Ausweis',
+                uid     => (WebMain::auth('user')||{})->{id},
+                sqlNotEq(modered => 0),
+                visibled=> 1,
+                sqlOrder('id'),
+            )
+        );
     
     return
-        cmd => $cmd,
-        file_logo => $filelogo,
-        file_logo_size => $flsize,
-        blok => $blok,
+        'command_info',
+        cmd             => $cmd,
+        file_logo       => $filelogo,
+        file_logo_size  => $filesize,
+        blok            => $blok,
         
-        ausweis_list => \@ausweis_list,
-        ausweis_preedit_list => \@ausweis_preedit_list,
-        ausweis_blocked_list => \@ausweis_blocked_list,
+        ausweis_list    => \@ausweis_list,
+        ausweis_preedit => \@ausweis_preedit,
+        ausweis_blocked => \@ausweis_blocked,
         
-        cmd_account_list => \@cmd_account_list,
-        ausweis_history_my => \@ausweis_history_my,
+        account_list    => \@account_list,
+        history_my      => \@history_my,
 }
 
 sub my :
-    ReturnPatt
+        Simple
 {
-    my ($self) = @_;
+    my $user = WebMain::auth('user') || return 'rdenied';
+    my $cmdid = $user->{cmdid} || return 'notfound';
+    my $cmd = by_id($cmdid) || return 'notfound';
     
-    my $user = $self->user || return $self->rdenied;
-    my $cmdid = $self->user->{cmdid} || return $self->notfound;
-    my $cmd = $self->obj(cmd => [$cmdid]) || return $self->notfound;
-    
-    return info($self, $cmd->{$cmdid});
+    return info($cmd);
 }
 
 
 
+=pod
 sub history :
-    ParamObj('cmd', 0)
-    ReturnPatt
+        ParamCodeUInt(\&by_id)
 {
-    my ($self, $cmd) = @_;
-
-    $self->view_rcheck('command_info') || return;
-    $cmd || return $self->notfound;
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
-        $self->view_rcheck('command_info_all') || return;
-    }
-    $self->template("command_history");
+    my $cmd = shift();
     
-    my $blok;
-    $blok = $self->model('Blok')->byId($cmd->{blkid}) if $cmd->{blkid};
+    rinfo($cmd) || return 'rdenied';
+    $cmd || return 'notfound';
+    
+    my $blok = $cmd->{blkid} ?
+        sqlGet(blok => $cmd->{blkid}) :
+        undef;
     
     # id затрагиваемых аусвайсов
-    my %ausid = (map { ($_->{id}=>1) } $self->model('Ausweis')->search({ cmdid=>$cmd->{id} }));
+    my %ausid = 
+        map { ($_->{id} => 1) }
+        sqlSrch(ausweis => cmdid=>$cmd->{id} );
+    
     # id preedit на создание аусвайса
     my %eid_create = (
         map { ($_->{eid}=>1) } 
@@ -293,12 +285,11 @@ sub history :
     }
     
     return
-        cmd => $cmd,
-        blok => $blok,
-        list => \@list,
+        'command_history'
+        cmd     => $cmd,
+        blok    => $blok,
+        list    => \@list,
 }
-
-
 sub event :
     ParamObj('cmd', 0)
     ReturnPatt
@@ -646,7 +637,8 @@ sub del :
         || return (error => 000104, href => '');
     
     # статус с редиректом
-    return (ok => 980300, pref => 'command/list');
+    return (ok => 980300, pref => 'command');
 }
+=cut
     
 1;

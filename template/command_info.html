@@ -20,8 +20,8 @@
     <tr>
         <td class="ltitle">Аккаунты:</td>
         <td>
-        [% IF size(cmd_account_list) > 0 %]
-        [% FOREACH acc = cmd_account_list %]
+        [% IF size(account_list) > 0 %]
+        [% FOREACH acc = account_list %]
             [% acc.login %][% IF acc.gid %] ([% acc.group.name %])[% END %]<br />
         [% END %]
         [% ELSE %]-[% END %]
@@ -61,7 +61,7 @@
 
 <br />
 
-[% IF size(ausweis_history_my) > 0 %]
+[% IF size(history_my) > 0 %]
 <h3>Премодерация</h3>
 <table class="tbl">
     <tr class="title">
@@ -71,7 +71,7 @@
         <td>Комментарии модерации</td>
         <td width="70"></td>
     </tr>
-[% FOREACH h = ausweis_history_my %]
+[% FOREACH h = history_my %]
     <tr>
         <td>[% DATETIME h.dtadd %]</td>
         <td>
@@ -114,12 +114,12 @@
         ничего нет
     </td></tr>
 [% END %]
-[% FOREACH aus = ausweis_preedit_list %]
+[% FOREACH aus = ausweis_preedit %]
     <tr>
         <td><i>Ожидает модерации</i></td>
-        <td><a href="[% PREF command/history: cmd.id %]#pre[% aus.id %]"><i>[% aus.field_nick.value %]</i></a></td>
+        <td><a href="[% PREF command/history: cmd.id %]#pre[% aus.id %]"><i>[% aus.nick %]</i></a></td>
         <td></td>
-        <td>[% IF aus.allow_cancel %]<a href="[% PREF preedit/cancel: aus.id %]">отменить</a>[% END %]</td>
+        <td><a href="[% PREF preedit/cancel: aus.id %]">отменить</a></td>
     </tr>
 [% END %]
     <tr><td colspan="4" class="submit">
@@ -127,8 +127,8 @@
     </td></tr>
 </table>
 
-[% IF size(ausweis_blocked_list) > 0 %]
-<h3><a href="#" data-hide-target="#aus_blocked">Заблокированные ([% size(ausweis_blocked_list) %])</a></h3>
+[% IF size(ausweis_blocked) > 0 %]
+<h3><a href="#" data-hide-target="#aus_blocked">Заблокированные ([% size(ausweis_blocked) %])</a></h3>
 <table class="tbl hidden" id="aus_blocked">
     <tr class="title">
         <td width="150">Номер</td>
@@ -136,7 +136,7 @@
         <td width="250">ФИО</td>
         <td>Блокировка</td>
     </tr>
-[% FOREACH aus = ausweis_blocked_list %]
+[% FOREACH aus = ausweis_blocked %]
     <tr[% IF aus.blocked %] class="grey"[% END %]>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% aus.numid %]</a></td>
         <td><a title="Просмотр аусвайса" alt="Просмотр аусвайса" href="[% PREF ausweis/info: aus.id %]">[% aus.nick %]</a></td>

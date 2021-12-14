@@ -6,7 +6,7 @@
     <table class="tbl">
         <tr>
             <td class="ltitle">Название:</td>
-            <td colspan="2"><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
+            <td colspan="2"><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off" data-search-url="[% PREF command/srch %]" /></td>
         </tr>
     [% IF blkid %]
         <tr>
@@ -24,7 +24,7 @@
     <div id="search-result">
     [% BLOCK result %]
     [% IF list %]
-    <h3>Найденные команды ([% count %][% IF countall != count %] из [% countall %][% END %])</h3>
+    <h3>Найденные команды ([% pager.count %][% IF pager.countall != pager.count %] из [% pager.countall %][% END %])</h3>
     <table class="tbl">
         <tr class="title">
             <td width="300">Название</td>
