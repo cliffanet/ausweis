@@ -124,6 +124,7 @@ sub info :
             blocked => 0,
             sqlOrder('nick')
         );
+    
     my @ausweis_blocked =
         sqlSrch(
             ausweis =>
@@ -132,45 +133,62 @@ sub info :
             sqlOrder('nick')
         );
     
-    my $f_pre_cmd = sub {
-        my $where = shift;
-        @_ || return;
-
-        my %byfld =
-            map { ($_->{eid} => $_) }
-            sqlSrch(
-                preedit_field =>
-                eid     => [map { $_->{id} } @_],
-                @$where
-            );
-        my @preedit =
-            grep { $byfld{ $_->{id} } }
-            @_;
-        @preedit || return;
-
-        my %nick =
-            map { ($_->{eid} => $_->{value}) }
-            sqlSrch(
-                preedit_field =>
-                eid     => [map { $_->{id} } @preedit],
-                param   => 'nick',
-            );
-        return
-            grep { defined($_->{nick} = $nick{ $_->{id} }) }
-            @preedit;
+    # Ник для preedit-записей
+    my $prenick = sub {
+        if (my @precreate = grep { $_->{op} eq 'C' } @_) {
+            # Для создаваемых аусов ник берём из preedit_field
+            my %nick =
+                map { ($_->{eid} => $_->{value}) }
+                sqlSrch(
+                    preedit_field =>
+                    eid     => [map { $_->{id} } @precreate],
+                    param   => 'nick',
+                );
+            $_->{nick} = $nick{ $_->{id} } foreach @precreate;
+        }
+        if (my @preedit = grep { $_->{op} eq 'E' } @_) {
+            # для редактируемых - они скорее всего не из нашей команды,
+            # раз есть поле cmdid, и их ники надо взять из аусов
+            my %nick =
+                map { ($_->{id} => $_->{nick}) }
+                sqlSrch(ausweis => id => [map { $_->{recid} } @preedit]);
+            $_->{nick} = $nick{ $_->{recid} } foreach @preedit;
+        }
     };
     
+    # аусы, ожидающие добавление или перенос в нашу команду:
+    # тут действуем по изменению поля cmdid, указанного в preedit_field
     my @ausweis_preedit =
-        sort { $a->{nick} cmp $b->{nick} }
-        $f_pre_cmd->(
-            [param => 'cmdid', value => $cmd->{id}],
-            sqlSrch(
-                preedit => 
-                tbl     => 'Ausweis',
-                uid     => (WebMain::auth('user')||{})->{id},
-                modered => 0
-            )
+        map { $_->{preedit} }
+        sqlQueryList(
+            'SELECT `preedit`.* FROM `preedit`, `preedit_field` ' .
+                'WHERE `preedit_field`.`eid`=`preedit`.`id` ' .
+                    'AND `preedit`.`tbl`=\'Ausweis\' ' .
+                    'AND `preedit`.`modered`=0 ' .
+                    'AND `preedit`.`uid`=? ' .
+                    'AND `preedit_field`.`param`=\'cmdid\' ' .
+                    'AND `preedit_field`.`value`=?',
+            (WebMain::auth('user')||{})->{id},
+            $cmd->{id}
         );
+    $prenick->(@ausweis_preedit);
+    
+    # Аусы, прошедшие модерацию, но только для текущего аккаунта (так проще запрашивать)
+    # Но надо бы переделать, чтобы тут отображались все редактируемые аусы, имеющие отношение
+    # к нашей команде
+    # Для этого надо добавить поля cmdid и cmdold(на случай переноса в другую команду),
+    # корректно их заполнять, и запрашивать preedit уже по этим полям
+    my @history_my =
+        sqlSrch(
+            preedit =>
+            tbl     => 'Ausweis',
+            sqlNotEq(modered => 0),
+            uid     => (WebMain::auth('user')||{})->{id},
+            visibled=> 1,
+            sqlGt(dtadd => Clib::DT::fromtime(time()-3600*24*30)),
+            sqlOrder('id'),
+        );
+    $prenick->(@history_my);
     
     my @account_list =
         sqlSrch(user_list => cmdid => $cmd->{id}, sqlOrder('login'));
@@ -184,19 +202,6 @@ sub info :
         $_->{group} = $grp{ $_->{gid} }
             foreach @account_list;
     }
-    
-    my @history_my =
-        $f_pre_cmd->(
-            [param => 'cmdid', sqlOr(value => $cmd->{id}, old => $cmd->{id})],
-            sqlSrch(
-                preedit =>
-                tbl     => 'Ausweis',
-                uid     => (WebMain::auth('user')||{})->{id},
-                sqlNotEq(modered => 0),
-                visibled=> 1,
-                sqlOrder('id'),
-            )
-        );
     
     return
         'command_info',
