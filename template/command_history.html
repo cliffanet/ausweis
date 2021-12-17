@@ -38,7 +38,7 @@
         [% ELSIF h.modered < 0 %]<div style="color: red">Отклонено: [% comment %]</div>
         [% ELSE %]
             <div style="color: yellow"><i>ожидает модерации</i>
-            [% IF h.allow_cancel %](<a href="[% PREF preedit/cancel: h.id %]">отменить</a>)[% END %]
+                (<a href="[% PREF preedit/cancel: h.id %]">отменить</a>)
             </div>[% END %]
     </td>
     <td>

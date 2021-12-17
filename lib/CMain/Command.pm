@@ -228,9 +228,6 @@ sub my :
     return info($cmd);
 }
 
-
-
-=pod
 sub history :
         ParamCodeUInt(\&by_id)
 {
@@ -245,84 +242,64 @@ sub history :
     
     # id затрагиваемых аусвайсов
     my %ausid = 
-        map { ($_->{id} => 1) }
+        map { ($_->{id} => $_) }
         sqlSrch(ausweis => cmdid=>$cmd->{id} );
     
-    # id preedit на создание аусвайса
-    my %eid_create = (
-        map { ($_->{eid}=>1) } 
-        $self->model('PreeditField')->search(
-            { param => 'cmdid', value => $cmd->{id}, 'edit.op' => 'C', 'edit.tbl' => 'Ausweis' },
-            { join => 'edit' }
-        )
-    );
-        
-    my %eid;
+    # Основной список изменений
     my @list;
-    if (%eid_create || %ausid) {
-        push @list,
-            map {
-                $eid{$_->{id}}=$_;
-                $_->{field_list} = [];
-                $_->{allow_cancel} = 1;
-                    #$self->rights_check($::rPreeditCancel, $::rAll) ? 1 : (
-                    #    $self->rights_check($::rPreeditCancel, $::rMy) ?
-                    #        ($_->{uid} == $self->user->{id} ? 1 : 0) : 0
-                    #);
-                $_;
-            }
-            $self->model('Preedit')->search([
-                    %eid_create ? { id => [keys %eid_create] } : (),
-                    %ausid ? { tbl=>'Ausweis', recid=>[keys %ausid] } : ()
-                ], {
-                    prefetch    => ['user', 'ausweis'],
-                    order_by    => 'id'
-                });
+    if (%ausid) {
+        @list = sqlSrch(preedit => tbl=>'Ausweis', recid=>[keys %ausid], sqlOrder('id'));
     }
+    
+    # Изменённые поля
+    my %eid = map { ($_->{id} => ($_->{field_list} = [])) } @list;
     if (%eid) {
-        push( @{ $eid{$_->{eid}}->{field_list} }, $_)
-            foreach 
-                map { $_->{enold} = defined $_->{old}; $_ }
-                $self->model('PreeditField')->search(
-                    { eid => [keys %eid] }, 
-                    { order_by => 'field' }
-                );
+        push( @{ $eid{$_->{eid}} }, $_)
+            foreach
+                sqlSrch(preedit_field => eid => [keys %eid], sqlOrder('param'));
+    }
+    
+    # Пользователи, делавшие изменения
+    my %user = map { ($_->{uid} => 1) } @list;
+    if (%user) {
+        %user =
+            map { ($_->{id} => $_) }
+            sqlSrch(user_list => id => [keys %user]);
+    }
+    
+    # Распределяем поля
+    foreach my $p (@list) {
+        $p->{user} = $user{ $p->{uid} };
+        $p->{ausweis} = $ausid{ $p->{recid} };
     }
     
     return
-        'command_history'
+        'command_history',
         cmd     => $cmd,
         blok    => $blok,
         list    => \@list,
 }
-sub event :
-    ParamObj('cmd', 0)
-    ReturnPatt
-{
-    my ($self, $cmd) = @_;
 
-    $self->view_rcheck('command_info') || return;
-    $cmd || return $self->notfound;
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
-        $self->view_rcheck('command_info_all') || return;
-    }
-    $self->template("command_event");
+
+sub event :
+        ParamCodeUInt(\&by_id)
+{
+    my $cmd = shift();
     
-    my $blok;
-    $blok = $self->model('Blok')->byId($cmd->{blkid}) if $cmd->{blkid};
+    rinfo($cmd) || return 'rdenied';
+    $cmd || return 'notfound';
     
-    my %ev;
-    my @event =
-        $self->model('Event')->search(
-            {},
-            { order_by => '-date', },
-        );
+    my $blok = $cmd->{blkid} ?
+        sqlGet(blok => $cmd->{blkid}) :
+        undef;
+    
+    my @event =  sqlAll(event => '-date');
+    
+    # Распределение мероприятий по годам
     my %year = ();
     my @year;
     my $hidden = 0;
     foreach my $ev (@event) {
-        $ev->{ausweis_list} = [];
-        $ev{$ev->{id}} = $ev;
         my ($year) = ($ev->{date} =~ /^(\d{4})\-/);
         $year ||= '-';
         my $y = $year{$year};
@@ -332,318 +309,343 @@ sub event :
         }
         push @{ $y->{list} }, $ev;
     }
-        
-    push(@{ $ev{ $_->{event}->{evid} }->{ausweis_list} }, $_)
-        foreach
-            $self->model('Ausweis')->search({
-                'event.cmdid' => $cmd->{id}
-            }, {
-                prefetch => [qw/event command/],
-                #order_by => 'nick'
-                order_by => 'event.dtadd'
-            });
+    
+    # Смотрим все аусы, участвовавшие под нашей командой
+    my @evaus =
+        sqlSrch(event_ausweis => cmdid => $cmd->{id}, sqlOrder('dtadd'));
+    my %aus = map { ($_->{ausid} => 1) } @evaus;
+    if (%aus) {
+        %aus =
+            map { ($_->{id} => $_) }
+            sqlSrch(ausweis => id => [keys %aus]);
+    }
+    # Если аус сейчас в другой команде
+    my %cmd =
+        map { $_->{cmdid} != $cmd->{id} ? ($_->{cmdid} => 1) : () }
+        values %aus;
+    if (%cmd) {
+        %cmd =
+            map { ($_->{id} => $_) }
+            sqlSrch(command => id => [keys %cmd]);
+    }
+    $cmd{ $cmd->{id} } = $cmd;
+    
+    # Распределяем аусвайсы по мероприятиям
+    my %ev = map { ($_->{id} => $_) } @event;
+    $_->{ausweis_list} = [] foreach @event;
+    foreach my $eva (@evaus) {
+        my $ev = $ev{ $eva->{evid} } || next;
+        my $aus = $aus{ $eva->{ausid} } || next;
+        $aus->{command} = $cmd{ $aus->{cmdid} };
+        $aus->{event} = $eva;
+        push @{ $ev->{ausweis_list} }, $aus;
+    }
     
     return
-        cmd => $cmd,
-        blok => $blok,
-        event_list => \@event,
-        year_list => \@year,
+        'command_event',
+        cmd         => $cmd,
+        blok        => $blok,
+        event_list  => \@event,
+        year_list   => \@year,
 }
 
 
 sub edit :
-    ParamObj('cmd', 0)
-    ReturnPatt
+        ParamCodeUInt(\&by_id)
 {
-    my ($self, $cmd) = @_;
-
-    $self->view_rcheck('command_edit') || return;
-    $cmd || return $self->notfound;
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
-        $self->view_rcheck('command_edit_all') || return;
-    }
-    $self->view_can_edit() || return;
-    $self->template("command_edit");
+    my $cmd = shift();
     
-    my %form = %$cmd;
-    if ($self->req->params() && (my $fdata = $self->ParamData)) {
-        if (keys %$fdata) {
-            $form{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %form;
-        } else {
-            _utf8_on($form{$_} = $self->req->param($_)) foreach $self->req->params();
-        }
-    }
+    redit($cmd) || return 'rdenied';
+    $cmd || return 'notfound';
+    editable() || return 'readonly';
+    
+    my @blok = sqlAll(blok => 'name');
     
     return
-        cmd => $cmd,
-        form => \%form,
-        ferror => $self->FormError(),
-        blok_list => [ $self->model('Blok')->search({},{order_by=>'name'}) ],
-        ausweis_list_size => $self->model('Ausweis')->count({ cmdid => $cmd->{id} }),
+        'command_edit',
+        cmd         => $cmd,
+        form($cmd),
+        blok_list   => \@blok;
 }
 
 sub file :
-    ParamObj('cmd', 0)
-    ParamRegexp('[a-zA-Z\d\.\-]+')
-    ReturnPatt
+        ParamCodeUInt(\&by_id)
+        ParamRegexp('[a-zA-Z\d\.\-]+')
+        ParamEnd # ссылку будет завершать не имя функции "file", а само имя файла из аргументов
+        ReturnFile
 {
-    my ($self, $cmd, $file) = @_;
-
-    $self->view_rcheck('command_file') || return;
-    $cmd || return $self->notfound;
-    if (!$self->user->{cmdid} || ($self->user->{cmdid} != $cmd->{id})) {
-        $self->view_rcheck('command_file_all') || return;
-    }
-    my $d = $self->d;
-    $self->view_select('File');
+    my $cmd = shift();
     
-    $d->{file} = Func::CachDir('command', $cmd->{id})."/$file";
+    rinfo($cmd) || return 'rdenied';
+    $cmd || return 'notfound';
     
-    if (my $t = $::CommandFile{$file}) {
-        $d->{type} = $t->[0]||'';
-        my $m = Clib::Mould->new();
-        $d->{filename} = $m->Parse(data => $t->[1]||'', pattlist => $cmd, dot2hash => 1);
-    }
+    return ImgFile::CachPath(command => $cmd->{id}, shift());
 }
+
 
 sub adding :
-    ReturnPatt
+        Simple
 {
-    my ($self) = @_;
-
-    $self->view_rcheck('command_edit_all') || return;
-    $self->view_can_edit() || return;
-    $self->template("command_add");
+    rchk('command_edit_all') || return 'rdenied';
+    editable() || return 'readonly';
     
-    # Автозаполнение полей, если данные из формы не приходили
-    my $form =
-        { map { ($_ => '') } qw/name blkid login pass/ };
-    if ($self->req->params()) {
-        # Данные из формы - либо после ParamParse, либо напрямую данные
-        my $fdata = $self->ParamData(fillall => 1);
-        if (keys %$fdata) {
-            $form->{$_} = $fdata->{$_} foreach grep { exists $fdata->{$_} } keys %$form;
-        } else {
-            _utf8_on($form->{$_} = $self->req->param($_)) foreach $self->req->params();
-        }
-    }
+    my @blok = sqlAll(blok => 'name');
     
     return
-        form => $form,
-        ferror => $self->FormError(),
-        blok_list => [ $self->model('Blok')->search({},{order_by=>'name'}) ],
+        'command_add',
+        form(qw/name blkid login pass/),
+        blok_list   => \@blok;
 }
 
-sub _logo {
-    my ($self, $dirUpload, $cmdid) = @_;
+# Загрузка логотипа
+sub _logo_load {
+    my $cmdid = shift();
+    defined($_[0]) || return 1;
     
-    # Загрузка логотипа
-    if (my $file = $self->req->param("photo")) {
-        Func::MakeCachDir('command', $cmdid)
-            || return 900102;
-        my $photo = Func::ImgCopy($self, "$dirUpload/$file", Func::CachDir('command', $cmdid), 'logo')
-            || return 900102;
-        $self->model('Command')->update(
-            { 
-                regen   => (1<<($::regen{logo}-1)),
-                photo   => $photo,
-            },
-            { id => $cmdid }
-        ) || return 000104;
-        unlink("$dirUpload/$file");
-    }
+    my $p = wparam();
+    my $ext = $p->str('photo') =~ /\.([a-zA-Z0-9]{1,5})$/ ? lc($1) : 'jpg';
+    my $fname = ImgFile::Save($_[0], [command => $cmdid], logo => orig => $ext)
+        || return;
     
-    return;
+    sqlUpd(
+        command => $cmdid,
+        regen   => ImgFile::RegenBit('logo'),
+        photo   => $fname
+    ) || return;
+    
+    return 1;
 }
 
 sub add :
-    ReturnOperation
+        ReturnOperation
 {
-    my ($self) = @_;
+    rchk('command_edit_all') || return err => 'rdenied';
+    editable() || return err => 'readonly';
     
-    $self->rcheck('command_edit_all') || return $self->rdenied;
-    $self->d->{read_only} && return $self->cantedit();
-    
-    my $dirUpload = Func::SetTmpDir($self)
-        || return ( error => 900101, pref => 'command/adding' );
-    
+    my $logo;
+    my $p = wparam(file => { photo => \$logo });
     my %err = ();
-    my %new = ();
-    my $q = $self->req;
-    
-    foreach my $p (qw/name login/) {
-        _utf8_on($new{$p} = $q->param_str($p))
-            if defined $q->param($p);
-    }
-    foreach my $p (qw/pass/) {
-        _utf8_on($new{$p} = $q->param($p))
-            if defined $q->param($p);
-    }
-    foreach my $p (qw/blkid/) {
-        $new{$p} = $q->param_int($p)
-            if defined $q->param($p);
-    }
-    
-    my %adm =
-        map { ($_ => delete $new{$_}) }
-        grep { exists $new{$_} }
-        qw/login pass/;
+    my @new = ();
+    my @adm = ();
     
     # Проверка данных
-    if ($new{name}) {
-        if ($self->model('Command')->count({ name => $new{name} })) {
-            $err{name} = 13;
+    if ($p->exists('name')) {
+        my $name = $p->str('name');
+        push @new, name => $name;
+        
+        if ($name eq '') {
+            $err{name} = 'empty';
+        }
+        elsif (sqlSrch(command => name => $name)) {
+            $err{name} = 'cmdexists';
         }
     }
     else {
-        $err{name} = 1;
+        $err{name} = 'nospec';
     }
-    
-    if ($new{blkid}) {
-        if (!$self->model('Blok')->byId($new{blkid})) {
-            $err{blkid} = 11;
+
+    if ((my $blkid = $p->uint('blkid')) != 0) {
+        push @new, blkid => $blkid;
+        if (!sqlGet(blok => $blkid)) {
+            $err{blkid} = 'blkunknown';
         }
     }
     
-    if (exists($adm{login}) && ($adm{login} ne '')) {
-        $adm{gid} = $self->c('command_gid');
-        if ($adm{login} !~ /^[a-zA-Z_0-9\-а-яА-Я]+$/) {
-            $err{login} = 2;
+    if ((my $login = $p->str('login')) ne '') {
+        my $gid = c('command_gid');
+        push @adm,
+            login   => $login,
+            gid     => $gid,
+            rights  => Clib::Rights::GROUP x 128;
+        if ($login !~ /^[a-zA-Z_0-9\-а-яА-Я]+$/) {
+            $err{login} = 'format';
         }
-        elsif ($self->model('UserList')->count({ login => $adm{login} })) {
-            $err{login} = 14;
+        elsif (sqlSrch(user_list => login => $login)) {
+            $err{login} = 'loginused';
         }
-        elsif (!$adm{gid} || !$self->model('UserGroup')->byId($adm{gid})) {
-            $err{login} = 15;
+        elsif (!$gid || !sqlGet(user_group => $gid)) {
+            $err{login} = 'grpfail';
         }
-    }
-    else {
-        %adm = ();
     }
     
-    if (exists($adm{pass})) {
-        if ($adm{pass} eq '') {
-            $err{pass} = 1;
+    if (@adm) {
+        if ($p->exists('pass')) {
+            my $pass = $p->raw('pass');
+            $pass = '' if !defined($pass);
+            push @adm, password => [PASSWORD => $pass];
+        
+            if ($pass eq '') {
+                $err{pass} = 'empty';
+            }
         }
         else {
-            $adm{password} = { PASSWORD => delete $adm{pass} };
+            $err{password} = 'nospec';
         }
     }
     
     # Ошибки заполнения формы
-    my @fpar = (qw/name blkid login pass/);
     if (%err) {
-        return (error => 000101, pref => 'command/adding', fpar => \@fpar, ferr => \%err);
+        return
+            ferr => \%err,
+            pref => 'command/adding';
     }
     
-    # Сохраняем данные
-    $self->model('Command')->create(\%new)
-        || return (error => 000104, pref => 'command/adding', fpar => \@fpar, ferr => {});
-    my $cmdid = $self->model('Command')->insertid();
+    # Сохраняем
+    my $cmdid = sqlAdd(command => @new)
+        || return
+            err  => 'db',
+            ferr => \%err,
+            pref => 'command/adding';
     
     # Создаем аккаунт
-    if (%adm) {
-        $adm{rights} = RIGHT_GROUP x 128;
-        $adm{cmdid} = $cmdid;
-        $self->model('UserList')->create(\%adm)
-            || return (error => 000104, pref => 'command/adding', fpar => \@fpar, ferr => {});
+    if (@adm) {
+        push @adm, cmdid => $cmdid;
+        my $uid = sqlAdd(user_list => @adm)
+            || return
+                err  => 'db',
+                pref => ['command/edit', $cmdid];
     }
     
     # Загрузка логотипа
-    my $err = _logo($self, $dirUpload, $cmdid);
-    return (error => $err, pref => ['command/edit', $cmdid]) if $err;
-    
-    return (ok => 980100, pref => ['command/info', $cmdid]);
+    _logo_load($cmdid, $logo)
+        || return
+            err  => 'imgload',
+            pref => ['command/edit', $cmdid];
+        
+    return
+        ok => 1,
+        pref => ['command/info', $cmdid];
 }
-
 
 sub set :
-    ParamObj('cmd', 0)
-    ReturnOperation
+        ParamCodeUInt(\&by_id)
+        ReturnOperation
 {
-    my ($self, $cmd) = @_;
+    my $cmd = shift();
     
-    $self->rcheck('command_edit') || return $self->rdenied;
-    if (!$self->user->{cmdid} || ($cmd && ($self->user->{cmdid} != $cmd->{id}))) {
-        $self->rcheck('command_edit_all') || return $self->rdenied;
+    redit($cmd) || return err => 'rdenied';
+    $cmd || return err => 'notfound';
+    editable() || return err => 'readonly';
+    
+    my $logo;
+    my $p = wparam(file => { photo => \$logo });
+    my %err = ();
+    my @upd = ();
+    
+    # Проверка данных
+    if ($p->exists('name')) {
+        my $name = $p->str('name');
+        push(@upd, name => $name) if $name ne $cmd->{name};
+        
+        if ($name eq '') {
+            $err{name} = 'empty';
+        }
+        elsif (sqlSrch(command => name => $name, sqlNotEq(id => $cmd->{id}))) {
+            $err{name} = 'cmdexists';
+        }
     }
-    $self->d->{read_only} && return $self->cantedit();
-    $cmd || return $self->nfound();
     
-    my $dirUpload = Func::SetTmpDir($self)
-        || return ( error => 900101, pref => ['command/edit', $cmd->{id}] );
+    if ((my $blkid = $p->uint('blkid')) != 0) {
+        push(@upd, blkid => $blkid) if $blkid ne $cmd->{blkid};
+        if (!sqlGet(blok => $blkid)) {
+            $err{blkid} = 'blkunknown';
+        }
+    }
     
-    # Проверяем данные из формы
-    $self->ParamParse(model => 'Command', utf8 => 1)
-        || return (error => 000101, pref => ['command/edit', $cmd->{id}], upar => $self->ParamData);
+    # Ошибки заполнения формы
+    if (%err) {
+        return
+            ferr => \%err,
+            pref => ['command/edit' => $cmd->{id}];
+    }
     
-    # Сохраняем данные
-    $self->ParamSave( 
-        model       => 'Command', 
-        update      => { id => $cmd->{id} }, 
-        preselect   => $cmd
-    ) || return (error => 000104, pref => ['command/edit', $cmd->{id}], upar => $self->ParamData);
+    # Надо ли, что сохранять
+    if (@upd) {
+        # Сохраняем
+        sqlUpd(command => $cmd->{id}, @upd)
+            || return
+                err  => 'db',
+                ferr => \%err,
+                pref => ['command/edit' => $cmd->{id}];
+    }
+    elsif (!defined($logo)) {
+        return err => 'nochange', pref => ['command/edit' => $cmd->{id}];
+    }
     
     # Загрузка логотипа
-    my $err = _logo($self, $dirUpload, $cmd->{id});
-    return (error => $err, pref => ['command/edit', $cmd->{id}]) if $err;
+    _logo_load($cmd->{id}, $logo)
+        || return
+            err  => 'imgload',
+            pref => ['command/edit', $cmd->{id}];
     
-    # Обновляем blkid у аусвайсов
-    my $fdata = $self->ParamData;
-    if (defined($fdata->{blkid}) && ($fdata->{blkid} != $cmd->{blkid})) {
-        $self->model('Ausweis')->update(
-            { blkid => $fdata->{blkid} },
-            { cmdid => $cmd->{id} }
-        ) || return (error => 000104, pref => ['command/info', $cmd->{id}]);
+
+    # обновляем поле blkid в аусах
+    my %upd = @upd;
+    if (exists $upd{blkid}) {
+        foreach my $aus (sqlSrch(ausweis => cmdid => $cmd->{id})) {
+            sqlUpd(ausweis => $aus->{id}, blkid => $upd{blkid}) || last;
+        }
     }
-    
-    # Статус с редиректом
-    return (ok => 980200, pref => ['command/info', $cmd->{id}]);
+        
+    return
+        ok => 1,
+        pref => ['command/info' => $cmd->{id}];
 }
 
-
 sub logo :
-    ParamObj('cmd', 0)
-    ReturnOperation
+        ParamCodeUInt(\&by_id)
+        ReturnOperation
 {
-    my ($self, $cmd) = @_;
+    my $cmd = shift();
     
-    $self->rcheck('command_logo') || return $self->rdenied;
-    if (!$self->user->{cmdid} || ($cmd && ($self->user->{cmdid} != $cmd->{id}))) {
-        $self->rcheck('command_logo_all') || return $self->rdenied;
+    rchk('command_logo') || return err => 'rdenied';
+    
+    my $user = WebMain::auth('user') || return err => 'rdenied';
+    if (!$user->{cmdid} || ($cmd && ($user->{cmdid} != $cmd->{id}))) {
+        rchk('command_logo_all') || return err => 'rdenied';
     }
-    $cmd || return $self->nfound();
     
-    my $dirUpload = Func::SetTmpDir($self)
-        || return ( error => 900101, pref => ['command/info', $cmd->{id}] );
+    $cmd || return err => 'notfound';
+    
+    my $logo;
+    my $p = wparam(file => { photo => \$logo });
     
     # Загрузка логотипа
-    my $err = _logo($self, $dirUpload, $cmd->{id});
-    return (error => $err, pref => ['command/info', $cmd->{id}]) if $err;
-    
-    # Статус с редиректом
-    return (ok => 980200, pref => ['command/info', $cmd->{id}]);
+    _logo_load($cmd->{id}, $logo)
+        || return
+            err  => 'imgload',
+            pref => ['command/info', $cmd->{id}];
+        
+    return
+        ok => 1,
+        pref => ['command/info' => $cmd->{id}];
 }
 
 sub del :
-    ParamObj('cmd', 0)
-    ReturnOperation
+        ParamCodeUInt(\&by_id)
+        ReturnOperation
 {
-    my ($self, $cmd) = @_;
+    my $cmd = shift();
     
-    $self->rcheck('command_edit_all') || return $self->rdenied;
-    $self->d->{read_only} && return $self->cantedit();
-    $cmd || return $self->nfound();
+    rchk('command_edit_all') || return err => 'rdenied';
+    editable() || return err => 'readonly';
+    $cmd || return err => 'notfound';
     
-    my ($item) = $self->model('Ausweis')->search({ cmdid => $cmd->{id} }, { limit => 1 });
-    return (error => 980301, href => '') if $item;
+    if (sqlSrch(ausweis => cmdid => $cmd->{id}, sqlLimit(1))) {
+        return
+            err  => 'cmdnoempty',
+            pref => '';
+            
+    }
     
-    $self->model('Command')->delete({ id => $cmd->{id} })
-        || return (error => 000104, href => '');
-    
-    # статус с редиректом
-    return (ok => 980300, pref => 'command');
+    sqlDel(command => $cmd->{id})
+        || return
+            err  => 'db',
+            pref => '';
+        
+    return
+        ok => 1,
+        pref => 'command';
 }
-=cut
     
 1;

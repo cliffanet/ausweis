@@ -127,7 +127,7 @@ sub uadd :
             $err{login} = 'format';
         }
         elsif (sqlSrch(user_list => login => $login)) {
-            $err{login} = 'used';
+            $err{login} = 'loginused';
         }
     }
     else {
@@ -292,7 +292,7 @@ sub uset :
             $err{login} = 'format';
         }
         elsif (sqlSrch(user_list => login => $login, sqlNotEq(id => $user->{id}))) {
-            $err{login} = 'used';
+            $err{login} = 'loginused';
         }
     }
     
