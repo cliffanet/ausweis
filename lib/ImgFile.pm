@@ -103,6 +103,18 @@ sub RegenOff {
     );
 }
 
+sub RegenName {
+    my $r = int(shift()||0);
+    my $n = 1;
+    return
+        grep {
+            my $ok = $r & $n;
+            $n = $n << 1;
+            $ok;
+        }
+        @{ c('regen_name') || [] };
+}
+
 ####################################################
 
 1;

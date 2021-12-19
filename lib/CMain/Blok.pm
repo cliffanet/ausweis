@@ -104,10 +104,11 @@ sub info :
     
     return
         'blok_info',
-        blok => $blok,
-        file_logo => $filelogo,
-        file_logo_size => $filesize,
-        cmd_list => \@cmd,
+        blok            => $blok,
+        file_logo       => $filelogo,
+        file_logo_size  => $filesize,
+        regen           => [ImgFile::RegenName($blok->{regen})],
+        cmd_list        => \@cmd,
 }
 
 sub my :

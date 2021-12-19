@@ -213,6 +213,7 @@ sub info :
         cmd             => $cmd,
         file_logo       => $filelogo,
         file_logo_size  => $filesize,
+        regen           => [ImgFile::RegenName($cmd->{regen})],
         blok            => $blok,
         
         ausweis_list    => \@ausweis_list,

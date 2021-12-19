@@ -14,11 +14,11 @@
         <td class="ltitle">Название:</td>
         <td><b><big>[% blok.name %]</big></b></td>
     </tr>
-[% IF rec.regen > 0 %]
+[% IF size(regen) > 0 %]
     <tr>
         <td class="ltitle">Пересборка:</td>
         <td>
-            в процессе: [% rec.regens %]
+            в процессе: [% join(', ', regen) %]
         </td>
     </tr>
 [% END %]
