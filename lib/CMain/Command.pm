@@ -86,7 +86,7 @@ sub _root :
     return
         'command_list',
         srch    => $p->str('srch'),
-        qsrch   => qsrch([qw/srch/], @query),
+        qsrch   => qsrch([qw/srch blkid/], @query),
         blkid   => $blkid,
         blok    => $blok,
         list    => \@list,
@@ -162,31 +162,36 @@ sub info :
         map { $_->{preedit} }
         sqlQueryList(
             'SELECT `preedit`.* FROM `preedit`, `preedit_field` ' .
-                'WHERE `preedit_field`.`eid`=`preedit`.`id` ' .
-                    'AND `preedit`.`tbl`=\'Ausweis\' ' .
-                    'AND `preedit`.`modered`=0 ' .
-                    'AND `preedit`.`uid`=? ' .
-                    'AND `preedit_field`.`param`=\'cmdid\' ' .
-                    'AND `preedit_field`.`value`=?',
+            'WHERE `preedit_field`.`eid`=`preedit`.`id` ' .
+                'AND `preedit`.`tbl`=\'Ausweis\' ' .
+                'AND `preedit`.`modered`=0 ' .
+                'AND `preedit`.`uid`=? ' .
+                'AND `preedit_field`.`param`=\'cmdid\' ' .
+                'AND `preedit_field`.`value`=?',
             (WebMain::auth('user')||{})->{id},
             $cmd->{id}
         );
     $prenick->(@ausweis_preedit);
     
-    # Аусы, прошедшие модерацию, но только для текущего аккаунта (так проще запрашивать)
+    # Аусы, прошедшие модерацию,
     # Но надо бы переделать, чтобы тут отображались все редактируемые аусы, имеющие отношение
     # к нашей команде
     # Для этого надо добавить поля cmdid и cmdold(на случай переноса в другую команду),
     # корректно их заполнять, и запрашивать preedit уже по этим полям
     my @history_my =
-        sqlSrch(
-            preedit =>
-            tbl     => 'Ausweis',
-            sqlNotEq(modered => 0),
-            uid     => (WebMain::auth('user')||{})->{id},
-            visibled=> 1,
-            sqlGt(dtadd => Clib::DT::fromtime(time()-3600*24*30)),
-            sqlOrder('id'),
+        map { $_->{preedit} }
+        sqlQueryList(
+            'SELECT `preedit`.* ' .
+            'FROM `preedit` ' .
+            'LEFT JOIN `preedit_field` ON `preedit_field`.`eid`=`preedit`.`id` AND `preedit_field`.`param`=\'cmdid\' ' .
+            'LEFT JOIN `ausweis` ON `ausweis`.`id`=`preedit`.`recid` ' .
+            'WHERE `preedit`.`tbl`=\'Ausweis\' ' .
+                'AND `preedit`.`modered`!=0 ' .
+                'AND `preedit`.`visibled`=1 ' .
+                'AND `preedit`.`dtadd`>DATE_SUB(NOW(), INTERVAL 30 DAY) ' .
+                'AND (`preedit_field`.`value`=? OR `preedit_field`.`old`=? OR `ausweis`.`cmdid`=?) ' .
+            'ORDER BY `preedit`.`id`',
+            $cmd->{id}, $cmd->{id}, $cmd->{id}
         );
     $prenick->(@history_my);
     
@@ -633,7 +638,7 @@ sub del :
     
     if (sqlSrch(ausweis => cmdid => $cmd->{id}, sqlLimit(1))) {
         return
-            err  => 'cmdnoempty',
+            err  => c(state => 'cmdnoempty'),
             pref => '';
             
     }

@@ -6,7 +6,7 @@
    <table class="tbl">
        <tr>
            <td class="ltitle">По всем полям:</td>
-           <td colspan="2"><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off"></td>
+           <td colspan="2"><input type="text" class="stdin" id="search-txt" name="srch" value="[% srch %]" autocomplete="off" data-search-url="[% PREF ausweis/srch %]" /></td>
        </tr>
     [% IF numidnick %]
         <tr>
@@ -37,7 +37,7 @@
     <div id="search-result">
     [% BLOCK result %]
     [% IF list %]
-    <h3>Результаты ([% count %][% IF countall != count %] из [% countall %][% END %])</h3>
+    <h3>Результаты ([% pager.count %][% IF pager.countall != pager.count %] из [% pager.countall %][% END %])</h3>
     <table class="tbl">
         <tr class="title">
             <td width="70">Номер</td>

@@ -4,11 +4,11 @@
 <h3>Команда</h3>
 <table class="tbl">
     <tr>
-        <td class="ltitle">Название:    [% BLOCK ferr: e=ferror.name %][% IF e %]<div class="form_error">[% e %]</div>[% END %][% END %]</td>
+        <td class="ltitle" style="width:250px">Название:[% INCLUDE ferr, e=ferr.name %]</td>
         <td><input type="text" name="name" class="stdin" value="[% form.name %]" /></td>
     </tr>
     <tr>
-        <td class="ltitle">Блок:        [% BLOCKDUP ferr(ferror.blkid) %]</td>
+        <td class="ltitle">Блок:                        [% INCLUDE ferr, e=ferr.blkid %]</td>
         <td>
             <select name="blkid" class="stdin">
                 <option value="0"> &lt;- без блока -&gt; </option>

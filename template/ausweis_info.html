@@ -16,7 +16,10 @@
     </tr>
     <tr>
         <td class="ltitle">Ник:</td>
-        <td><b><big>[% aus.nick %]</big></b>[% BLOCK preedit: field = preedit_field.nick %][% IF field %]<br /><small><i><u>Модерация:</u> [% field.value %]</i><small>[% END %][% END %]</td>
+        <td>
+            <b><big>[% aus.nick %]</big></b>
+            [% IF prefield.nick %]<br /><small><i><u>Модерация:</u> [% prefield.nick.value %]</i><small>[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Команда:</td>
@@ -32,35 +35,59 @@
     </tr>
     <tr>
         <td class="ltitle">Блокировка:</td>
-        <td>[% IF aus.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %][% BLOCKDUP preedit(preedit_field.blocked) %]</td>
+        <td>
+            [% IF aus.blocked %]<b>ЗАБЛОКИРОВАН</b>[% ELSE %]-[% END %]
+            [% IF prefield.blocked %]<br /><small><i><u>Модерация:</u> [% prefield.blocked.value %]</i><small>[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">ФИО:</td>
-        <td>[% aus.fio %][% BLOCKDUP preedit(preedit_field.fio) %]</td>
+        <td>
+            [% aus.fio %]
+            [% IF prefield.fio %]<br /><small><i><u>Модерация:</u> [% prefield.fio.value %]</i><small>[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Группа крови:</td>
-        <td>[% aus.krov %][% BLOCKDUP preedit(preedit_field.krov) %]</td>
+        <td>
+            [% aus.krov %]
+            [% IF prefield.krov %]<br /><small><i><u>Модерация:</u> [% prefield.krov.value %]</i><small>[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Аллергия:</td>
-        <td>[% aus.allerg %][% BLOCKDUP preedit(preedit_field.allerg) %]</td>
+        <td>
+            [% aus.allerg %]
+            [% IF prefield.allerg %]<br /><small><i><u>Модерация:</u> [% prefield.allerg.value %]</i><small>[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Непереносимость:</td>
-        <td>[% aus.neperenos %][% BLOCKDUP preedit(preedit_field.neperenos) %]</td>
+        <td>
+            [% aus.neperenos %]
+            [% IF prefield.neperenos %]<br /><small><i><u>Модерация:</u> [% prefield.neperenos.value %]</i><small>[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Полис:</td>
-        <td>[% aus.polis %][% BLOCKDUP preedit(preedit_field.polis) %]</td>
+        <td>
+            [% aus.polis %]
+            [% IF prefield.polis %]<br /><small><i><u>Модерация:</u> [% prefield.polis.value %]</i><small>[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Медик:</td>
-        <td>[% aus.medik %][% BLOCKDUP preedit(preedit_field.medik) %]</td>
+        <td>
+            [% aus.medik %]
+            [% IF prefield.medik %]<br /><small><i><u>Модерация:</u> [% prefield.medik.value %]</i><small>[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Примечания:</td>
-        <td>[% aus.comment %][% BLOCKDUP preedit(preedit_field.comment) %]</td>
+        <td>
+            [% aus.comment %]
+            [% IF prefield.comment %]<br /><small><i><u>Модерация:</u> [% prefield.comment.value %]</i><small>[% END %]
+        </td>
     </tr>
     <tr>
         <td class="ltitle">Печать самостоятельная:</td>
@@ -88,11 +115,11 @@
     </tr>
 </table>
 
-[% IF preedit_field.photo %]
+[% IF prefield.photo %]
 <br />
 
 <h3>Фото - Ожидание модерации</h3>
-<img width="200" src="[% preedit_field.photo.href_file %]" />
+<!-- img width="200" src="[% prefield.photo.href_file %]" /-->
 <br />
 
 [% END %]
@@ -106,15 +133,15 @@
         <td width="120">Дата/Время</td>
         <td>Особые отметки</td>
     </tr>
-[% IF size(event_commited) > 0 %]
-[% FOREACH ev = event_commited %]
+[% IF size(event) > 0 %]
+[% FOREACH ev = event %]
     <tr>
-        <td><a title="Просмотр" alt="Просмотр" href="[% event.href_info %]">[% ev.event.name %]</a></td>
-        <td align="right">[% DATETIME ev.event.dtadd %]</td>
+        <td>[% ev.name %]</td>
+        <td align="right">[% DATETIME ev.dtadd %]</td>
         <td>
-        [% IF ev.cmdid != aus.cmdid %]
-        В составе команды: [% ev.command.name %]
-        [% END %]
+            [% IF ev.cmdid != aus.cmdid %]
+            В составе команды: [% ev.command.name %]
+            [% END %]
         </td>
     </tr>
 [% END %]

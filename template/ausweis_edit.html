@@ -4,14 +4,14 @@
 <h3>Аусвайс</h3>
 <table class="tbl">
     <tr>
-        <td class="ltitle">Ник/позывной:[% BLOCK ferr: e=ferror.nick %][% IF e %]<div class="form_error">[% e %]</div>[% END %][% END %]</td>
+        <td class="ltitle">Ник/позывной:                [% INCLUDE ferr, e=ferr.nick %]</td>
         <td>
             <input type="text" name="nick" class="stdin" value="[% form.nick %]" />
             [% BLOCK preedit: field = preedit_field.nick %][% IF field %]<br /><small><i><u>Модерация:</u> [% field.value %]</i><small>[% END %][% END %]
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Команда:     [% BLOCKDUP ferr(ferror.cmdid) %]</td>
+        <td class="ltitle">Команда:                     [% INCLUDE ferr, e=ferr.cmdid %]</td>
         <td>
             <select name="cmdid" class="stdin">
                 <option value="0"> &lt;- выбрать -&gt; </option>
@@ -22,7 +22,7 @@
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Блокировка:  [% BLOCKDUP ferr(ferror.blocked) %]</td>
+        <td class="ltitle">Блокировка:                  [% INCLUDE ferr, e=ferr.blocked %]</td>
         <td>
             <select name="blocked" class="stdin">
                 <option value="0"> нет </option>
@@ -32,49 +32,49 @@
         </td>
     </tr>
     <tr>
-        <td class="ltitle">ФИО:         [% BLOCKDUP ferr(ferror.fio) %]</td>
+        <td class="ltitle">ФИО:                         [% INCLUDE ferr, e=ferr.fio %]</td>
         <td>
             <input type="text" name="fio" class="stdin" value="[% form.fio %]" />
             [% BLOCKDUP preedit(preedit_field.fio) %]
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Группа крови:[% BLOCKDUP ferr(ferror.krov) %]</td>
+        <td class="ltitle">Группа крови:                [% INCLUDE ferr, e=ferr.krov %]</td>
         <td>
             <input type="text" name="krov" class="stdin" value="[% form.krov %]" />
             [% BLOCKDUP preedit(preedit_field.krov) %]
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Аллергия:    [% BLOCKDUP ferr(ferror.allerg) %]</td>
+        <td class="ltitle">Аллергия:                    [% INCLUDE ferr, e=ferr.allerg %]</td>
         <td>
             <input type="text" name="allerg" class="stdin" value="[% form.allerg %]" />
             [% BLOCKDUP preedit(preedit_field.allerg) %]
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Непереносимость:[% BLOCKDUP ferr(ferror.neperenos) %]</td>
+        <td class="ltitle">Непереносимость:             [% INCLUDE ferr, e=ferr.neperenos %]</td>
         <td>
             <input type="text" name="neperenos" class="stdin" value="[% form.neperenos %]" />
             [% BLOCKDUP preedit(preedit_field.neperenos) %]
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Полис:       [% BLOCKDUP ferr(ferror.polis) %]</td>
+        <td class="ltitle">Полис:                       [% INCLUDE ferr, e=ferr.polis %]</td>
         <td>
             <input type="text" name="polis" class="stdin" value="[% form.polis %]" />
             [% BLOCKDUP preedit(preedit_field.polis) %]
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Медик:       [% BLOCKDUP ferr(ferror.medik) %]</td>
+        <td class="ltitle">Медик:                       [% INCLUDE ferr, e=ferr.medik %]</td>
         <td>
             <input type="text" name="medik" class="stdin" value="[% form.medik %]" />
             [% BLOCKDUP preedit(preedit_field.medik) %]
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Комментарии: [% BLOCKDUP ferr(ferror.comment) %]</td>
+        <td class="ltitle">Комментарии:                 [% INCLUDE ferr, e=ferr.comment %]</td>
         <td>
             <input type="text" name="comment" class="stdin" value="[% form.comment %]" />
             [% BLOCKDUP preedit(preedit_field.comment) %]
