@@ -265,9 +265,15 @@ sub init {
         preedit_cancel  => sub { Clib::Rights::exists($_[0],   $num{PreeditCancel}); },
         preedit_cancel_all=>sub{ Clib::Rights::chk($_[0],    $num{PreeditCancel}, $val{All}); },
         
-        event_read      => sub { Clib::Rights::exists($_[0],   $num{Event}); },
-        event_edit      => sub { Clib::Rights::chk($_[0],    $num{Event}, $val{Write}, $val{Advanced}); },
-        event_advanced  => sub { Clib::Rights::chk($_[0],    $num{Event}, $val{Advanced}); },
+        event_list      => sub { Clib::Rights::exists($_[0],    $num{EventLast}) ||
+                                 Clib::Rights::exists($_[0],    $num{EventOpen}) ||
+                                 Clib::Rights::exists($_[0],    $num{EventAll}); },
+        event_info_last => sub { Clib::Rights::exists($_[0],    $num{EventLast}); },
+        event_info_open => sub { Clib::Rights::exists($_[0],    $num{EventOpen}); },
+        event_info_all  => sub { Clib::Rights::exists($_[0],    $num{EventAll}); },
+        event_edit_last => sub { Clib::Rights::chk($_[0],       $num{EventLast}, $val{Write}); },
+        event_edit_open => sub { Clib::Rights::chk($_[0],       $num{EventOpen}, $val{Write}); },
+        event_edit_all  => sub { Clib::Rights::chk($_[0],       $num{EventAll}, $val{Write}); },
     );
 }
 

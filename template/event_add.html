@@ -4,11 +4,11 @@
 <h3>Мероприятие</h3>
 <table class="tbl">
     <tr>
-        <td class="ltitle">Название:    [% INCLUDE form_error_param,  p='name' %]</td>
+        <td class="ltitle">Название:                    [% INCLUDE ferr, e=ferr.name %]</td>
         <td><input type="text" name="name" class="stdin" value="[% form.name %]" /></td>
     </tr>
     <tr>
-        <td class="ltitle">Дата проведения:[% INCLUDE form_error_param,  p='date' %]</td>
+        <td class="ltitle">Дата проведения:             [% INCLUDE ferr, e=ferr.date %]</td>
         <td>
             <input type="text" class="stdin" name="date" id="cal_date" value="[% form.date %]" 
                 onfocus="this.blur()" readonly style="width:160px;" />
@@ -20,11 +20,11 @@
         </td>
     </tr>
     <tr>
-        <td class="ltitle">Цена с участника заранее:[% INCLUDE form_error_param,  p='price1' %]</td>
+        <td class="ltitle">Цена с участника заранее:    [% INCLUDE ferr, e=ferr.price1 %]</td>
         <td><input type="text" name="price1" class="stdin" value="[% form.price1 %]" /></td>
     </tr>
     <tr>
-        <td class="ltitle">Цена с участника на КПП:[% INCLUDE form_error_param,  p='price2' %]</td>
+        <td class="ltitle">Цена с участника на КПП:     [% INCLUDE ferr, e=ferr.price2 %]</td>
         <td><input type="text" name="price2" class="stdin" value="[% form.price2 %]" /></td>
     </tr>
     

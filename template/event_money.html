@@ -19,7 +19,7 @@
     
     <br />
     <h3>Команды</h3>
-    <form action="[% PREF event/money_set: ev.id %]" method="POST">
+    <form action="[% PREF event/moneyset: ev.id %]" method="POST">
     <table class="tbl">
         <tr class="title">
             <td width="250">Название</td>
@@ -36,13 +36,13 @@
                 <input type="hidden" name="cmdid" value="[% cmd.id %]" />
             </td>
             <td align="center">
-                <input type="checkbox" name="allowed.[% cmd.id %]" value="1"[% IF cmd.money.allowed %] checked[% END %] />
+                <input type="checkbox" name="allowed.[% cmd.id %]" value="1"[% IF cmd.money && cmd.money.allowed %] checked[% END %] />
                 <input type="hidden" name="allowed.[% cmd.id %]" value="0" />
             </td>
-            <td><input type="text" name="summ.[% cmd.id %]" value="[% cmd.money.summ %]" style="width:70px" /></td>
+            <td><input type="text" name="summ.[% cmd.id %]" value="[% IF cmd.money %][% cmd.money.summ %][% END %]" style="width:70px" /></td>
             <td><input type="text" name="price1.[% cmd.id %]" value="[% cmd.money.price1 %]" style="width:70px" /></td>
             <td><input type="text" name="price2.[% cmd.id %]" value="[% cmd.money.price2 %]" style="width:70px" /></td>
-            <td><input type="text" name="comment.[% cmd.id %]" value="[% cmd.money.comment %]" style="width:180px" /></td>
+            <td><input type="text" name="comment.[% cmd.id %]" value="[% IF cmd.money %][% cmd.money.comment %][% END %]" style="width:180px" /></td>
         </tr>
     [% END %]
         <tr><td colspan="6" class="submit">
